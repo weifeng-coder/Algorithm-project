@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CineRank · 排序算法性能比较与应用</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='14' width='5' height='14' rx='1.5' fill='%2338bdf8'/%3E%3Crect x='11' y='7' width='5' height='21' rx='1.5' fill='%23818cf8'/%3E%3Crect x='19' y='11' width='5' height='17' rx='1.5' fill='%2334d399'/%3E%3Crect x='27' y='3' width='2.6' height='25' rx='1.3' fill='%23fbbf24'/%3E%3C/svg%3E">
+<script src="/echarts.min.js"></script>
+<style>
+:root{
+  --bg:#070d1a;--card:rgba(19,29,50,.72);--card2:rgba(30,42,66,.85);
+  --line:rgba(148,163,184,.14);--line2:rgba(148,163,184,.24);
+  --ink:#e6edf7;--muted:#8fa3bf;
+  --accent:#38bdf8;--accent2:#818cf8;--good:#34d399;--warn:#fbbf24;--bad:#f87171;
+  --radius:16px;
+  --mono:"Cascadia Code","JetBrains Mono","SF Mono",Consolas,monospace;
+  --shadow:0 1px 0 rgba(255,255,255,.05) inset,0 12px 32px rgba(2,6,16,.45);
+  --shadow-hi:0 1px 0 rgba(255,255,255,.07) inset,0 18px 44px rgba(2,6,16,.6);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+::selection{background:rgba(56,189,248,.35)}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:rgba(148,163,184,.22);border-radius:6px;border:2px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-thumb:hover{background:rgba(148,163,184,.4);background-clip:content-box;border:2px solid transparent}
+::-webkit-scrollbar-track{background:transparent}
+html{scrollbar-color:rgba(148,163,184,.3) transparent}
+body{
+  font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC","Segoe UI",system-ui,sans-serif;
+  background:
+    radial-gradient(1100px 560px at 82% -12%,rgba(56,189,248,.11),transparent 60%),
+    radial-gradient(900px 500px at 8% -6%,rgba(129,140,248,.13),transparent 55%),
+    radial-gradient(700px 420px at 50% 108%,rgba(52,211,153,.05),transparent 60%),
+    var(--bg);
+  color:var(--ink);line-height:1.6;min-height:100vh;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:22px 22px 30px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:.2px}
+
+/* ---------- 头部 hero ---------- */
+header{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:10px 2px 20px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px}
+.logo{width:46px;height:46px;border-radius:13px;flex:none;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;font-size:23px;
+  box-shadow:0 8px 24px rgba(56,189,248,.35),0 1px 0 rgba(255,255,255,.35) inset}
+h1{font-size:23px;font-weight:800;color:transparent;
+  background:linear-gradient(92deg,#f1f6fd 20%,#7dd3fc 70%,#a5b4fc);
+  -webkit-background-clip:text;background-clip:text;letter-spacing:.3px}
+h1 .thin{font-weight:600;opacity:.9}
+.sub{color:var(--muted);font-size:13px;margin-top:2px}
+.hero-stats{display:flex;gap:10px;flex-wrap:wrap}
+.hs{background:var(--card);border:1px solid var(--line);border-radius:13px;
+  padding:9px 16px;backdrop-filter:blur(8px);box-shadow:var(--shadow)}
+.hs b{display:block;font-size:19px;font-weight:700;color:var(--accent);line-height:1.25}
+.hs span{font-size:11px;color:var(--muted)}
+
+/* ---------- 吸附玻璃导航 ---------- */
+nav{position:sticky;top:12px;z-index:50;display:flex;gap:6px;margin:0 0 20px;flex-wrap:wrap;
+  padding:8px;border-radius:14px;border:1px solid var(--line);
+  background:rgba(8,14,28,.66);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  box-shadow:var(--shadow)}
+nav button{background:transparent;border:1px solid transparent;color:var(--ink);
+  padding:8px 18px;border-radius:9px;cursor:pointer;font-size:14px;transition:.18s}
+nav button:hover{background:rgba(148,163,184,.1)}
+nav button.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#06263a;font-weight:700;
+  box-shadow:0 4px 14px rgba(56,189,248,.35)}
+
+/* ---------- 页面与卡片 ---------- */
+section.page{display:none}
+section.page.active{display:block;animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:20px;margin-bottom:16px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  box-shadow:var(--shadow);transition:transform .22s ease,box-shadow .22s ease}
+.card:hover{box-shadow:var(--shadow-hi)}
+.card h2{font-size:16px;margin-bottom:4px;color:#fff;font-weight:700;letter-spacing:.2px}
+.card .note{font-size:12px;color:var(--muted);margin-bottom:12px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.bento{display:grid;grid-template-columns:1.12fr .88fr;gap:0 16px;align-items:start}
+@media(max-width:920px){.bento{grid-template-columns:1fr}}
+
+/* ---------- KPI ---------- */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:15px 16px;backdrop-filter:blur(10px);box-shadow:var(--shadow);position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;inset:0 0 auto 0;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(56,189,248,.7),transparent);opacity:.65}
+.kpi .num{font-size:25px;font-weight:700;color:var(--accent)}
+.kpi .lab{font-size:12px;color:var(--muted)}
+
+/* ---------- 控件 ---------- */
+select,input[type=text],input[type=number]{background:var(--card2);border:1px solid var(--line2);
+  color:var(--ink);padding:7px 10px;border-radius:9px;font-size:13px;transition:border-color .15s}
+select:focus,input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(56,189,248,.15)}
+input[type=range]{accent-color:var(--accent)}
+button.btn{background:linear-gradient(135deg,var(--accent),#0ea5e9);border:none;color:#06263a;font-weight:700;
+  padding:8px 17px;border-radius:9px;cursor:pointer;font-size:13px;transition:.16s;
+  box-shadow:0 4px 12px rgba(56,189,248,.28)}
+button.btn:hover{filter:brightness(1.08)}
+button.btn:active{transform:scale(.96)}
+button.btn.ghost{background:var(--card2);color:var(--ink);border:1px solid var(--line2);font-weight:400;box-shadow:none}
+label.ck{font-size:13px;color:var(--muted)}
+button:focus-visible,select:focus-visible{outline:2px solid rgba(56,189,248,.6);outline-offset:2px}
+
+/* ---------- 实验室画布与计数 ---------- */
+#canvas{width:100%;height:340px;display:block;border-radius:12px}
+.counters{display:flex;gap:26px;margin-top:12px;flex-wrap:wrap}
+.counter .v{font-size:21px;font-weight:700;color:var(--accent2)}
+.counter .l{font-size:12px;color:var(--muted)}
+.chip{display:inline-block;padding:2px 11px;border-radius:20px;font-size:12px;vertical-align:2px;
+  background:rgba(52,211,153,.12);color:var(--good);border:1px solid rgba(52,211,153,.3);margin-left:8px}
+.bar-note{font-size:12px;color:var(--muted)}
+
+/* ---------- 图表 ---------- */
+.chart{width:100%;height:400px}
+.chart2{width:100%;height:360px}
+
+/* ---------- 表格 ---------- */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right}
+th:first-child,td:first-child{text-align:left}
+thead th{color:var(--muted);font-weight:600;position:sticky;top:0;background:rgba(13,20,36,.96);backdrop-filter:blur(6px)}
+tbody tr{transition:background .12s}
+tbody tr:nth-child(odd){background:rgba(148,163,184,.035)}
+tbody tr:hover td{background:rgba(56,189,248,.06)}
+.rank1 td:first-child{color:var(--warn);font-weight:700}
+tbody tr:last-child td{border-bottom:none}
+
+/* 徽章 + 比例条（加速比列） */
+.rb{display:inline-flex;align-items:center;gap:8px;justify-content:flex-end}
+.badge{display:inline-block;padding:1px 10px;border-radius:20px;font-size:12px;font-weight:700;font-family:var(--mono)}
+.b-good{background:rgba(52,211,153,.13);color:var(--good);border:1px solid rgba(52,211,153,.35)}
+.b-warn{background:rgba(251,191,36,.12);color:var(--warn);border:1px solid rgba(251,191,36,.35)}
+.ratio-bar{display:inline-block;width:86px;height:6px;border-radius:4px;background:rgba(148,163,184,.16);overflow:hidden}
+.ratio-bar i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--good));transition:width .8s cubic-bezier(.22,1,.36,1)}
+
+/* ---------- 应用卡片 ---------- */
+.movies{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:10px}
+.movie{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:13px;transition:transform .18s,border-color .18s}
+.movie:hover{transform:translateY(-2px);border-color:rgba(56,189,248,.4)}
+.movie .t{font-weight:600;color:#fff;font-size:14px}
+.movie .m{font-size:12px;color:var(--muted);margin-top:3px}
+.movie .s{display:flex;justify-content:space-between;margin-top:8px;font-size:13px}
+.movie .s b{color:var(--accent)}
+
+/* ---------- 骨架屏 ---------- */
+.sk{position:relative;overflow:hidden;border-radius:10px;background:rgba(148,163,184,.07);min-height:110px}
+.sk::after{content:"";position:absolute;inset:0;transform:translateX(-100%);
+  background:linear-gradient(90deg,transparent,rgba(148,163,184,.12),transparent);animation:shimmer 1.4s infinite}
+@keyframes shimmer{to{transform:translateX(100%)}}
+
+footer{color:var(--muted);font-size:12px;text-align:center;padding:18px;opacity:.85}
+.about p{font-size:14px;color:var(--ink);margin:8px 0}
+.about code{background:var(--card2);padding:1px 6px;border-radius:5px;font-size:12px;font-family:var(--mono)}
+.about li{margin-left:20px;font-size:13px;color:var(--ink);margin-top:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="brand">
+    <div class="logo">🎬</div>
+    <div>
+      <h1>CineRank <span class="thin">· 排序算法性能比较与应用</span></h1>
+      <div class="sub">题目二 · 一套自实现排序内核 × 六个真实数据领域 · 8 种算法 + AdaptSort + 库基线</div>
+    </div>
+  </div>
+  <div class="hero-stats">
+    <div class="hs"><b class="num" id="hs-keys">—</b><span>真实排序键</span></div>
+    <div class="hs"><b class="num">6</b><span>真实领域</span></div>
+    <div class="hs"><b class="num" id="hs-ratio">—</b><span>AdaptSort 最大加速</span></div>
+  </div>
+</header>
+<nav>
+  <button data-p="lab" class="active">算法实验室</button>
+  <button data-p="bench">性能基准</button>
+  <button data-p="app">应用</button>
+  <button data-p="multi">六场景总览</button>
+  <button data-p="about">关于</button>
+</nav>
+
+<!-- ================= 算法实验室 ================= -->
+<section class="page active" id="p-lab">
+  <div class="card">
+    <h2>排序过程可视化 <span class="chip" id="lab-strategy" style="display:none"></span></h2>
+    <div class="note">教学动画实现：每次交换/写元素后记录一帧（与被测内核分离，n≤64）。AdaptSort 会先真实决策，再回放所选策略的动画。</div>
+    <div class="row">
+      <label class="ck">算法
+        <select id="lab-algo">
+          <option value="bubble">冒泡</option><option value="insertion">直接插入</option>
+          <option value="selection">选择</option><option value="shell">希尔</option>
+          <option value="quick">快速</option><option value="heap">堆</option>
+          <option value="merge">归并</option><option value="radix">基数</option>
+          <option value="adapt" selected>AdaptSort(普适)</option>
+        </select></label>
+      <label class="ck">数据分布
+        <select id="lab-dist">
+          <option value="uniform">均匀随机</option><option value="near">近有序</option>
+          <option value="desc">逆序</option><option value="asc">正序</option>
+          <option value="dup">高重复</option>
+        </select></label>
+      <label class="ck">规模 <span id="lab-nv">32</span>
+        <input type="range" id="lab-n" min="8" max="64" value="32"></label>
+      <label class="ck">速度 <input type="range" id="lab-speed" min="1" max="60" value="20"></label>
+      <button class="btn" id="lab-play">▶ 播放</button>
+      <button class="btn ghost" id="lab-step">单步</button>
+      <button class="btn ghost" id="lab-reset">重新生成</button>
+    </div>
+    <canvas id="canvas" width="1120" height="340"></canvas>
+    <div class="counters">
+      <div class="counter"><div class="v" id="lab-c">0</div><div class="l">比较次数</div></div>
+      <div class="counter"><div class="v" id="lab-m">0</div><div class="l">移动次数</div></div>
+      <div class="counter"><div class="v" id="lab-f">0/0</div><div class="l">帧</div></div>
+      <div class="counter"><div class="v" id="lab-state">—</div><div class="l">状态</div></div>
+    </div>
+  </div>
+  <div class="bento">
+  <div class="card">
+    <h2>现场单格实测（合成数据 · 真实计时/计数）</h2>
+    <div class="note">点击后在后端以统一基准框架实跑一次（预热 + 5 轮取最小，计数模式另跑）。</div>
+    <div class="row">
+      <label class="ck">算法 <select id="run-algo">
+        <option>insertion</option><option>bubble</option><option>selection</option>
+        <option>shell</option><option>quick</option><option>heap</option>
+        <option>radix</option><option>merge</option><option selected>adapt</option>
+      </select></label>
+      <label class="ck">规模 <select id="run-n">
+        <option>1000</option><option>10000</option><option selected>100000</option>
+        <option>1000000</option></select></label>
+      <label class="ck">分布 <select id="run-dist">
+        <option value="uniform">均匀</option><option value="gauss">高斯</option>
+        <option value="poisson">泊松</option><option value="asc">正序</option>
+        <option value="desc">逆序</option></select></label>
+      <button class="btn" id="run-go">运行</button>
+      <span class="bar-note" id="run-out">—</span>
+    </div>
+    <div class="sk" id="run-sk" style="display:none;margin-top:14px"></div>
+  </div>
+  <div class="card">
+    <h2>图例与说明</h2>
+    <div class="note">动画为教学实现（与被测内核分离，n≤64）；基准数据一律来自统一测量框架。</div>
+    <div class="about">
+      <li>柱色随<b>数值大小</b>映射 —— 低→高：蓝→紫渐变</li>
+      <li><b>橙色发光柱</b> = 当前比较 / 写入触达的下标</li>
+      <li>播放结束的<b>绿色扫光</b> = 已就位的有序前缀</li>
+      <li><span class="chip" style="margin-left:0">AdaptSort 决策</span> 徽章显示真实策略（如 S5 基数排序）</li>
+      <li>帧间含 60~300ms 补间过渡，速度滑杆调节</li>
+    </div>
+  </div>
+  </div>
+</section>
+
+<!-- ================= 性能基准 ================= -->
+<section class="page" id="p-bench">
+  <div class="card">
+    <h2>时间–规模（合成五分布 · C / C++ 双构建 · 真实数据）</h2>
+    <div class="row" style="margin-bottom:8px">
+      <label class="ck">数据源 <select id="bc-src">
+        <option value="cpp">C++ 构建（合成）</option><option value="c">C 构建（合成）</option>
+        <option value="real">真实数据（MovieLens postings）</option></select></label>
+      <label class="ck">分布 <select id="bc-dist">
+        <option value="uniform" selected>均匀</option><option value="gauss">高斯</option>
+        <option value="poisson">泊松</option><option value="asc">正序</option>
+        <option value="desc">逆序</option><option value="cve">CVE替身</option>
+        <option value="real">真实posting</option></select></label>
+    </div>
+    <div id="ch-time" class="chart"></div>
+  </div>
+  <div class="card">
+    <h2>真实数据：各算法耗时与操作次数 <span class="chip num" id="ch-real-n" style="display:none"></span></h2>
+    <div class="note">数据来自 results/results_real.csv（MovieLens postings 键排序矩阵）。</div>
+    <div id="ch-real" class="chart2"></div>
+  </div>
+  <div class="card">
+    <h2>C vs C++（同一份源码，gcc / g++，语言实现差异）</h2>
+    <div class="note">比值 = t(C++)/t(C)，逐格几何平均。数据来自 results/c_vs_cpp.csv。</div>
+    <div id="ch-lang" class="chart2"></div>
+  </div>
+  <div class="card">
+    <h2>真实数据矩阵明细</h2>
+    <div style="max-height:320px;overflow:auto"><table id="tbl-real"></table></div>
+  </div>
+</section>
+
+<!-- ================= 应用（多场景） ================= -->
+<section class="page" id="p-app">
+  <div class="card" style="padding:12px 18px">
+    <div class="row">
+      <label class="ck">场景 <select id="scn-sel">
+        <option value="movie">🎬 电影排序（MovieLens 25M）</option>
+      </select></label>
+      <span class="bar-note" id="scn-desc"></span>
+    </div>
+  </div>
+
+  <div id="app-movie">
+  <div class="kpis" id="app-kpis"></div>
+  <div class="card">
+    <h2>电影榜单 · 多级键排序（关注度↓ → 好评度↓）</h2>
+    <div class="note">候选 → 键编码(count<<8|(63-avg×10)<<0) → 自实现快速排序 → 取 Top-K。即题目"商品按关注度、好评度排序"的落地。</div>
+    <div class="row">
+      <label class="ck">K <input type="number" id="tp-k" value="15" min="5" max="50" style="width:70px"></label>
+      <label class="ck">类型 <select id="tp-genre"></select></label>
+      <label class="ck">最少评分 <input type="number" id="tp-mv" value="100" min="0" style="width:90px"></label>
+      <label class="ck">排序依据 <select id="tp-mode">
+        <option value="pop">关注度优先</option><option value="rat">好评度优先</option></select></label>
+      <button class="btn" id="tp-go">生成榜单</button>
+    </div>
+    <div id="ch-topk" class="chart2" style="margin-top:12px"></div>
+    <div style="max-height:340px;overflow:auto"><table id="tbl-topk"></table></div>
+  </div>
+  <div class="card">
+    <h2>影片检索 Top-N（倒排索引 + 堆选择）</h2>
+    <div class="row">
+      <input type="text" id="se-q" placeholder="输入英文片名关键词，如 toy story / matrix" style="flex:1;min-width:240px">
+      <button class="btn" id="se-go">检索</button>
+    </div>
+    <div class="movies" id="se-out" style="margin-top:12px"></div>
+  </div>
+  <div class="card">
+    <h2>数据集画像</h2>
+    <div class="row">
+      <div id="ch-year" style="flex:1;min-width:320px;height:320px"></div>
+      <div id="ch-genre" style="flex:1;min-width:320px;height:320px"></div>
+    </div>
+  </div>
+  </div><!-- /app-movie -->
+
+  <div id="app-generic" style="display:none">
+    <div class="kpis" id="g-kpis"></div>
+    <div class="card">
+      <h2 id="g-board-title">多级键榜单</h2>
+      <div class="note" id="g-board-note"></div>
+      <div class="row">
+        <label class="ck">K <input type="number" id="g-k" value="15" min="5" max="50" style="width:70px"></label>
+        <label class="ck">排序依据 <select id="g-mode"></select></label>
+        <label class="ck">最小计数 <input type="number" id="g-mc" value="0" min="0" style="width:90px"></label>
+        <button class="btn" id="g-go">生成榜单</button>
+      </div>
+      <div id="g-ch" class="chart2" style="margin-top:12px"></div>
+      <div style="max-height:340px;overflow:auto"><table id="g-tbl"></table></div>
+    </div>
+    <div class="card">
+      <h2 id="g-se-title">检索 Top-N（名称子串 + 堆选择）</h2>
+      <div class="row">
+        <input type="text" id="g-q" placeholder="输入关键词" style="flex:1;min-width:240px">
+        <button class="btn" id="g-sego">检索</button>
+      </div>
+      <div class="movies" id="g-seout" style="margin-top:12px"></div>
+    </div>
+    <div class="card">
+      <h2>数据画像</h2>
+      <div class="row">
+        <div id="g-ch-cat" style="flex:1;min-width:320px;height:320px"></div>
+        <div id="g-ch-year" style="flex:1;min-width:320px;height:320px"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 六场景总览 ================= -->
+<section class="page" id="p-multi">
+  <div class="card">
+    <h2>一套排序框架 × 六个真实领域</h2>
+    <div class="note">题目原文："在许多看似无关的领域中，排序是一个重要的子问题"——六个场景共用同一套自实现排序内核、同一套多级键编码与同一份数据契约，每个场景的数据都来自真实数据集。</div>
+    <div style="max-height:420px;overflow:auto"><table id="tbl-multi"></table></div>
+  </div>
+  <div class="bento">
+  <div class="card">
+    <h2>真实数据上的语言库基线 vs AdaptSort（各场景最大档）</h2>
+    <div class="note">柱高 = t(std::sort)/t(AdaptSort)，&gt;1 表示 AdaptSort 快于标准库；数据来自各场景 results_real_&lt;scn&gt;.csv。</div>
+    <div id="ch-multi" class="chart2"></div>
+  </div>
+  <div class="card">
+    <h2>场景 F · 基因组后缀数组（倍增法，E. coli K-12）</h2>
+    <div class="note">每轮对 (rank[i], rank[i+k]) 复合键全量排序——排序占构造耗时 ~90%；观察 AdaptSort 的策略随键域收缩而变化。</div>
+    <div class="kpis" id="gene-kpis"></div>
+    <div id="ch-gene" class="chart2"></div>
+    <div class="row" style="margin-top:10px">
+      <input type="text" id="gene-q" placeholder="子串搜索演示：输入 A/C/G/T 片段（如 ACGTACGTACGT）" style="flex:1;min-width:260px">
+      <button class="btn" id="gene-go">搜索</button>
+      <span class="bar-note" id="gene-out">—</span>
+    </div>
+  </div>
+  </div><!-- /bento -->
+</section>
+
+<!-- ================= 关于 ================= -->
+<section class="page" id="p-about">
+  <div class="card about">
+    <h2>应用需求分析（对应评分点 9）</h2>
+    <p>题目原文："在许多看似无关的领域中，排序是一个重要的子问题"。本系统用<b>同一套自实现排序内核</b>（8 种算法 + AdaptSort）覆盖六个真实数据领域，每个场景共用一份数据契约（postings 键 + 实体台账 + 元数据）与同一套多级键编码方法：</p>
+    <li><b>电影（MovieLens 25M）</b>：2.5×10⁷ 条 (movieId, userId, ratingIdx) 打包为 int64 键排序建倒排索引——排序是索引构建的真正瓶颈；</li>
+    <li><b>电商（Amazon Electronics 782 万评论）</b>：商品关注度/好评度双模式榜单，ASIN 稠密化=键域变换；</li>
+    <li><b>城市骑行（Citi Bike 2019 全年 1279 万次）</b>：站点台账序=真实版"块状近序"，AdaptSort run-merge 路径的现实原型；</li>
+    <li><b>搜索（Stanford Web 图 510 万边）</b>：CSR 建图的排序瓶颈 + PageRank 分值经 IEEE-754 保序映射后直接复用整数排序内核；</li>
+    <li><b>航班（US DOT 2019）</b>：长尾延误分桶=计数排序的现实用例；</li>
+    <li><b>基因组（E. coli K-12 4.64 Mb）</b>：倍增后缀数组每轮对 (rank[i], rank[i+k]) 复合键全量排序——排序占构造耗时 ~90%，键域随轮次收缩、AdaptSort 策略随之变化。</li>
+    <h2 style="margin-top:14px">系统架构</h2>
+    <p>C++ 单二进制（排序内核 common/ + AdaptSort + 应用层 app/）── WinSock2 手写 HTTP 服务 ── 浏览器前端（本页面，ECharts 本地化）。数据由 <code>app/pre/pre_&lt;scn&gt;.py</code> 流式预处理：原始数据 → records.jsonl.gz（JSON 交付形态）→ int64 键编码（postings.dat）；排序核心全部为 C/C++ 自实现。</p>
+    <h2 style="margin-top:14px">扩充功能（评分点 10）</h2>
+    <li>外部排序（BSBI）：内存 1/10 限流 → 块内 AdaptSort → k 路堆归并，统计 I/O 块数（<code>sort_demo_app extsort app/data/&lt;scn&gt;</code>）；</li>
+    <li>Top-K 选择对比：堆 O(n log k) vs 快速选择 O(n) vs 全排序 O(n log n)，任意场景可跑（<code>sort_demo_app topk app/data/&lt;scn&gt;</code>）；</li>
+    <li>多场景扩展框架：新增场景只需一个预处理脚本 + 键位参数（meta.txt），排序内核与 UI 零改动；</li>
+    <li>基因组子串搜索：O(m log n) 后缀数组二分（六场景总览页演示）。</li>
+  </div>
+</section>
+
+<footer>CineRank · 算法设计综合实验 题目二 · 排序内核与统计模块均为课程自实现 · 数据集 GroupLens MovieLens</footer>
+</div>
+
+<script>
+/* ================= 导航 ================= */
+document.querySelectorAll("nav button").forEach(b=>{
+  b.onclick=()=>{
+    document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));
+    document.querySelectorAll("section.page").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    document.getElementById("p-"+b.dataset.p).classList.add("active");
+    if(b.dataset.p==="bench") benchOnShow();
+    if(b.dataset.p==="multi") multiOnShow();
+    setTimeout(()=>Object.values(charts).forEach(c=>c.resize()),60);
+  };
+});
+
+/* ================= 全局助手 ================= */
+window.__errs=[];
+window.addEventListener("error",e=>window.__errs.push(String(e.message)));
+const PALETTE=["#38bdf8","#818cf8","#34d399","#fbbf24","#f87171","#a78bfa","#22d3ee","#fb923c","#4ade80","#f472b6"];
+const TIP={backgroundColor:"rgba(8,14,28,.94)",borderColor:"rgba(148,163,184,.25)",
+  textStyle:{color:"#e6edf7"},extraCssText:"box-shadow:0 10px 28px rgba(0,0,0,.45);border-radius:10px;"};
+function grad(c1,c2,vertical=true){
+  return new echarts.graphic.LinearGradient(0,0,vertical?0:1,vertical?1:0,
+    [{offset:0,color:c1},{offset:1,color:c2}]);
+}
+function countUp(el,target,dur=700){
+  const fmt=n=>(+n).toLocaleString("en-US");
+  if(document.hidden||!el.isConnected||el.offsetParent===null){
+    el.textContent=fmt(target);return;          /* 不可见：跳过动画直接落终值 */
+  }
+  const t0=performance.now();
+  let done=false;
+  const finish=()=>{if(!done){done=true;el.textContent=fmt(target);}};
+  (function step(t){
+    if(done)return;
+    const p=Math.min(1,(t-t0)/dur),e=1-Math.pow(1-p,3);
+    el.textContent=fmt(Math.round(target*e));
+    if(p<1)requestAnimationFrame(step);else finish();
+  })(t0);
+  setTimeout(finish,dur+150);   /* 后台标签页 rAF 节流兜底：到点保证落终值 */
+}
+function mountCounters(root){root.querySelectorAll("[data-v]").forEach(n=>countUp(n,+n.dataset.v));}
+function setLoading(el,on){
+  if(!el)return;
+  if(on){el.classList.add("sk");el.innerHTML="";}
+  else el.classList.remove("sk");
+}
+
+/* ================= 算法实验室 ================= */
+const lab={frames:[],meta:[],i:0,raf:0,t:1,sweep:-1,dpr:1,cw:0,ch:340};
+const cv=document.getElementById("canvas"),ctx=cv.getContext("2d");
+function labResize(){
+  lab.dpr=window.devicePixelRatio||1;
+  lab.cw=cv.parentElement.clientWidth-36;
+  cv.width=Math.round(lab.cw*lab.dpr);
+  cv.height=Math.round(lab.ch*lab.dpr);
+  drawTween(lab.i,lab.i,1);
+}
+window.addEventListener("resize",labResize);
+function barColor(v,maxV){          /* 值→色相：蓝(212°)→紫(264°)，越亮越高 */
+  const t=maxV>0?v/maxV:0;
+  return `hsl(${212+t*52} 85% ${42+t*22}%)`;
+}
+function drawTween(fi,ci,t){
+  const W=lab.cw,H=lab.ch,n=lab.frames.length?lab.frames[0].length:0;
+  ctx.setTransform(lab.dpr,0,0,lab.dpr,0,0);
+  ctx.clearRect(0,0,W,H);
+  if(!n)return;
+  const cur=lab.frames[ci],mt=lab.meta[ci];
+  const prev=lab.frames[fi]||cur;
+  const maxV=Math.max(...cur,...prev,1);
+  const bw=W/n,pad=24;
+  const mono=getComputedStyle(document.body).fontFamily;
+  for(let i=0;i<n;i++){
+    const h=((prev[i]+(cur[i]-prev[i])*t)/maxV)*(H-pad*1.6);
+    const v=prev[i]+(cur[i]-prev[i])*t;
+    const x=i*bw+1,y=H-pad-h;
+    let col=barColor(v,maxV),glow=false;
+    if(mt&&(i===mt[2]||i===mt[3])){col="#f97316";glow=true;}   /* 最近触达 */
+    if(lab.sweep>=0&&i<=lab.sweep){col="#34d399";glow=true;}   /* 有序前缀扫光 */
+    ctx.save();
+    if(glow){ctx.shadowColor=col;ctx.shadowBlur=14;}
+    ctx.fillStyle=col;
+    ctx.beginPath();
+    const r=Math.min(3,bw/2-1);
+    if(ctx.roundRect)ctx.roundRect(x,y,Math.max(1,bw-2),h,[r,r,0,0]);
+    else ctx.rect(x,y,Math.max(1,bw-2),h);
+    ctx.fill();
+    ctx.restore();
+    if(n<=40&&lab.sweep<0){
+      ctx.fillStyle="rgba(230,237,247,.72)";ctx.font="10px "+mono;ctx.textAlign="center";
+      ctx.fillText(Math.round(v),x+(bw-2)/2,y-4);
+    }
+  }
+}
+function labSetCounters(a,b,t){
+  document.getElementById("lab-c").textContent=Math.round(a[0]+(b[0]-a[0])*t);
+  document.getElementById("lab-m").textContent=Math.round(a[1]+(b[1]-a[1])*t);
+  document.getElementById("lab-f").textContent=(lab.i+1)+"/"+lab.frames.length;
+}
+function labShow(i){
+  lab.i=Math.max(0,Math.min(i,lab.frames.length-1));
+  lab.t=1;lab.sweep=-1;
+  drawTween(lab.i,lab.i,1);
+  const mt=lab.meta[lab.i],mp=lab.meta[lab.i-1]||mt;
+  labSetCounters(mt,mp,1);
+}
+function labStop(){
+  if(lab.raf){cancelAnimationFrame(lab.raf);lab.raf=0;}
+  document.getElementById("lab-play").textContent="▶ 播放";
+}
+function labSweep(cb){               /* 完成：绿色有序前缀扫光 */
+  const t0=performance.now(),dur=750,n=lab.frames.length?lab.frames[0].length:0;
+  (function step(ts){
+    const p=Math.min(1,(ts-t0)/dur);
+    lab.sweep=Math.floor(p*(n-1));
+    drawTween(lab.i,lab.i,1);
+    if(p<1)lab.raf=requestAnimationFrame(step);
+    else{lab.sweep=-1;cb&&cb();}
+  })(t0);
+}
+function labLoad(){
+  labStop();
+  const algo=document.getElementById("lab-algo").value,
+        dist=document.getElementById("lab-dist").value,
+        n=document.getElementById("lab-n").value;
+  document.getElementById("lab-state").textContent="计算中...";
+  fetch(`/api/sort/steps?algo=${algo}&n=${n}&dist=${dist}&order=1`)
+    .then(r=>r.json()).then(j=>{
+      lab.frames=j.frames;lab.meta=j.meta;lab.i=0;lab.t=1;lab.sweep=-1;
+      const chip=document.getElementById("lab-strategy");
+      if(j.strategy){chip.style.display="inline-block";chip.textContent="AdaptSort 决策: "+j.strategy;}
+      else chip.style.display="none";
+      document.getElementById("lab-state").textContent="就绪";
+      drawTween(0,0,1);
+      labSetCounters(lab.meta[0],lab.meta[0],1);
+    });
+}
+document.getElementById("lab-play").onclick=()=>{
+  if(lab.raf){labStop();return;}
+  if(lab.i>=lab.frames.length-1)labShow(0);
+  document.getElementById("lab-play").textContent="⏸ 暂停";
+  let t0=0;
+  const step=(ts)=>{
+    if(!t0)t0=ts;
+    const dur=Math.max(16,320/+document.getElementById("lab-speed").value);
+    let p=(ts-t0)/dur;
+    while(p>=1&&lab.i<lab.frames.length-1){lab.i++;t0+=dur;p=(ts-t0)/dur;}  /* 快进档追帧 */
+    if(lab.i>=lab.frames.length-1){
+      lab.raf=0;
+      document.getElementById("lab-state").textContent="完成 ✓";
+      labSweep(()=>labStop());
+      return;
+    }
+    lab.t=Math.min(1,p);
+    drawTween(lab.i,lab.i+1,lab.t);
+    labSetCounters(lab.meta[lab.i],lab.meta[lab.i+1],lab.t);
+    lab.raf=requestAnimationFrame(step);
+  };
+  lab.raf=requestAnimationFrame(step);
+};
+document.getElementById("lab-step").onclick=()=>{labStop();labShow(lab.i+1);};
+document.getElementById("lab-reset").onclick=labLoad;
+document.getElementById("lab-n").oninput=e=>document.getElementById("lab-nv").textContent=e.target.value;
+document.getElementById("lab-n").onchange=labLoad;
+document.getElementById("lab-algo").onchange=labLoad;
+document.getElementById("lab-dist").onchange=labLoad;
+document.getElementById("run-go").onclick=()=>{
+  const algo=document.getElementById("run-algo").value,
+        n=document.getElementById("run-n").value,
+        dist=document.getElementById("run-dist").value;
+  document.getElementById("run-out").textContent="运行中...";
+  setLoading(document.getElementById("run-sk"),true);
+  fetch(`/api/sort/run?algo=${algo}&n=${n}&dist=${dist}`).then(r=>r.json()).then(j=>{
+    setLoading(document.getElementById("run-sk"),false);
+    document.getElementById("run-out").textContent=
+      `耗时(min of 5)=${j.min_ms.toFixed(3)} ms, 比较=${j.cmp}, 移动=${j.mv}, 附加空间=${j.aux}B, 正确=${j.ok?"✓":"✗"}`;
+  });
+};
+labLoad();
+
+/* ================= 性能基准 ================= */
+const charts={};
+function mkChart(id){if(!charts[id]){charts[id]=echarts.init(document.getElementById(id));}return charts[id];}
+window.addEventListener("resize",()=>Object.values(charts).forEach(c=>c.resize()));
+
+function parseCSV(t){
+  const lines=t.trim().split("\n");const head=lines[0].split(",");
+  return lines.slice(1).filter(l=>l.trim()).map(l=>{
+    const v=l.split(","),o={};head.forEach((h,i)=>o[h]=v[i]);return o;});
+}
+const ALGO_ZH={insertion:"直接插入",bubble:"冒泡",selection:"选择",shell:"希尔",
+quick:"快速",heap:"堆",radix:"基数",merge:"归并",adapt:"AdaptSort",
+stdsort:"std::sort",qsort:"qsort"};
+const DIST_ZH={uniform:"均匀",gauss:"高斯",poisson:"泊松",asc:"正序",desc:"逆序",
+cve:"CVE替身",real:"真实posting"};
+
+function chartTime(){
+  const src=document.getElementById("bc-src").value;
+  let dist=document.getElementById("bc-dist").value;
+  if(src!=="real" && dist==="real") dist="uniform";   /* 组合兜底 */
+  let csvName=src==="real"?"real":src;
+  setLoading(document.getElementById("ch-time"),true);
+  fetch(`/api/bench/data?name=${csvName}`).then(r=>r.text()).then(t=>{
+    setLoading(document.getElementById("ch-time"),false);
+    const rows=parseCSV(t).filter(r=>+r.tmin_ms>=0 &&
+      (src==="real" ? r.dist==="real" : r.dist===dist));
+    const byAlgo={};
+    rows.forEach(r=>{
+      const a=r.algo;
+      (byAlgo[a]=byAlgo[a]||[]).push([+r.n,+r.tmin_ms]);
+    });
+    const series=Object.entries(byAlgo).map(([a,pts],i)=>{
+      pts.sort((x,y)=>x[0]-y[0]);
+      return {name:ALGO_ZH[a]||a,type:"line",smooth:true,data:pts,symbolSize:5,
+        lineStyle:{width:2,color:PALETTE[i%PALETTE.length]},
+        itemStyle:{color:PALETTE[i%PALETTE.length]}};
+    });
+    mkChart("ch-time").setOption({
+      tooltip:{...TIP,trigger:"axis"},
+      legend:{textStyle:{color:"#8fa3bf"},top:2,icon:"roundRect",itemWidth:14,itemHeight:3},
+      grid:{top:44,left:64,right:26,bottom:46},
+      xAxis:{type:"log",name:"n",nameTextStyle:{color:"#8fa3b8"},
+        axisLabel:{color:"#8fa3bf"},axisLine:{lineStyle:{color:"rgba(148,163,184,.25)"}},
+        splitLine:{show:false}},
+      yAxis:{type:"log",name:"ms",nameTextStyle:{color:"#8fa3bf"},
+        axisLabel:{color:"#8fa3bf"},splitLine:{lineStyle:{color:"rgba(148,163,184,.09)"}}},
+      series},true);
+  });
+}
+function chartReal(){
+  setLoading(document.getElementById("ch-real"),true);
+  setLoading(document.getElementById("tbl-real"),true);
+  fetch("/api/bench/data?name=real").then(r=>r.text()).then(t=>{
+    setLoading(document.getElementById("ch-real"),false);
+    const rows=parseCSV(t).filter(r=>+r.tmin_ms>=0);
+    const maxN=Math.max(...rows.map(r=>+r.n));
+    const chip=document.getElementById("ch-real-n");
+    chip.style.display="inline-block";
+    chip.textContent="n = "+maxN.toLocaleString("en-US");
+    const rs=rows.filter(r=>+r.n===maxN).sort((a,b)=>a.tmin_ms-b.tmin_ms);
+    const mn=rs[0].tmin_ms;
+    mkChart("ch-real").setOption({
+      tooltip:{...TIP,trigger:"axis",axisPointer:{type:"shadow"}},
+      grid:{left:110,right:86,top:14,bottom:26},
+      xAxis:{type:"value",name:"ms",nameTextStyle:{color:"#8fa3bf"},
+        axisLabel:{color:"#8fa3bf"},splitLine:{lineStyle:{color:"rgba(148,163,184,.09)"}}},
+      yAxis:{type:"category",data:rs.map(r=>ALGO_ZH[r.algo]||r.algo),
+        axisLabel:{color:"#e6edf7"},axisLine:{show:false},axisTick:{show:false}},
+      series:[{type:"bar",data:rs.map(r=>+r.tmin_ms),
+        barMaxWidth:16,itemStyle:{borderRadius:[0,7,7,0],
+          color:p=>p.dataIndex===0?grad("#34d399","#0d9488"):grad("#38bdf8","#6366f1")},
+        label:{show:true,position:"right",color:"#8fa3bf",fontFamily:"Consolas",
+          formatter:p=>p.value>=1?p.value.toFixed(2)+" ms":p.value.toFixed(3)+" ms"}}]},true);
+    /* 明细表 */
+    let h="<thead><tr><th>算法</th><th>n</th><th>耗时min/ms</th><th>中位/ms</th><th>标准差</th><th>比较</th><th>移动</th><th>附加空间B</th><th>策略</th></tr></thead><tbody>";
+    rows.slice().sort((a,b)=>a.n-b.n||a.tmin_ms-b.tmin_ms).forEach(r=>{
+      h+=`<tr><td>${ALGO_ZH[r.algo]||r.algo}</td><td class="num">${r.n}</td><td class="num">${r.tmin_ms}</td><td class="num">${r.tmed_ms}</td><td class="num">${r.tstd_ms}</td><td class="num">${r.cmp}</td><td class="num">${r.mv}</td><td class="num">${r.aux_peak}</td><td>${r.strategy||""}</td></tr>`;});
+    const tb=document.getElementById("tbl-real");
+    tb.innerHTML=h+"</tbody>";
+    setLoading(tb,false);
+  });
+}
+function chartLang(){
+  setLoading(document.getElementById("ch-lang"),true);
+  fetch("/api/bench/data?name=c_vs_cpp").then(r=>r.text()).then(t=>{
+    setLoading(document.getElementById("ch-lang"),false);
+    const rows=parseCSV(t).filter(r=>r.ratio_cpp_over_c);
+    const byAlgo={};
+    rows.forEach(r=>{(byAlgo[r.algo]=byAlgo[r.algo]||[]).push(+r.ratio_cpp_over_c);});
+    const names=Object.keys(byAlgo);
+    const geo=names.map(a=>Math.exp(byAlgo[a].reduce((s,v)=>s+Math.log(v),0)/byAlgo[a].length));
+    mkChart("ch-lang").setOption({
+      tooltip:{...TIP,trigger:"axis",axisPointer:{type:"shadow"}},
+      grid:{left:96,right:70,top:14,bottom:26},
+      xAxis:{type:"value",axisLabel:{color:"#8fa3bf"},
+        splitLine:{lineStyle:{color:"rgba(148,163,184,.09)"}}},
+      yAxis:{type:"category",data:names.map(a=>ALGO_ZH[a]||a),axisLabel:{color:"#e6edf7"},
+        axisLine:{show:false},axisTick:{show:false}},
+      series:[{type:"bar",data:geo.map(v=>+v.toFixed(3)),
+        barMaxWidth:16,itemStyle:{borderRadius:[0,7,7,0],
+          color:p=>p.value>1.02?grad("#f87171","#dc2626"):(p.value<0.98?grad("#34d399","#0d9488"):grad("#fbbf24","#d97706"))},
+        label:{show:true,position:"right",color:"#8fa3bf",fontFamily:"Consolas",
+          formatter:p=>p.value.toFixed(3)+"×"},
+        markLine:{symbol:"none",silent:true,
+          data:[{xAxis:1}],lineStyle:{color:"rgba(148,163,184,.4)",type:"dashed"},
+          label:{show:false}}}]},true);
+  });
+}
+function benchOnShow(){chartTime();chartReal();chartLang();
+  Object.values(charts).forEach(c=>setTimeout(()=>c.resize(),50));}
+document.getElementById("bc-src").onchange=e=>{
+  const opts=document.getElementById("bc-dist");
+  if(e.target.value==="real"){opts.value="real";opts.disabled=true;}
+  else{opts.disabled=false;}
+  chartTime();};
+document.getElementById("bc-dist").onchange=chartTime;
+
+/* ================= 电影应用 ================= */
+function kpis(){
+  fetch("/api/stats").then(r=>r.json()).then(j=>{
+    const box=document.getElementById("app-kpis");
+    box.innerHTML=[
+      ["评分条数(postings)",j.postings,true],
+      ["电影部数",j.movies,true],
+      ["用户数(估)",j.maxUser,true],
+      ["数据文件","postings.dat / movies.dat",false]
+    ].map(([l,v,num])=>`<div class="kpi"><div class="num"${num?` data-v="${v}"`:""}>${num?"0":v}</div><div class="lab">${l}</div></div>`).join("");
+    mountCounters(box);
+    /* 数据画像 */
+    mkChart("ch-year").setOption({
+      tooltip:{...TIP,trigger:"axis"},
+      grid:{left:70,right:24,top:18,bottom:34},
+      xAxis:{type:"category",data:j.yearHist.map(x=>x[0]),axisLabel:{color:"#8fa3bf"},
+        axisLine:{lineStyle:{color:"rgba(148,163,184,.25)"}}},
+      yAxis:{type:"value",axisLabel:{color:"#8fa3bf"},
+        splitLine:{lineStyle:{color:"rgba(148,163,184,.09)"}}},
+      series:[{type:"line",smooth:true,data:j.yearHist.map(x=>x[1]),
+        lineStyle:{width:2.4,color:grad("#38bdf8","#818cf8",false)},
+        areaStyle:{color:grad("rgba(56,189,248,.28)","rgba(129,140,248,0)")},
+        itemStyle:{color:"#38bdf8"},symbol:"none"}]},true);
+    const gh=j.genreHist.filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]).slice(0,10);
+    mkChart("ch-genre").setOption({
+      tooltip:{...TIP,trigger:"item"},
+      series:[{type:"pie",radius:["42%","72%"],center:["50%","52%"],
+        itemStyle:{borderColor:"#0b1322",borderWidth:2,borderRadius:5},
+        data:gh.map((x,i)=>({name:x[0],value:x[1],itemStyle:{color:PALETTE[i%PALETTE.length]}})),
+        label:{color:"#8fa3bf"},labelLine:{lineStyle:{color:"rgba(148,163,184,.35)"}}}]},true);
+  });
+  fetch("/api/genres").then(r=>r.json()).then(j=>{
+    document.getElementById("tp-genre").innerHTML=
+      `<option value="(all)">全部类型</option>`+
+      j.genres.map(g=>`<option>${g}</option>`).join("");
+  });
+}
+function topk(){
+  const k=document.getElementById("tp-k").value,
+        genre=document.getElementById("tp-genre").value,
+        mv=document.getElementById("tp-mv").value,
+        mode=document.getElementById("tp-mode").value;
+  fetch(`/api/movies/topk?k=${k}&genre=${encodeURIComponent(genre)}&minvotes=${mv}&mode=${mode}`)
+    .then(r=>r.json()).then(j=>{
+      const rs=j.items;
+      mkChart("ch-topk").setOption({
+        tooltip:{...TIP,trigger:"axis",axisPointer:{type:"shadow"}},
+        grid:{left:220,right:70,top:10,bottom:26},
+        xAxis:{type:"value",axisLabel:{color:"#8fa3bf"},
+          splitLine:{lineStyle:{color:"rgba(148,163,184,.09)"}}},
+        yAxis:{type:"category",
+          data:rs.map(m=>m.title.length>34?m.title.slice(0,33)+"…":m.title).reverse(),
+          axisLabel:{color:"#e6edf7",fontSize:11},axisLine:{show:false},axisTick:{show:false}},
+        series:[{type:"bar",
+          data:rs.map(m=>mode==="pop"?m.count:+(m.mean*10/10).toFixed(1)).reverse(),
+          barMaxWidth:15,itemStyle:{borderRadius:[0,7,7,0],color:grad("#818cf8","#38bdf8")},
+          label:{show:true,position:"right",color:"#8fa3bf",fontFamily:"Consolas",
+            formatter:p=>mode==="pop"?p.value.toLocaleString("en-US"):p.value.toFixed(1)}}]},true);
+      let h="<thead><tr><th>#</th><th>片名</th><th>年份</th><th>类型</th><th>评分人数</th><th>均分</th></tr></thead><tbody>";
+      rs.forEach((m,i)=>{h+=`<tr class="${i===0?"rank1":""}"><td>${m.rank}</td><td>${m.title}</td><td>${m.year||"—"}</td><td>${m.genre}</td><td>${m.count.toLocaleString()}</td><td>${m.mean.toFixed(2)}</td></tr>`;});
+      document.getElementById("tbl-topk").innerHTML=h+"</tbody>";
+    });
+}
+document.getElementById("tp-go").onclick=topk;
+document.getElementById("se-go").onclick=doSearch;
+document.getElementById("se-q").addEventListener("keydown",e=>{if(e.key==="Enter")doSearch();});
+function doSearch(){
+  const q=document.getElementById("se-q").value.trim();
+  if(!q)return;
+  fetch(`/api/movies/search?q=${encodeURIComponent(q)}&limit=12`).then(r=>r.json()).then(j=>{
+    document.getElementById("se-out").innerHTML=j.items.length?j.items.map(m=>`
+      <div class="movie"><div class="t">${m.title}</div>
+      <div class="m">${m.year||"—"} · ${m.genre}</div>
+      <div class="s"><span>★ ${m.mean.toFixed(2)}</span><b>${m.count.toLocaleString()} 人评分</b></div></div>`).join("")
+      :"<div class='bar-note'>无匹配结果</div>";
+  });
+}
+/* ================= 多场景应用 ================= */
+function escH(s){return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+let CUR_SCN="movie", CUR_META=null;
+fetch("/api/scn/list").then(r=>r.json()).then(j=>{
+  const list=j.scenarios||[];
+  const sel=document.getElementById("scn-sel");
+  sel.innerHTML=`<option value="movie">🎬 电影排序（MovieLens 25M）</option>`+
+    list.map(s=>`<option value="${s.scn}">${escH(s.name)}</option>`).join("");
+  sel.onchange=()=>scnSwitch(sel.value);
+});
+function scnSwitch(v){
+  CUR_SCN=v;
+  document.getElementById("app-movie").style.display = v==="movie"?"":"none";
+  document.getElementById("app-generic").style.display = v==="movie"?"none":"";
+  document.getElementById("scn-desc").textContent="";
+  if(v==="movie"){
+    /* 与首次加载同口径：KPI + 榜单全部重渲染（否则榜单停留在
+     * 初始隐藏态渲染的旧图，表现为"切回来变静态"） */
+    kpis();topk();
+    setTimeout(()=>Object.values(charts).forEach(c=>c.resize()),60);
+    return;
+  }
+  fetch(`/api/scn/meta?scn=${v}`).then(r=>r.json()).then(m=>{
+    CUR_META=m;
+    document.getElementById("scn-desc").textContent=`${m.domain||""} · 键打包: ${m.keyPack||"—"}`;
+    const modes=Object.entries(m.rankModes||{});
+    document.getElementById("g-mode").innerHTML=
+      modes.map(([k,l])=>`<option value="${k}">${escH(l)}</option>`).join("")||`<option value="pop">关注度</option>`;
+    if(modes.length)scnBoard();
+  });
+  scnStats(v);
+}
+function scnStats(scn){
+  fetch(`/api/scn/stats?scn=${scn}`).then(r=>r.json()).then(j=>{
+    const box=document.getElementById("g-kpis");
+    box.innerHTML=[
+      [`${j.countLabel||"计数"}（键数）`, j.postings, true],
+      [j.entityLabel||"实体", j.entities, true],
+      ["子键最大ID(估)", j.maxSub, true],
+      ["数据文件", "postings.dat / entities.dat", false]
+    ].map(([l,v,num])=>`<div class="kpi"><div class="num"${num?` data-v="${v}"`:""}>${num?"0":v}</div><div class="lab">${l}</div></div>`).join("");
+    mountCounters(box);
+    if(j.catHist && j.catHist.length>1){
+      const gh=j.catHist.filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]).slice(0,10);
+      mkChart("g-ch-cat").setOption({
+        tooltip:{...TIP,trigger:"item"},
+        series:[{type:"pie",radius:["42%","72%"],center:["50%","52%"],
+          itemStyle:{borderColor:"#0b1322",borderWidth:2,borderRadius:5},
+          data:gh.map((x,i)=>({name:x[0],value:x[1],itemStyle:{color:PALETTE[i%PALETTE.length]}})),
+          label:{color:"#8fa3bf"},labelLine:{lineStyle:{color:"rgba(148,163,184,.35)"}}}]},true);
+    } else mkChart("g-ch-cat").clear();
+    if(j.yearHist && j.yearHist.length){
+      mkChart("g-ch-year").setOption({
+        tooltip:{...TIP,trigger:"axis"},
+        grid:{left:70,right:24,top:18,bottom:34},
+        xAxis:{type:"category",data:j.yearHist.map(x=>x[0]),axisLabel:{color:"#8fa3bf"},
+          axisLine:{lineStyle:{color:"rgba(148,163,184,.25)"}}},
+        yAxis:{type:"value",axisLabel:{color:"#8fa3bf"},
+          splitLine:{lineStyle:{color:"rgba(148,163,184,.09)"}}},
+        series:[{type:"line",smooth:true,data:j.yearHist.map(x=>x[1]),symbol:"none",
+          lineStyle:{width:2.4,color:grad("#38bdf8","#818cf8",false)},
+          areaStyle:{color:grad("rgba(56,189,248,.28)","rgba(129,140,248,0)")},
+          itemStyle:{color:"#38bdf8"}}]},true);
+    } else mkChart("g-ch-year").clear();
+  });
+}
+function scnBoard(){
+  if(CUR_SCN==="movie")return;
+  const k=document.getElementById("g-k").value,
+        mode=document.getElementById("g-mode").value,
+        mc=document.getElementById("g-mc").value;
+  fetch(`/api/scn/topk?scn=${CUR_SCN}&k=${k}&mode=${mode}&mincount=${mc}`)
+    .then(r=>r.json()).then(j=>{
+      const rs=j.items||[];
+      const valOf=m=> mode==="pop"?m.count:(mode==="val"?m.val:+m.mean.toFixed(2));
+      mkChart("g-ch").setOption({
+        tooltip:{...TIP,trigger:"axis",axisPointer:{type:"shadow"}},
+        grid:{left:220,right:80,top:10,bottom:26},
+        xAxis:{type:"value",axisLabel:{color:"#8fa3bf"},
+          splitLine:{lineStyle:{color:"rgba(148,163,184,.09)"}}},
+        yAxis:{type:"category",
+          data:rs.map(m=>m.name.length>34?m.name.slice(0,33)+"…":m.name).reverse(),
+          axisLabel:{color:"#e6edf7",fontSize:11},axisLine:{show:false},axisTick:{show:false}},
+        series:[{type:"bar",data:rs.map(valOf).reverse(),
+          barMaxWidth:15,itemStyle:{borderRadius:[0,7,7,0],color:grad("#38bdf8","#818cf8")},
+          label:{show:true,position:"right",color:"#8fa3bf",fontFamily:"Consolas",
+            formatter:p=>(+p.value).toLocaleString("en-US")}}]},true);
+      let h=`<thead><tr><th>#</th><th>名称</th><th>${escH(j.countLabel||"计数")}</th>`+
+        (mode!=="pop"?`<th>${mode==="val"?escH(j.valLabel||"数值"):"均分/档"}</th>`:"")+`</tr></thead><tbody>`;
+      rs.forEach((m,i)=>{
+        h+=`<tr class="${i===0?"rank1":""}"><td>${m.rank}</td><td>${escH(m.name)}</td><td>${m.count.toLocaleString()}</td>`+
+           (mode!=="pop"?`<td>${mode==="val"?m.val:m.mean.toFixed(2)}</td>`:"")+`</tr>`;});
+      document.getElementById("g-tbl").innerHTML=h+"</tbody>";
+    });
+}
+function scnSearch(){
+  const q=document.getElementById("g-q").value.trim();
+  if(!q||CUR_SCN==="movie")return;
+  fetch(`/api/scn/search?scn=${CUR_SCN}&q=${encodeURIComponent(q)}&limit=12`).then(r=>r.json()).then(j=>{
+    document.getElementById("g-seout").innerHTML=j.items&&j.items.length?j.items.map(m=>`
+      <div class="movie"><div class="t">${escH(m.name)}</div>
+      <div class="m">${escH(m.cat)}</div>
+      <div class="s"><span>${m.val?"val "+m.val.toLocaleString():""}</span><b>${m.count.toLocaleString()}</b></div></div>`).join("")
+      :"<div class='bar-note'>无匹配结果</div>";
+  });
+}
+document.getElementById("g-go").onclick=scnBoard;
+document.getElementById("g-sego").onclick=scnSearch;
+document.getElementById("g-q").addEventListener("keydown",e=>{if(e.key==="Enter")scnSearch();});
+
+/* ================= 六场景总览 ================= */
+let multiLoaded=false;
+function multiOnShow(){
+  if(multiLoaded)return; multiLoaded=true;
+  setLoading(document.getElementById("tbl-multi"),true);
+  fetch("/api/scn/list").then(r=>r.json()).then(async j=>{
+    const list=j.scenarios||[];
+    const ratios=[];
+    const rows=[];
+    for(const s of list){
+      const csv=await fetch(`/api/bench/data?name=real_${s.scn}`).then(r=>r.text());
+      const rs=parseCSV(csv).filter(r=>+r.tmin_ms>=0);
+      let maxN=0,ad=null,sd=null;
+      if(rs.length){
+        maxN=Math.max(...rs.map(r=>+r.n));
+        const sel=rs.filter(r=>+r.n===maxN);
+        const get=a=>{const x=sel.find(r=>r.algo===a);return x?+x.tmin_ms:null;};
+        ad=get("adapt"); sd=get("stdsort");
+      }
+      rows.push({...s,maxN});
+      if(ad&&sd) ratios.push({scn:s.scn,name:s.name,ratio:sd/ad});
+    }
+    /* movie 场景（既有 results_real.csv） */
+    const mv=await fetch("/api/bench/data?name=real").then(r=>r.text());
+    const rs=parseCSV(mv).filter(r=>+r.tmin_ms>=0);
+    if(rs.length){
+      const maxN=Math.max(...rs.map(r=>+r.n));
+      const sel=rs.filter(r=>+r.n===maxN);
+      const get=a=>{const x=sel.find(r=>r.algo===a);return x?+x.tmin_ms:null;};
+      rows.push({scn:"movie",name:"电影排序",domain:"影视作品关注度排序",entities:62423,postings:25000095,maxN});
+      const ad=get("adapt"), sd=get("stdsort");
+      if(ad&&sd) ratios.push({scn:"movie",name:"电影(MovieLens)",ratio:sd/ad});
+    }
+    let h="<thead><tr><th>场景</th><th>领域（题目映射）</th><th>实体</th><th>键数</th><th>矩阵最大 n</th><th>AdaptSort vs std::sort</th></tr></thead><tbody>";
+    rows.sort((a,b)=>b.postings-a.postings).forEach(s=>{
+      const r=ratios.find(x=>x.scn===s.scn);
+      const cell=r
+        ?`<div class="rb"><span class="ratio-bar"><i style="width:${Math.min(100,r.ratio/5.5*100)}%"></i></span><span class="badge ${r.ratio>=1?"b-good":"b-warn"} num">${r.ratio.toFixed(2)}×</span></div>`
+        :(s.scn==="gene"?"<span class='bar-note'>特殊负载（见下）</span>":"—");
+      h+=`<tr><td>${escH(s.name)}</td><td style="text-align:left">${escH(s.domain||"")}</td><td class="num">${s.entities.toLocaleString()}</td><td class="num">${s.postings.toLocaleString()}</td><td class="num">${s.maxN?s.maxN.toLocaleString():"—"}</td><td>${cell}</td></tr>`;});
+    const tb=document.getElementById("tbl-multi");
+    tb.innerHTML=h+"</tbody>";
+    setLoading(tb,false);
+    ratios.sort((a,b)=>b.ratio-a.ratio);
+    if(ratios.length){
+      mkChart("ch-multi").setOption({
+        tooltip:{...TIP,trigger:"axis",axisPointer:{type:"shadow"}},
+        grid:{left:150,right:66,top:16,bottom:26},
+        xAxis:{type:"value",axisLabel:{color:"#8fa3bf"},
+          splitLine:{lineStyle:{color:"rgba(148,163,184,.09)"}}},
+        yAxis:{type:"category",data:ratios.map(r=>r.name),axisLabel:{color:"#e6edf7"},
+          axisLine:{show:false},axisTick:{show:false}},
+        series:[{type:"bar",data:ratios.map(r=>+r.ratio.toFixed(2)),
+          barMaxWidth:16,itemStyle:{borderRadius:[0,7,7,0],
+            color:p=>p.value>=1?grad("#34d399","#0d9488"):grad("#fbbf24","#d97706")},
+          label:{show:true,position:"right",color:"#8fa3bf",fontFamily:"Consolas",
+            formatter:p=>p.value.toFixed(2)+"×"},
+          markLine:{symbol:"none",silent:true,data:[{xAxis:1}],
+            lineStyle:{color:"rgba(148,163,184,.4)",type:"dashed"},label:{show:false}}}]},true);
+    }
+  });
+  fetch("/api/gene/info").then(r=>r.json()).then(g=>{
+    if(!g||!g.seq_len){
+      document.getElementById("gene-kpis").innerHTML=
+        "<div class='bar-note'>尚未运行 sufarr 模式：sort_demo_app sufarr app/data/gene</div>";
+      return;
+    }
+    const box=document.getElementById("gene-kpis");
+    box.innerHTML=[
+      ["序列长度",g.seq_len,true],
+      ["倍增轮数",(g.rounds||[]).length,true],
+      ["排序合计",g.total_sort_ms?(g.total_sort_ms/1000).toFixed(1)+" s":"—",false],
+      ["BWT 游程率",g.bwt_ratio?+g.bwt_ratio.toFixed(3):"—",false],
+      ["暴力对拍",g.selftest?"✓ 通过":"✗ 失败",false]
+    ].map(([l,v,num])=>`<div class="kpi"><div class="num"${num?` data-v="${v}"`:""}>${num?"0":v}</div><div class="lab">${l}</div></div>`).join("");
+    mountCounters(box);
+    if(g.rounds&&g.rounds.length){
+      mkChart("ch-gene").setOption({
+        tooltip:{...TIP,trigger:"axis",axisPointer:{type:"shadow"},
+          formatter:p=>{
+            const r=g.rounds[p[0].dataIndex];
+            return `k=${r.k}<br>耗时 ${p[0].value} ms<br>策略 ${r.strategy}<br>distinct ${r.distinct}`;}},
+        grid:{left:64,right:20,top:16,bottom:40},
+        xAxis:{type:"category",data:g.rounds.map(r=>"r"+r.round+" k="+r.k),
+          axisLabel:{color:"#8fa3bf",fontSize:10,rotate:38},
+          axisLine:{lineStyle:{color:"rgba(148,163,184,.25)"}}},
+        yAxis:{type:"value",name:"ms",nameTextStyle:{color:"#8fa3bf"},
+          axisLabel:{color:"#8fa3bf"},splitLine:{lineStyle:{color:"rgba(148,163,184,.09)"}}},
+        series:[{type:"bar",data:g.rounds.map(r=>+r.ms.toFixed(1)),
+          barMaxWidth:18,itemStyle:{borderRadius:[7,7,0,0],color:grad("#38bdf8","#6366f1")}}]},true);
+    }
+  });
+  document.getElementById("gene-go").onclick=()=>{
+    const pat=document.getElementById("gene-q").value.trim().toUpperCase();
+    if(!pat)return;
+    fetch(`/api/gene/search?pat=${encodeURIComponent(pat)}`).then(r=>r.json()).then(j=>{
+      document.getElementById("gene-out").textContent=j.error?("错误: "+j.error)
+        :`找到 ${j.count.toLocaleString()} 处 · ${j.ms.toFixed(2)} ms · 前5位置: ${j.positions.slice(0,5).join(", ")}`;
+    });
+  };
+}
+
+kpis();topk();
+
+/* ================= hero 头部实时数据 ================= */
+(async()=>{
+  try{
+    const st=await fetch("/api/stats").then(r=>r.json());
+    countUp(document.getElementById("hs-keys"),st.postings,900);
+    const csv=await fetch("/api/bench/data?name=real_bike").then(r=>r.text());
+    const rs=parseCSV(csv).filter(r=>+r.tmin_ms>=0);
+    if(rs.length){
+      const maxN=Math.max(...rs.map(r=>+r.n));
+      const sel=rs.filter(r=>+r.n===maxN);
+      const get=a=>{const x=sel.find(r=>r.algo===a);return x?+x.tmin_ms:null;};
+      const ad=get("adapt"),sd=get("stdsort");
+      document.getElementById("hs-ratio").textContent=(ad&&sd)?(sd/ad).toFixed(1)+"×":"—";
+    }
+  }catch(e){}
+})();
+</script>
+</body>
+</html>

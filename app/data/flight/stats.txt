@@ -1,0 +1,8 @@
+dataset = US DOT On-Time Performance 2019（已取得 1,10,11,12 四个月；2-9 月直链持续不可达）
+source = https://transtats.bts.gov/PREZIP/On_Time_Reporting_Carrier_On_Time_Performance_1987_present_2019_{M}.zip
+flights = 2417022  airports = 356  carriers = 17
+postings.dat = 2417022 keys / 18.4MB（自然序=日期序）
+延误档直方图（长尾, 0=提前/准点 ... 9=>600分钟）:
+  0:1490833  1:328646  2:199428  3:142391  4:120782  5:82276  6:27723  7:16909  8:5780  9:2254
+键打包: originDense<<25 | minuteOfYear<<4 | delayIdx；长尾分桶=计数排序场景
+ledger.dat = 航司台账序（逐月司内时间升序拼接）——块状近序第二例

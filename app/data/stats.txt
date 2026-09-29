@@ -1,0 +1,27 @@
+dataset=ml-25m
+postings=25000095
+users=162541
+movies=62423
+movie_id_range=[1,209171]
+key_bits=40
+genres:
+  Drama	15319
+  Comedy	13670
+  Action	7348
+  Documentary	5206
+  (none)	5062
+  Horror	3455
+  Crime	3034
+  Adventure	2493
+  Animation	2089
+  Children	1367
+  Thriller	937
+  Western	560
+  Sci-Fi	510
+  Romance	401
+  Mystery	393
+  Fantasy	343
+  Musical	102
+  War	96
+  Film-Noir	37
+  IMAX	1

@@ -1,0 +1,6 @@
+dataset = Amazon Electronics ratings（https://snap.stanford.edu/data/amazon/productGraph/categoryFiles/ratings_Electronics.csv）
+reviews = 7824482  products = 476002  users = 4201696
+id 压缩: ASIN/userId 字符串 → 稠密 id（字典 4677698 条）
+postings.dat = 7824482 keys / 59.7MB
+键打包: itemDense<<28 | userDense<<4 | ratingIdx（47 位 int64）
+评分档: 0..8（0.5 星步长）；mean 换算 meanScale=0.5 meanOffset=0.5

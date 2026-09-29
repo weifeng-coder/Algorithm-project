@@ -1,0 +1,7 @@
+dataset = E. coli K-12 MG1655（NCBI RefSeq https://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/Escherichia_coli/reference/GCF_000005845.2_ASM584v2/GCF_000005845.2_ASM584v2_genomic.fna.gz）
+header = NC_000913.3 Escherichia coli str. K-12 substr. MG1655, complete genome
+length = 4641652 bases (+1 '$' sentinel = 4641653)
+composition = A:1142742 C:1180091 G:1177437 T:1141382 N:0
+GC 含量 = 50.79%
+排序负载: 倍增法 23 轮 × (rank[i],rank[i+k]) 复合键，排序占构造耗时 ~90%
+运行 sort_demo_app sufarr app/data/gene 生成 sa.dat / rounds.csv / postings.dat

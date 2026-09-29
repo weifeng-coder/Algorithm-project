@@ -1,0 +1,5 @@
+dataset = Citi Bike 2019 年 1-9 月（S3 年度 zip 实际包含的分片）（https://s3.amazonaws.com/tripdata/2019-citibike-tripdata.zip）
+trips = 12787418  stations = 954
+postings.dat = 12787418 keys / 97.6MB（zip 自然序 = 时间序）
+ledger.dat = 台账序（逐月分片内站点升序拼接）——真实版块状近序
+键打包: stationId<<21 | minuteOfYear；站点数小（k≈1e3）→ 计数排序优势场景

@@ -1,0 +1,21 @@
+{
+ "scn": "amazon",
+ "name": "电商商品排序",
+ "domain": "供应链管理/电商 —— 题目原文：商品按照价格、好评度、购买量、关注度排序",
+ "source": "https://snap.stanford.edu/data/amazon/productGraph/categoryFiles/ratings_Electronics.csv",
+ "downloaded": "2026-09-28",
+ "keyPack": "key = itemDense<<28 | userDense<<4 | ratingIdx（47 位；用户实际 4.8M，22 位不够，扩到 24 位）",
+ "attrBits": 4,
+ "subBits": 24,
+ "entityLabel": "商品",
+ "subLabel": "用户",
+ "attrLabel": "评分档(0.5星步长)",
+ "countLabel": "评论数",
+ "valLabel": "—",
+ "meanScale": 0.5,
+ "meanOffset": 0.5,
+ "rankModes": {
+  "pop": "关注度（评论数↓）",
+  "rat": "好评度（均分↓）"
+ }
+}

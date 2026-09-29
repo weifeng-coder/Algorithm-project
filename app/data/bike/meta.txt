@@ -1,0 +1,15 @@
+scn=bike
+name=城市骑行调度
+domain=城市出行/物流调度 —— 排序作为调度系统的关键子问题
+source=https://s3.amazonaws.com/tripdata/2019-citibike-tripdata.zip
+downloaded=2026-09-28
+keyPack=key = stationId<<21 | minuteOfYear（32 位）
+attrBits=0
+subBits=21
+entityLabel=站点
+subLabel=年内心分钟
+attrLabel=
+countLabel=骑行量
+valLabel=—
+rankModes={"pop": "热门站点（骑行量↓）"}
+extra=["ledger"]

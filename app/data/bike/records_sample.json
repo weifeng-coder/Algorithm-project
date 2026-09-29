@@ -1,0 +1,1202 @@
+[
+ {
+  "duration": "527",
+  "start": "2019-10-01 00:00:05.6180",
+  "from": "3746 6 Ave & Broome St",
+  "bike": "41750"
+ },
+ {
+  "duration": "174",
+  "start": "2019-10-01 00:00:15.8750",
+  "from": "3301 Columbus Ave & W 95 St",
+  "bike": "18264"
+ },
+ {
+  "duration": "759",
+  "start": "2019-10-01 00:00:19.8240",
+  "from": "161 LaGuardia Pl & W 3 St",
+  "bike": "25525"
+ },
+ {
+  "duration": "615",
+  "start": "2019-10-01 00:00:21.0680",
+  "from": "254 W 11 St & 6 Ave",
+  "bike": "30186"
+ },
+ {
+  "duration": "761",
+  "start": "2019-10-01 00:00:26.3800",
+  "from": "161 LaGuardia Pl & W 3 St",
+  "bike": "25597"
+ },
+ {
+  "duration": "750",
+  "start": "2019-10-01 00:00:37.9060",
+  "from": "161 LaGuardia Pl & W 3 St",
+  "bike": "21757"
+ },
+ {
+  "duration": "454",
+  "start": "2019-10-01 00:01:18.4480",
+  "from": "525 W 34 St & 11 Ave",
+  "bike": "41079"
+ },
+ {
+  "duration": "416",
+  "start": "2019-10-01 00:01:21.4550",
+  "from": "3616 Steinway St & 28 Ave",
+  "bike": "33413"
+ },
+ {
+  "duration": "118",
+  "start": "2019-10-01 00:02:00.7750",
+  "from": "3306 10 St & 7 Ave",
+  "bike": "38925"
+ },
+ {
+  "duration": "1301",
+  "start": "2019-10-01 00:02:06.3010",
+  "from": "3687 E 33 St & 1 Ave",
+  "bike": "41376"
+ },
+ {
+  "duration": "64",
+  "start": "2019-10-01 00:02:18.1840",
+  "from": "297 E 15 St & 3 Ave",
+  "bike": "31623"
+ },
+ {
+  "duration": "101",
+  "start": "2019-10-01 00:02:33.8140",
+  "from": "3086 Graham Ave & Conselyea St",
+  "bike": "39664"
+ },
+ {
+  "duration": "207",
+  "start": "2019-10-01 00:02:37.7250",
+  "from": "504 1 Ave & E 16 St",
+  "bike": "33309"
+ },
+ {
+  "duration": "464",
+  "start": "2019-10-01 00:02:48.2290",
+  "from": "223 W 13 St & 7 Ave",
+  "bike": "31264"
+ },
+ {
+  "duration": "605",
+  "start": "2019-10-01 00:02:50.7430",
+  "from": "3081 Graham Ave & Grand St",
+  "bike": "41988"
+ },
+ {
+  "duration": "3486",
+  "start": "2019-10-01 00:02:53.9440",
+  "from": "2021 W 45 St & 8 Ave",
+  "bike": "38611"
+ },
+ {
+  "duration": "1314",
+  "start": "2019-10-01 00:02:56.2810",
+  "from": "238 Bank St & Washington St",
+  "bike": "30856"
+ },
+ {
+  "duration": "1364",
+  "start": "2019-10-01 00:02:58.2220",
+  "from": "173 Broadway & W 49 St",
+  "bike": "25637"
+ },
+ {
+  "duration": "241",
+  "start": "2019-10-01 00:03:03.5790",
+  "from": "459 W 20 St & 11 Ave",
+  "bike": "21572"
+ },
+ {
+  "duration": "948",
+  "start": "2019-10-01 00:03:14.9010",
+  "from": "3749 Lexington Ave & E 36 St",
+  "bike": "29102"
+ },
+ {
+  "duration": "1296",
+  "start": "2019-10-01 00:03:25.6110",
+  "from": "331 Pike St & Monroe St",
+  "bike": "41469"
+ },
+ {
+  "duration": "516",
+  "start": "2019-10-01 00:03:39.7930",
+  "from": "490 8 Ave & W 33 St",
+  "bike": "26998"
+ },
+ {
+  "duration": "674",
+  "start": "2019-10-01 00:04:07.5300",
+  "from": "396 Lefferts Pl & Franklin Ave",
+  "bike": "16682"
+ },
+ {
+  "duration": "1068",
+  "start": "2019-10-01 00:04:18.1570",
+  "from": "379 W 31 St & 7 Ave",
+  "bike": "25180"
+ },
+ {
+  "duration": "465",
+  "start": "2019-10-01 00:04:29.0880",
+  "from": "295 Pike St & E Broadway",
+  "bike": "18309"
+ },
+ {
+  "duration": "726",
+  "start": "2019-10-01 00:04:36.2340",
+  "from": "504 1 Ave & E 16 St",
+  "bike": "38986"
+ },
+ {
+  "duration": "307",
+  "start": "2019-10-01 00:04:37.5940",
+  "from": "3314 W 95 St & Broadway",
+  "bike": "41521"
+ },
+ {
+  "duration": "1932",
+  "start": "2019-10-01 00:05:01.4690",
+  "from": "3699 W 50 St & 9 Ave",
+  "bike": "32230"
+ },
+ {
+  "duration": "737",
+  "start": "2019-10-01 00:05:01.6130",
+  "from": "3514 Astoria Park S & Shore Blvd",
+  "bike": "35177"
+ },
+ {
+  "duration": "446",
+  "start": "2019-10-01 00:05:04.0450",
+  "from": "3085 Roebling St & N 4 St",
+  "bike": "41334"
+ },
+ {
+  "duration": "1685",
+  "start": "2019-10-01 00:05:10.0390",
+  "from": "3809 W 55 St & 6 Ave",
+  "bike": "38913"
+ },
+ {
+  "duration": "301",
+  "start": "2019-10-01 00:05:11.8970",
+  "from": "237 E 11 St & 2 Ave",
+  "bike": "26054"
+ },
+ {
+  "duration": "376",
+  "start": "2019-10-01 00:05:15.7180",
+  "from": "239 Willoughby St & Fleet St",
+  "bike": "31973"
+ },
+ {
+  "duration": "183",
+  "start": "2019-10-01 00:05:20.0620",
+  "from": "388 W 26 St & 10 Ave",
+  "bike": "41183"
+ },
+ {
+  "duration": "327",
+  "start": "2019-10-01 00:05:21.1960",
+  "from": "3662 31 Ave & Steinway St",
+  "bike": "26871"
+ },
+ {
+  "duration": "360",
+  "start": "2019-10-01 00:05:26.0920",
+  "from": "239 Willoughby St & Fleet St",
+  "bike": "29933"
+ },
+ {
+  "duration": "541",
+  "start": "2019-10-01 00:05:27.9600",
+  "from": "391 Clark St & Henry St",
+  "bike": "26821"
+ },
+ {
+  "duration": "441",
+  "start": "2019-10-01 00:05:29.3330",
+  "from": "3494 E 115 St & Lexington Ave",
+  "bike": "30176"
+ },
+ {
+  "duration": "547",
+  "start": "2019-10-01 00:05:42.3790",
+  "from": "3764 Bushwick Ave & McKibbin St",
+  "bike": "35387"
+ },
+ {
+  "duration": "322",
+  "start": "2019-10-01 00:05:54.5100",
+  "from": "3145 E 84 St & Park Ave",
+  "bike": "40650"
+ },
+ {
+  "duration": "530",
+  "start": "2019-10-01 00:05:54.5350",
+  "from": "3113 Greenpoint Ave & Manhattan Ave",
+  "bike": "25635"
+ },
+ {
+  "duration": "553",
+  "start": "2019-10-01 00:06:00.9310",
+  "from": "173 Broadway & W 49 St",
+  "bike": "16599"
+ },
+ {
+  "duration": "1326",
+  "start": "2019-10-01 00:06:01.9910",
+  "from": "3461 Murray St & Greenwich St",
+  "bike": "41716"
+ },
+ {
+  "duration": "679",
+  "start": "2019-10-01 00:06:06.0620",
+  "from": "3819 Green St & McGuinness Blvd",
+  "bike": "28699"
+ },
+ {
+  "duration": "382",
+  "start": "2019-10-01 00:06:07.0430",
+  "from": "492 W 33 St & 7 Ave",
+  "bike": "31275"
+ },
+ {
+  "duration": "1632",
+  "start": "2019-10-01 00:06:09.8410",
+  "from": "3723 Cadman Plaza E & Johnson St",
+  "bike": "28047"
+ },
+ {
+  "duration": "496",
+  "start": "2019-10-01 00:06:18.0710",
+  "from": "297 E 15 St & 3 Ave",
+  "bike": "17456"
+ },
+ {
+  "duration": "338",
+  "start": "2019-10-01 00:06:18.3800",
+  "from": "504 1 Ave & E 16 St",
+  "bike": "31214"
+ },
+ {
+  "duration": "376",
+  "start": "2019-10-01 00:06:18.4760",
+  "from": "492 W 33 St & 7 Ave",
+  "bike": "33872"
+ },
+ {
+  "duration": "872",
+  "start": "2019-10-01 00:06:34.6360",
+  "from": "336 Sullivan St & Washington Sq",
+  "bike": "20374"
+ },
+ {
+  "duration": "111",
+  "start": "2019-10-01 00:06:38.5310",
+  "from": "3387 E 106 St & Madison Ave",
+  "bike": "14536"
+ },
+ {
+  "duration": "291",
+  "start": "2019-10-01 00:06:39.0230",
+  "from": "173 Broadway & W 49 St",
+  "bike": "38259"
+ },
+ {
+  "duration": "1572",
+  "start": "2019-10-01 00:06:46.6480",
+  "from": "2003 1 Ave & E 18 St",
+  "bike": "19065"
+ },
+ {
+  "duration": "677",
+  "start": "2019-10-01 00:06:57.9350",
+  "from": "2021 W 45 St & 8 Ave",
+  "bike": "28947"
+ },
+ {
+  "duration": "605",
+  "start": "2019-10-01 00:07:07.3460",
+  "from": "3146 E 81 St & 3 Ave",
+  "bike": "16936"
+ },
+ {
+  "duration": "1555",
+  "start": "2019-10-01 00:07:11.4440",
+  "from": "3699 W 50 St & 9 Ave",
+  "bike": "40713"
+ },
+ {
+  "duration": "900",
+  "start": "2019-10-01 00:07:18.1720",
+  "from": "3378 E 76 St & Park Ave",
+  "bike": "30454"
+ },
+ {
+  "duration": "1676",
+  "start": "2019-10-01 00:07:28.0880",
+  "from": "477 W 41 St & 8 Ave",
+  "bike": "33903"
+ },
+ {
+  "duration": "349",
+  "start": "2019-10-01 00:07:33.9450",
+  "from": "267 Broadway & W 36 St",
+  "bike": "16714"
+ },
+ {
+  "duration": "867",
+  "start": "2019-10-01 00:07:34.1520",
+  "from": "3761 Cedar St & Myrtle Ave",
+  "bike": "29047"
+ },
+ {
+  "duration": "1663",
+  "start": "2019-10-01 00:07:35.9450",
+  "from": "477 W 41 St & 8 Ave",
+  "bike": "38703"
+ },
+ {
+  "duration": "502",
+  "start": "2019-10-01 00:07:43.1690",
+  "from": "3082 Hope St & Union Ave",
+  "bike": "21061"
+ },
+ {
+  "duration": "106",
+  "start": "2019-10-01 00:07:51.3280",
+  "from": "3435 Grand St & Elizabeth St",
+  "bike": "34949"
+ },
+ {
+  "duration": "211",
+  "start": "2019-10-01 00:08:08.9760",
+  "from": "3141 1 Ave & E 68 St",
+  "bike": "39877"
+ },
+ {
+  "duration": "332",
+  "start": "2019-10-01 00:08:13.7310",
+  "from": "364 Lafayette Ave & Classon Ave",
+  "bike": "15029"
+ },
+ {
+  "duration": "1012",
+  "start": "2019-10-01 00:08:13.9020",
+  "from": "331 Pike St & Monroe St",
+  "bike": "41557"
+ },
+ {
+  "duration": "371",
+  "start": "2019-10-01 00:08:22.3740",
+  "from": "3591 21 St & 31 Dr",
+  "bike": "40118"
+ },
+ {
+  "duration": "1054",
+  "start": "2019-10-01 00:08:36.1260",
+  "from": "528 2 Ave & E 31 St",
+  "bike": "38644"
+ },
+ {
+  "duration": "421",
+  "start": "2019-10-01 00:08:40.8480",
+  "from": "3424 E 106 St & Lexington Ave",
+  "bike": "32878"
+ },
+ {
+  "duration": "1627",
+  "start": "2019-10-01 00:08:49.1990",
+  "from": "379 W 31 St & 7 Ave",
+  "bike": "38146"
+ },
+ {
+  "duration": "373",
+  "start": "2019-10-01 00:08:56.5580",
+  "from": "164 E 47 St & 2 Ave",
+  "bike": "26447"
+ },
+ {
+  "duration": "426",
+  "start": "2019-10-01 00:09:03.6790",
+  "from": "467 Dean St & 4 Ave",
+  "bike": "30724"
+ },
+ {
+  "duration": "220",
+  "start": "2019-10-01 00:09:06.5440",
+  "from": "3597 43 St & Broadway",
+  "bike": "30993"
+ },
+ {
+  "duration": "1769",
+  "start": "2019-10-01 00:09:09.7380",
+  "from": "249 Harrison St & Hudson St",
+  "bike": "41426"
+ },
+ {
+  "duration": "205",
+  "start": "2019-10-01 00:09:23.0060",
+  "from": "310 State St & Smith St",
+  "bike": "40942"
+ },
+ {
+  "duration": "302",
+  "start": "2019-10-01 00:09:24.3740",
+  "from": "3244 University Pl & E 8 St",
+  "bike": "25738"
+ },
+ {
+  "duration": "723",
+  "start": "2019-10-01 00:09:35.9170",
+  "from": "127 Barrow St & Hudson St",
+  "bike": "39858"
+ },
+ {
+  "duration": "317",
+  "start": "2019-10-01 00:09:40.3020",
+  "from": "432 E 7 St & Avenue A",
+  "bike": "32805"
+ },
+ {
+  "duration": "250",
+  "start": "2019-10-01 00:09:41.7210",
+  "from": "3175 W 70 St & Amsterdam Ave",
+  "bike": "15363"
+ },
+ {
+  "duration": "478",
+  "start": "2019-10-01 00:09:47.1630",
+  "from": "127 Barrow St & Hudson St",
+  "bike": "15900"
+ },
+ {
+  "duration": "1541",
+  "start": "2019-10-01 00:09:49.2780",
+  "from": "446 W 24 St & 7 Ave",
+  "bike": "40895"
+ },
+ {
+  "duration": "610",
+  "start": "2019-10-01 00:09:49.4210",
+  "from": "285 Broadway & E 14 St",
+  "bike": "17747"
+ },
+ {
+  "duration": "198",
+  "start": "2019-10-01 00:09:50.4990",
+  "from": "3654 31 St & Northern Blvd",
+  "bike": "17154"
+ },
+ {
+  "duration": "1096",
+  "start": "2019-10-01 00:10:06.1700",
+  "from": "389 Broadway & Berry St",
+  "bike": "15333"
+ },
+ {
+  "duration": "697",
+  "start": "2019-10-01 00:10:13.0570",
+  "from": "3641 Broadway & W 25 St",
+  "bike": "18817"
+ },
+ {
+  "duration": "1256",
+  "start": "2019-10-01 00:10:16.2200",
+  "from": "3409 Bergen St & Smith St",
+  "bike": "35330"
+ },
+ {
+  "duration": "568",
+  "start": "2019-10-01 00:10:27.3580",
+  "from": "3467 W Broadway & Spring St",
+  "bike": "18307"
+ },
+ {
+  "duration": "395",
+  "start": "2019-10-01 00:10:29.4290",
+  "from": "3686 Gansevoort St & Hudson St",
+  "bike": "40058"
+ },
+ {
+  "duration": "162",
+  "start": "2019-10-01 00:10:30.6660",
+  "from": "3112 Milton St & Franklin St",
+  "bike": "25312"
+ },
+ {
+  "duration": "125",
+  "start": "2019-10-01 00:10:37.7430",
+  "from": "3402 Court St & State St",
+  "bike": "15595"
+ },
+ {
+  "duration": "821",
+  "start": "2019-10-01 00:10:39.9880",
+  "from": "468 Broadway & W 56 St",
+  "bike": "26824"
+ },
+ {
+  "duration": "246",
+  "start": "2019-10-01 00:10:51.4050",
+  "from": "3383 Cathedral Pkwy & Broadway",
+  "bike": "25652"
+ },
+ {
+  "duration": "87",
+  "start": "2019-10-01 00:11:01.3640",
+  "from": "3745 36 Ave & 31 St",
+  "bike": "28010"
+ },
+ {
+  "duration": "1044",
+  "start": "2019-10-01 00:11:09.7540",
+  "from": "358 Christopher St & Greenwich St",
+  "bike": "32193"
+ },
+ {
+  "duration": "241",
+  "start": "2019-10-01 00:11:12.4730",
+  "from": "3745 36 Ave & 31 St",
+  "bike": "30368"
+ },
+ {
+  "duration": "445",
+  "start": "2019-10-01 00:11:15.1740",
+  "from": "465 Broadway & W 41 St",
+  "bike": "15438"
+ },
+ {
+  "duration": "2422",
+  "start": "2019-10-01 00:11:17.5730",
+  "from": "3060 Willoughby Ave & Tompkins Ave",
+  "bike": "41318"
+ },
+ {
+  "duration": "232",
+  "start": "2019-10-01 00:11:18.7370",
+  "from": "279 Peck Slip & Front St",
+  "bike": "14550"
+ },
+ {
+  "duration": "396",
+  "start": "2019-10-01 00:11:27.8300",
+  "from": "3263 Cooper Square & Astor Pl",
+  "bike": "41810"
+ },
+ {
+  "duration": "636",
+  "start": "2019-10-01 00:11:27.9990",
+  "from": "3707 Lexington Ave & E 26 St",
+  "bike": "34237"
+ },
+ {
+  "duration": "1235",
+  "start": "2019-10-01 00:11:38.0850",
+  "from": "3314 W 95 St & Broadway",
+  "bike": "30977"
+ },
+ {
+  "duration": "518",
+  "start": "2019-10-01 00:11:47.9720",
+  "from": "3069 Lorimer St & Broadway",
+  "bike": "17984"
+ },
+ {
+  "duration": "938",
+  "start": "2019-10-01 00:11:57.6920",
+  "from": "479 9 Ave & W 45 St",
+  "bike": "39299"
+ },
+ {
+  "duration": "1646",
+  "start": "2019-10-01 00:12:08.8220",
+  "from": "508 W 46 St & 11 Ave",
+  "bike": "41676"
+ },
+ {
+  "duration": "878",
+  "start": "2019-10-01 00:12:09.0830",
+  "from": "479 9 Ave & W 45 St",
+  "bike": "41495"
+ },
+ {
+  "duration": "150",
+  "start": "2019-10-01 00:12:29.6910",
+  "from": "454 E 51 St & 1 Ave",
+  "bike": "15352"
+ },
+ {
+  "duration": "341",
+  "start": "2019-10-01 00:12:47.7710",
+  "from": "83 Atlantic Ave & Fort Greene Pl",
+  "bike": "40243"
+ },
+ {
+  "duration": "410",
+  "start": "2019-10-01 00:12:52.6060",
+  "from": "3812 University Pl & E 14 St",
+  "bike": "39580"
+ },
+ {
+  "duration": "102",
+  "start": "2019-10-01 00:12:53.3380",
+  "from": "195 Liberty St & Broadway",
+  "bike": "34377"
+ },
+ {
+  "duration": "1170",
+  "start": "2019-10-01 00:12:58.3070",
+  "from": "3162 W 78 St & Broadway",
+  "bike": "18076"
+ },
+ {
+  "duration": "631",
+  "start": "2019-10-01 00:12:59.5980",
+  "from": "369 Washington Pl & 6 Ave",
+  "bike": "35221"
+ },
+ {
+  "duration": "970",
+  "start": "2019-10-01 00:13:07.6240",
+  "from": "236 St Marks Pl & 2 Ave",
+  "bike": "16405"
+ },
+ {
+  "duration": "1148",
+  "start": "2019-10-01 00:13:11.6400",
+  "from": "3162 W 78 St & Broadway",
+  "bike": "16802"
+ },
+ {
+  "duration": "538",
+  "start": "2019-10-01 00:13:12.2730",
+  "from": "164 E 47 St & 2 Ave",
+  "bike": "17359"
+ },
+ {
+  "duration": "644",
+  "start": "2019-10-01 00:13:35.8190",
+  "from": "3593 31 St & Broadway",
+  "bike": "28868"
+ },
+ {
+  "duration": "74",
+  "start": "2019-10-01 00:13:38.8320",
+  "from": "3366 West End Ave & W 107 St",
+  "bike": "41521"
+ },
+ {
+  "duration": "1081",
+  "start": "2019-10-01 00:13:42.6060",
+  "from": "3693 N 11 St & Kent Ave",
+  "bike": "42004"
+ },
+ {
+  "duration": "793",
+  "start": "2019-10-01 00:13:55.6660",
+  "from": "3127 9 St & 44 Rd",
+  "bike": "16099"
+ },
+ {
+  "duration": "788",
+  "start": "2019-10-01 00:14:01.1950",
+  "from": "3256 Pier 40 - Hudson River Park",
+  "bike": "32513"
+ },
+ {
+  "duration": "1197",
+  "start": "2019-10-01 00:14:07.0460",
+  "from": "3595 35 St & Broadway",
+  "bike": "29190"
+ },
+ {
+  "duration": "811",
+  "start": "2019-10-01 00:14:50.3220",
+  "from": "3129 Queens Plaza North & Crescent St",
+  "bike": "19164"
+ },
+ {
+  "duration": "885",
+  "start": "2019-10-01 00:15:11.2170",
+  "from": "422 W 59 St & 10 Ave",
+  "bike": "33027"
+ },
+ {
+  "duration": "112",
+  "start": "2019-10-01 00:15:19.2660",
+  "from": "3356 Amsterdam Ave & W 66 St",
+  "bike": "18793"
+ },
+ {
+  "duration": "108",
+  "start": "2019-10-01 00:15:21.0210",
+  "from": "503 E 20 St & Park Ave",
+  "bike": "27964"
+ },
+ {
+  "duration": "1482",
+  "start": "2019-10-01 00:15:24.0960",
+  "from": "3733 Avenue C & E 18 St",
+  "bike": "40606"
+ },
+ {
+  "duration": "166",
+  "start": "2019-10-01 00:15:27.7490",
+  "from": "285 Broadway & E 14 St",
+  "bike": "31178"
+ },
+ {
+  "duration": "243",
+  "start": "2019-10-01 00:15:35.1220",
+  "from": "336 Sullivan St & Washington Sq",
+  "bike": "25961"
+ },
+ {
+  "duration": "618",
+  "start": "2019-10-01 00:15:43.1390",
+  "from": "3467 W Broadway & Spring St",
+  "bike": "39643"
+ },
+ {
+  "duration": "394",
+  "start": "2019-10-01 00:15:43.5590",
+  "from": "479 9 Ave & W 45 St",
+  "bike": "31619"
+ },
+ {
+  "duration": "537",
+  "start": "2019-10-01 00:15:53.6040",
+  "from": "3430 Richardson St & N Henry St",
+  "bike": "40811"
+ },
+ {
+  "duration": "527",
+  "start": "2019-10-01 00:15:54.0020",
+  "from": "3383 Cathedral Pkwy & Broadway",
+  "bike": "41521"
+ },
+ {
+  "duration": "273",
+  "start": "2019-10-01 00:16:07.2110",
+  "from": "3810 Central Park West & W 82 St",
+  "bike": "40598"
+ },
+ {
+  "duration": "1048",
+  "start": "2019-10-01 00:16:16.5840",
+  "from": "242 Carlton Ave & Flushing Ave",
+  "bike": "21196"
+ },
+ {
+  "duration": "657",
+  "start": "2019-10-01 00:16:20.7300",
+  "from": "3783 Cliff St & Fulton St",
+  "bike": "39040"
+ },
+ {
+  "duration": "356",
+  "start": "2019-10-01 00:16:21.2810",
+  "from": "355 Bayard St & Baxter St",
+  "bike": "29734"
+ },
+ {
+  "duration": "245",
+  "start": "2019-10-01 00:16:27.7120",
+  "from": "3810 Central Park West & W 82 St",
+  "bike": "39850"
+ },
+ {
+  "duration": "986",
+  "start": "2019-10-01 00:16:28.6460",
+  "from": "3771 McKibbin St & Bogart St",
+  "bike": "34209"
+ },
+ {
+  "duration": "1379",
+  "start": "2019-10-01 00:16:43.0800",
+  "from": "508 W 46 St & 11 Ave",
+  "bike": "41370"
+ },
+ {
+  "duration": "294",
+  "start": "2019-10-01 00:17:10.2740",
+  "from": "3592 Crescent St & Broadway",
+  "bike": "29809"
+ },
+ {
+  "duration": "75",
+  "start": "2019-10-01 00:17:10.6620",
+  "from": "3083 Bushwick Ave & Powers St",
+  "bike": "38045"
+ },
+ {
+  "duration": "277",
+  "start": "2019-10-01 00:17:18.1850",
+  "from": "445 E 10 St & Avenue A",
+  "bike": "21177"
+ },
+ {
+  "duration": "305",
+  "start": "2019-10-01 00:17:20.5390",
+  "from": "3502 Lexington Ave & E 111 St",
+  "bike": "38714"
+ },
+ {
+  "duration": "879",
+  "start": "2019-10-01 00:17:20.5960",
+  "from": "3158 W 63 St & Broadway",
+  "bike": "31204"
+ },
+ {
+  "duration": "258",
+  "start": "2019-10-01 00:17:24.0880",
+  "from": "3494 E 115 St & Lexington Ave",
+  "bike": "39583"
+ },
+ {
+  "duration": "967",
+  "start": "2019-10-01 00:17:34.4130",
+  "from": "539 Metropolitan Ave & Bedford Ave",
+  "bike": "41445"
+ },
+ {
+  "duration": "444",
+  "start": "2019-10-01 00:17:35.9880",
+  "from": "465 Broadway & W 41 St",
+  "bike": "38806"
+ },
+ {
+  "duration": "319",
+  "start": "2019-10-01 00:17:53.7110",
+  "from": "3668 Leonard St & Nassau Ave",
+  "bike": "40213"
+ },
+ {
+  "duration": "163",
+  "start": "2019-10-01 00:18:06.1460",
+  "from": "3718 E 11 St & Avenue B",
+  "bike": "38914"
+ },
+ {
+  "duration": "1437",
+  "start": "2019-10-01 00:18:27.0090",
+  "from": "285 Broadway & E 14 St",
+  "bike": "38711"
+ },
+ {
+  "duration": "864",
+  "start": "2019-10-01 00:18:37.4750",
+  "from": "167 E 39 St & 3 Ave",
+  "bike": "40897"
+ },
+ {
+  "duration": "573",
+  "start": "2019-10-01 00:18:38.0530",
+  "from": "3497 Pleasant Ave & E 116 St",
+  "bike": "41314"
+ },
+ {
+  "duration": "737",
+  "start": "2019-10-01 00:18:44.3120",
+  "from": "151 Cleveland Pl & Spring St",
+  "bike": "27080"
+ },
+ {
+  "duration": "289",
+  "start": "2019-10-01 00:18:45.8810",
+  "from": "336 Sullivan St & Washington Sq",
+  "bike": "19642"
+ },
+ {
+  "duration": "127",
+  "start": "2019-10-01 00:18:49.8900",
+  "from": "3150 E 85 St & York Ave",
+  "bike": "40733"
+ },
+ {
+  "duration": "165",
+  "start": "2019-10-01 00:18:58.9220",
+  "from": "3526 31 St & 23 Ave",
+  "bike": "32561"
+ },
+ {
+  "duration": "224",
+  "start": "2019-10-01 00:19:19.4560",
+  "from": "3092 Berry St & N 8 St",
+  "bike": "33565"
+ },
+ {
+  "duration": "418",
+  "start": "2019-10-01 00:19:41.1100",
+  "from": "3087 Metropolitan Ave & Meeker Ave",
+  "bike": "29911"
+ },
+ {
+  "duration": "360",
+  "start": "2019-10-01 00:19:50.8960",
+  "from": "3551 3 Ave & E 112 St",
+  "bike": "17118"
+ },
+ {
+  "duration": "367",
+  "start": "2019-10-01 00:19:51.7000",
+  "from": "490 8 Ave & W 33 St",
+  "bike": "32769"
+ },
+ {
+  "duration": "434",
+  "start": "2019-10-01 00:19:55.9130",
+  "from": "546 E 30 St & Park Ave S",
+  "bike": "34960"
+ },
+ {
+  "duration": "4307",
+  "start": "2019-10-01 00:19:57.4690",
+  "from": "264 Maiden Ln & Pearl St",
+  "bike": "41377"
+ },
+ {
+  "duration": "467",
+  "start": "2019-10-01 00:20:09.9480",
+  "from": "3168 Central Park West & W 85 St",
+  "bike": "29855"
+ },
+ {
+  "duration": "372",
+  "start": "2019-10-01 00:20:24.6710",
+  "from": "307 Canal St & Rutgers St",
+  "bike": "40511"
+ },
+ {
+  "duration": "578",
+  "start": "2019-10-01 00:20:30.4650",
+  "from": "3160 Central Park West & W 76 St",
+  "bike": "34133"
+ },
+ {
+  "duration": "1715",
+  "start": "2019-10-01 00:20:35.6870",
+  "from": "3095 Graham Ave & Herbert St",
+  "bike": "28406"
+ },
+ {
+  "duration": "160",
+  "start": "2019-10-01 00:20:40.0420",
+  "from": "334 W 20 St & 7 Ave",
+  "bike": "40862"
+ },
+ {
+  "duration": "852",
+  "start": "2019-10-01 00:20:47.8230",
+  "from": "3508 St Nicholas Ave & Manhattan Ave",
+  "bike": "38943"
+ },
+ {
+  "duration": "466",
+  "start": "2019-10-01 00:21:03.1030",
+  "from": "340 Madison St & Clinton St",
+  "bike": "26462"
+ },
+ {
+  "duration": "543",
+  "start": "2019-10-01 00:21:04.7050",
+  "from": "3409 Bergen St & Smith St",
+  "bike": "27750"
+ },
+ {
+  "duration": "576",
+  "start": "2019-10-01 00:21:09.1940",
+  "from": "546 E 30 St & Park Ave S",
+  "bike": "28872"
+ },
+ {
+  "duration": "397",
+  "start": "2019-10-01 00:21:12.4890",
+  "from": "3495 E 114 St & 1 Ave",
+  "bike": "32328"
+ },
+ {
+  "duration": "177",
+  "start": "2019-10-01 00:21:14.6890",
+  "from": "3745 36 Ave & 31 St",
+  "bike": "40483"
+ },
+ {
+  "duration": "312",
+  "start": "2019-10-01 00:21:28.8940",
+  "from": "366 Clinton Ave & Myrtle Ave",
+  "bike": "39319"
+ },
+ {
+  "duration": "297",
+  "start": "2019-10-01 00:21:39.4940",
+  "from": "307 Canal St & Rutgers St",
+  "bike": "35261"
+ },
+ {
+  "duration": "644",
+  "start": "2019-10-01 00:22:00.3870",
+  "from": "3244 University Pl & E 8 St",
+  "bike": "26054"
+ },
+ {
+  "duration": "299",
+  "start": "2019-10-01 00:22:04.0390",
+  "from": "330 Reade St & Broadway",
+  "bike": "21405"
+ },
+ {
+  "duration": "173",
+  "start": "2019-10-01 00:22:24.6340",
+  "from": "3516 31 St & Astoria Blvd",
+  "bike": "30589"
+ },
+ {
+  "duration": "787",
+  "start": "2019-10-01 00:22:27.8740",
+  "from": "3423 West Drive & Prospect Park West",
+  "bike": "17689"
+ },
+ {
+  "duration": "1941",
+  "start": "2019-10-01 00:22:40.3020",
+  "from": "339 Avenue D & E 12 St",
+  "bike": "41981"
+ },
+ {
+  "duration": "889",
+  "start": "2019-10-01 00:22:40.3920",
+  "from": "347 Greenwich St & W Houston St",
+  "bike": "19072"
+ },
+ {
+  "duration": "416",
+  "start": "2019-10-01 00:22:41.6850",
+  "from": "3572 34 Ave & 38 St",
+  "bike": "33351"
+ },
+ {
+  "duration": "859",
+  "start": "2019-10-01 00:22:41.7270",
+  "from": "335 Washington Pl & Broadway",
+  "bike": "30049"
+ },
+ {
+  "duration": "497",
+  "start": "2019-10-01 00:22:44.0820",
+  "from": "3163 Central Park West & W 68 St",
+  "bike": "40999"
+ },
+ {
+  "duration": "357",
+  "start": "2019-10-01 00:22:49.7960",
+  "from": "3141 1 Ave & E 68 St",
+  "bike": "16936"
+ },
+ {
+  "duration": "1405",
+  "start": "2019-10-01 00:23:05.3790",
+  "from": "3734 E 58 St &  1 Ave (NW Corner)",
+  "bike": "35233"
+ },
+ {
+  "duration": "592",
+  "start": "2019-10-01 00:23:17.4020",
+  "from": "3502 Lexington Ave & E 111 St",
+  "bike": "29131"
+ },
+ {
+  "duration": "77",
+  "start": "2019-10-01 00:23:18.7960",
+  "from": "3383 Cathedral Pkwy & Broadway",
+  "bike": "32468"
+ },
+ {
+  "duration": "92",
+  "start": "2019-10-01 00:23:24.6810",
+  "from": "3425 2 Ave & E 104 St",
+  "bike": "17322"
+ },
+ {
+  "duration": "159",
+  "start": "2019-10-01 00:23:29.0340",
+  "from": "504 1 Ave & E 16 St",
+  "bike": "38914"
+ },
+ {
+  "duration": "132",
+  "start": "2019-10-01 00:23:34.9010",
+  "from": "492 W 33 St & 7 Ave",
+  "bike": "40335"
+ },
+ {
+  "duration": "1065",
+  "start": "2019-10-01 00:23:38.0410",
+  "from": "532 S 5 Pl & S 5 St",
+  "bike": "18155"
+ },
+ {
+  "duration": "312",
+  "start": "2019-10-01 00:23:47.5800",
+  "from": "3384 Smith St & 3 St",
+  "bike": "15456"
+ },
+ {
+  "duration": "594",
+  "start": "2019-10-01 00:24:16.1500",
+  "from": "540 Lexington Ave & E 29 St",
+  "bike": "15367"
+ },
+ {
+  "duration": "655",
+  "start": "2019-10-01 00:24:36.4280",
+  "from": "3419 Douglass St & 4 Ave",
+  "bike": "14993"
+ },
+ {
+  "duration": "883",
+  "start": "2019-10-01 00:24:37.3160",
+  "from": "296 Division St & Bowery",
+  "bike": "39864"
+ },
+ {
+  "duration": "592",
+  "start": "2019-10-01 00:24:39.1210",
+  "from": "476 E 31 St & 3 Ave",
+  "bike": "41532"
+ },
+ {
+  "duration": "355",
+  "start": "2019-10-01 00:24:39.1980",
+  "from": "3585 Union St & Bedford Ave",
+  "bike": "40855"
+ },
+ {
+  "duration": "520",
+  "start": "2019-10-01 00:24:40.9500",
+  "from": "504 1 Ave & E 16 St",
+  "bike": "19375"
+ },
+ {
+  "duration": "553",
+  "start": "2019-10-01 00:24:50.2630",
+  "from": "519 Pershing Square North",
+  "bike": "39955"
+ },
+ {
+  "duration": "530",
+  "start": "2019-10-01 00:24:53.8660",
+  "from": "478 11 Ave & W 41 St",
+  "bike": "27006"
+ }
+]
