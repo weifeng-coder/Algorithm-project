@@ -1,0 +1,35 @@
+dataset=ml-32m
+postings=32000204
+users=200948
+movies=87585
+movie_id_range=[1,292757]
+key_bits=41
+genres:
+  Drama	20680
+  Comedy	18463
+  Action	9668
+  Documentary	8762
+  (none)	7080
+  Horror	5005
+  Crime	4049
+  Animation	3353
+  Adventure	3302
+  Children	2200
+  Thriller	1434
+  Romance	801
+  Sci-Fi	752
+  Western	686
+  Mystery	566
+  Fantasy	512
+  War	131
+  Musical	103
+  Film-Noir	37
+  IMAX	1
+
+--- 数据覆盖窗口 ---
+dataset=ml-32m  ratings_year_range=[1995,2023]  最新影片年份=2023
+2020 年后影片 ≈ 7,800 部（2020:2629 / 2021:2314 / 2022:2091 / 2023:952，按 movies.csv 计）
+说明：「关注度」按评分条数排序，新片票数天然少于积累多年的经典，故总榜首仍以老片为主；
+  要突出近年影片，请用「评分优先（加权）」排序或直接检索片名。
+  换数据集只需 python app/pre/_fetch_ml32m.py + python app/preprocess.py <目录> app/data，
+  数据契约与排序内核均无需改动。

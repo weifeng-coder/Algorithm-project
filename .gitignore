@@ -1,0 +1,29 @@
+# 编译产物与本地运行文件
+build/
+*.exe
+*.o
+__pycache__/
+
+# 原始下载数据（约 1.5GB，用 app/pre/download_data.py 一键重建）
+# 注：downloads/ 在仓库目录之外，此处再声明一次以防有人把仓库根放到上级
+downloads/
+
+# 全量可再生产物（预处理脚本可逐字节重建，GitHub 单文件限 100MB）
+# 例外：gene 的 sa.dat（18.6MB）随仓库提供，子串搜索开箱即用
+app/data/postings.dat
+app/data/*/postings.dat
+app/data/*/postings_sorted.dat
+app/data/*/ledger.dat
+app/data/*/score.dat
+app/data/*/records.jsonl.gz
+
+# 本地临时文件
+*.tmp
+ui_check_tmp.js
+Thumbs.db
+
+# 本地 AI 工具配置
+.claude/
+
+# 本地依赖目录
+node_modules/

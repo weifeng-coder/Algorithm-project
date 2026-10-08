@@ -1,0 +1,6 @@
+dataset = 北京摩拜 2017-05-10~05-24（摩拜杯算法挑战赛训练数据，GitHub 公开镜像）
+orders = 3137774  grids(~500m) = 11685  有效天 = 14/15（05-17 缺失）
+outliers_skipped = 76322（起/终点越出北京包围盒 lat 39.4-40.1, lon 116.0-117.0 的 GPS 漂移脏点，如实剔除）
+postings.dat = 订单时间序键 gridDense<<21|minuteOfYear
+od.json / cnheat.json / gridgeo.json = 起终点网格对、星期×小时热力、网格坐标（真实数据派生）
+坐标为原始经纬度（未做 GCJ-02 纠偏），落点精度 ~百米级，对网格聚合无影响

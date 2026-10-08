@@ -1,0 +1,16 @@
+{
+  "name": "algorithm-project-main",
+  "version": "1.0.0",
+  "description": "统一了实验内容 1~6（八种排序算法）与实验内容 7（AdaptSort 普适排序）的代码， 并新增 **C vs C++ 语言对比实验** 与 **统计模块完善版**。",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "docx": "^9.5.1"
+  }
+}

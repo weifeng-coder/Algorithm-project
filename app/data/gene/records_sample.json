@@ -1,0 +1,15 @@
+[
+ {
+  "id": "NC_000913.3 Escherichia coli str. K-12 substr. MG1655, complete genome",
+  "length": 4641652,
+  "composition": {
+   "A": 1142742,
+   "C": 1180091,
+   "G": 1177437,
+   "T": 1141382,
+   "N": 0
+  },
+  "first_120_bases": "AGCTTTTCATTCTGACTGCAACGGGCAATATGTCTCTGTGTGGATTAAAAAAAGAGTGTCTGATAGCAGCTTCTGAACTGGTTACCTGCCGTGAGTAAATTAAAATTTTATTGACTTAGG",
+  "note": "全量序列见 records.jsonl.gz（单条 JSON 记录）；排序负载为倍增后缀数组的复合键，由 sufarr 模式生成"
+ }
+]

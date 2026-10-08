@@ -1,0 +1,2966 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CineRank · 排序算法性能比较与应用</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='14' width='5' height='14' rx='1.5' fill='%2338bdf8'/%3E%3Crect x='11' y='7' width='5' height='21' rx='1.5' fill='%23818cf8'/%3E%3Crect x='19' y='11' width='5' height='17' rx='1.5' fill='%2334d399'/%3E%3Crect x='27' y='3' width='2.6' height='25' rx='1.3' fill='%23fbbf24'/%3E%3C/svg%3E">
+<script src="/echarts.min.js"></script>
+<style>
+:root{
+  --bg:#070d1a;--card:rgba(19,29,50,.72);--card2:rgba(30,42,66,.85);
+  --line:rgba(148,163,184,.14);--line2:rgba(148,163,184,.24);
+  --ink:#e6edf7;--muted:#8fa3bf;
+  --accent:#38bdf8;--accent2:#818cf8;--good:#34d399;--warn:#fbbf24;--bad:#f87171;
+  --radius:16px;
+  --mono:"Cascadia Code","JetBrains Mono","SF Mono",Consolas,monospace;
+  --shadow:0 1px 0 rgba(255,255,255,.05) inset,0 12px 32px rgba(2,6,16,.45);
+  --shadow-hi:0 1px 0 rgba(255,255,255,.07) inset,0 18px 44px rgba(2,6,16,.6);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+::selection{background:rgba(56,189,248,.35)}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:rgba(148,163,184,.22);border-radius:6px;border:2px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-thumb:hover{background:rgba(148,163,184,.4);background-clip:content-box;border:2px solid transparent}
+::-webkit-scrollbar-track{background:transparent}
+html{scrollbar-color:rgba(148,163,184,.3) transparent;height:100%}
+body{
+  font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC","Segoe UI",system-ui,sans-serif;
+  background:
+    radial-gradient(1100px 560px at 82% -12%,rgba(56,189,248,.11),transparent 60%),
+    radial-gradient(900px 500px at 8% -6%,rgba(129,140,248,.13),transparent 55%),
+    radial-gradient(700px 420px at 50% 108%,rgba(52,211,153,.05),transparent 60%),
+    var(--bg);
+  color:var(--ink);line-height:1.6;min-height:100vh;width:100%;
+}
+.wrap{width:100%;max-width:1760px;margin:0 auto;padding:18px clamp(14px,2.4vw,40px) 28px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:.2px}
+
+/* ---------- 头部 hero ---------- */
+header{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:10px 2px 20px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;min-width:0;flex:1 1 280px}
+.logo{width:46px;height:46px;border-radius:13px;flex:none;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;font-size:23px;
+  box-shadow:0 8px 24px rgba(56,189,248,.35),0 1px 0 rgba(255,255,255,.35) inset}
+h1{font-size:clamp(18px,2.1vw,26px);font-weight:800;color:transparent;
+  background:linear-gradient(92deg,#f1f6fd 20%,#7dd3fc 70%,#a5b4fc);
+  -webkit-background-clip:text;background-clip:text;letter-spacing:.3px}
+h1 .thin{font-weight:600;opacity:.9}
+.sub{color:var(--muted);font-size:13px;margin-top:2px}
+.hero-stats{display:flex;gap:10px;flex-wrap:wrap;margin-left:auto}
+.hs{background:var(--card);border:1px solid var(--line);border-radius:13px;
+  padding:9px 16px;backdrop-filter:blur(8px);box-shadow:var(--shadow)}
+.hs b{display:block;font-size:19px;font-weight:700;color:var(--accent);line-height:1.25}
+.hs span{font-size:11px;color:var(--muted)}
+
+/* ---------- 吸附玻璃导航 ---------- */
+nav{position:sticky;top:12px;z-index:50;display:flex;gap:6px;margin:0 0 20px;flex-wrap:wrap;
+  padding:8px;border-radius:14px;border:1px solid var(--line);
+  background:rgba(8,14,28,.66);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  box-shadow:var(--shadow);width:100%}
+nav button{background:transparent;border:1px solid transparent;color:var(--ink);
+  padding:8px 18px;border-radius:9px;cursor:pointer;font-size:14px;transition:.18s;
+  flex:1 1 120px}
+nav button:hover{background:rgba(148,163,184,.1)}
+nav button.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#06263a;font-weight:700;
+  box-shadow:0 4px 14px rgba(56,189,248,.35)}
+
+/* ---------- 页面与卡片 ---------- */
+section.page{display:none}
+section.page.active{display:block;animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:20px;margin-bottom:16px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  box-shadow:var(--shadow);transition:transform .22s ease,box-shadow .22s ease;min-width:0}
+.card:hover{box-shadow:var(--shadow-hi)}
+.card h2{font-size:16px;margin-bottom:4px;color:#fff;font-weight:700;letter-spacing:.2px}
+.card .note{font-size:12px;color:var(--muted);margin-bottom:12px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.row .grow{flex:1 1 220px;min-width:0}
+.bento{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr);gap:0 16px;align-items:start}
+@media(max-width:920px){.bento{grid-template-columns:1fr}}
+
+/* ---------- KPI ---------- */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:15px 16px;backdrop-filter:blur(10px);box-shadow:var(--shadow);position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;inset:0 0 auto 0;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(56,189,248,.7),transparent);opacity:.65}
+.kpi .num{font-size:25px;font-weight:700;color:var(--accent)}
+.kpi .lab{font-size:12px;color:var(--muted)}
+
+/* ---------- 控件 ---------- */
+select,input[type=text],input[type=number]{background:var(--card2);border:1px solid var(--line2);
+  color:var(--ink);padding:7px 10px;border-radius:9px;font-size:13px;transition:border-color .15s}
+select:focus,input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(56,189,248,.15)}
+input[type=range]{accent-color:var(--accent)}
+button.btn{background:linear-gradient(135deg,var(--accent),#0ea5e9);border:none;color:#06263a;font-weight:700;
+  padding:8px 17px;border-radius:9px;cursor:pointer;font-size:13px;transition:.16s;
+  box-shadow:0 4px 12px rgba(56,189,248,.28)}
+button.btn:hover{filter:brightness(1.08)}
+button.btn:active{transform:scale(.96)}
+button.btn.ghost{background:var(--card2);color:var(--ink);border:1px solid var(--line2);font-weight:400;box-shadow:none}
+label.ck{font-size:13px;color:var(--muted)}
+button:focus-visible,select:focus-visible{outline:2px solid rgba(56,189,248,.6);outline-offset:2px}
+
+/* ---------- 实验室画布与计数 ---------- */
+#canvas{width:100%;height:clamp(240px,38vh,480px);min-height:240px;display:block;border-radius:12px;background:rgba(8,14,28,.35)}
+.counters{display:flex;gap:26px;margin-top:12px;flex-wrap:wrap}
+.counter .v{font-size:21px;font-weight:700;color:var(--accent2)}
+.counter .l{font-size:12px;color:var(--muted)}
+.chip{display:inline-block;padding:2px 11px;border-radius:20px;font-size:12px;vertical-align:2px;
+  background:rgba(52,211,153,.12);color:var(--good);border:1px solid rgba(52,211,153,.3);margin-left:8px}
+.bar-note{font-size:12px;color:var(--muted)}
+
+/* ---------- 图表 ---------- */
+.chart{width:100%;height:clamp(300px,42vh,560px);min-width:0}
+.chart2{width:100%;height:clamp(280px,38vh,480px);min-width:0}
+.chart-sm{width:100%;height:clamp(240px,32vh,360px);min-width:0}
+.pair{display:flex;gap:12px;flex-wrap:wrap;align-items:stretch}
+.pair > *{flex:1 1 320px;min-width:0}
+.scroll-tbl{max-height:min(42vh,420px);overflow:auto;min-width:0}
+
+/* ---------- 表格 ---------- */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right}
+th:first-child,td:first-child{text-align:left}
+thead th{color:var(--muted);font-weight:600;position:sticky;top:0;background:rgba(13,20,36,.96);backdrop-filter:blur(6px)}
+tbody tr{transition:background .12s}
+tbody tr:nth-child(odd){background:rgba(148,163,184,.035)}
+tbody tr:hover td{background:rgba(56,189,248,.06)}
+.rank1 td:first-child{color:var(--warn);font-weight:700}
+tbody tr:last-child td{border-bottom:none}
+
+/* 徽章 + 比例条（加速比列） */
+.rb{display:inline-flex;align-items:center;gap:8px;justify-content:flex-end}
+.badge{display:inline-block;padding:1px 10px;border-radius:20px;font-size:12px;font-weight:700;font-family:var(--mono)}
+.b-good{background:rgba(52,211,153,.13);color:var(--good);border:1px solid rgba(52,211,153,.35)}
+.b-warn{background:rgba(251,191,36,.12);color:var(--warn);border:1px solid rgba(251,191,36,.35)}
+.ratio-bar{display:inline-block;width:86px;height:6px;border-radius:4px;background:rgba(148,163,184,.16);overflow:hidden}
+.ratio-bar i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--good));transition:width .8s cubic-bezier(.22,1,.36,1)}
+
+/* ---------- 应用卡片 ---------- */
+.movies{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr));gap:10px}
+.movie{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:13px;transition:transform .18s,border-color .18s}
+.movie:hover{transform:translateY(-2px);border-color:rgba(56,189,248,.4)}
+.movie .t{font-weight:600;color:#fff;font-size:14px}
+.movie .m{font-size:12px;color:var(--muted);margin-top:3px}
+.movie .s{display:flex;justify-content:space-between;margin-top:8px;font-size:13px}
+.movie .s b{color:var(--accent)}
+
+/* ---------- 骨架屏 ---------- */
+.sk{position:relative;overflow:hidden;border-radius:10px;background:rgba(148,163,184,.07);min-height:110px}
+.sk::after{content:"";position:absolute;inset:0;transform:translateX(-100%);
+  background:linear-gradient(90deg,transparent,rgba(148,163,184,.12),transparent);animation:shimmer 1.4s infinite}
+@keyframes shimmer{to{transform:translateX(100%)}}
+
+footer{color:var(--muted);font-size:12px;text-align:center;padding:18px;opacity:.85}
+.about p{font-size:14px;color:var(--ink);margin:8px 0}
+.about code{background:var(--card2);padding:1px 6px;border-radius:5px;font-size:12px;font-family:var(--mono)}
+.about li{margin-left:20px;font-size:13px;color:var(--ink);margin-top:4px}
+
+/* ---------- 场景故事板 ---------- */
+.caveat{font-size:12.5px;color:var(--muted);border-left:3px solid var(--line2);
+  padding:8px 12px;margin:0 0 14px;background:rgba(148,163,184,.05);border-radius:0 10px 10px 0}
+.caveat b{color:var(--ink);font-weight:600}
+.story{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:16px;align-items:stretch}
+@media(max-width:1100px){.story{grid-template-columns:1fr}}
+.panel-h{font-size:13px;font-weight:700;color:#fff;margin:0 0 8px}
+.films{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,140px),1fr));gap:10px}
+.film{background:transparent;border:none;padding:0;text-align:left;cursor:pointer;color:inherit;width:100%}
+.film:focus-visible{outline:2px solid rgba(56,189,248,.6);outline-offset:3px;border-radius:8px}
+.film-art{
+  aspect-ratio:2/3;border-radius:3px 8px 8px 3px;position:relative;overflow:hidden;
+  background:
+    repeating-linear-gradient(180deg,#070b14 0 5px,transparent 5px 12px) left / 7px 100% no-repeat,
+    repeating-linear-gradient(180deg,#070b14 0 5px,transparent 5px 12px) right / 7px 100% no-repeat,
+    linear-gradient(165deg,hsl(var(--h,210) 42% 28%),hsl(calc(var(--h,210) + 38) 38% 12%));
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),0 10px 22px rgba(2,6,16,.4);
+}
+.film:hover .film-art{filter:brightness(1.08)}
+.film-rk{position:absolute;top:8px;left:12px;font-family:var(--mono);font-size:12px;font-weight:700;
+  background:rgba(7,11,20,.72);padding:1px 7px;border-radius:999px;color:#fff}
+.film-yr{position:absolute;bottom:8px;right:10px;font-family:var(--mono);font-size:11px;color:rgba(230,237,247,.8)}
+.film-ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:11px;color:rgba(230,237,247,.45);padding:16px;text-align:center;line-height:1.35}
+/* 封面缺图时的兜底：图片被 onerror 移除后露出这层首字母 + 渐变，不留空白块 */
+.film-fb{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:44px;font-weight:800;color:rgba(255,255,255,.22);
+  text-shadow:0 2px 18px rgba(0,0,0,.5);pointer-events:none;z-index:0}
+.film-art img{position:relative;z-index:1;width:100%;height:100%;object-fit:cover;display:block}
+.film-t{font-size:12.5px;font-weight:600;color:#fff;margin-top:7px;line-height:1.35;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.7em}
+.film-s{font-size:11px;color:var(--muted);margin-top:2px}
+.film-s b{color:var(--accent);font-weight:700}
+.ticket{display:flex;gap:10px;align-items:center;padding:8px 10px;border-radius:10px;
+  border:1px dashed rgba(148,163,184,.22);background:rgba(15,23,42,.35);margin-bottom:6px}
+.ticket .iata{font-family:var(--mono);font-size:16px;font-weight:700;color:#fff;min-width:42px}
+.ticket .meta{flex:1;font-size:12px;color:var(--muted)}
+.ticket .n{font-family:var(--mono);color:var(--accent)}
+.keylab{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 12px}
+.kl-chip{background:var(--card2);border:1px solid var(--line2);color:var(--ink);padding:6px 12px;
+  border-radius:999px;cursor:grab;font-size:13px;user-select:none}
+.kl-chip:active{cursor:grabbing}
+.kl-chip.on{border-color:rgba(244,114,182,.55);box-shadow:0 0 0 3px rgba(244,114,182,.12)}
+.kl-bits{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.kl-slot{display:inline-flex;align-items:center;gap:7px;background:var(--card2);
+  border:1px solid var(--line2);color:var(--ink);padding:6px 10px;border-radius:9px;
+  font-size:12px;font-weight:600;user-select:none}
+.kl-slot i{font-style:normal;min-width:34px}
+.kl-slot .up,.kl-slot .dn{cursor:pointer;color:var(--muted);font-size:9px;padding:1px 3px;border-radius:4px}
+.kl-slot .up:hover,.kl-slot .dn:hover{color:#38bdf8;background:rgba(56,189,248,.12)}
+.kl-slot .ord{font-family:var(--mono);color:#f472b6}
+.bitbox{display:inline-block;width:7px;height:14px;margin-right:1px;border-radius:2px;
+  vertical-align:-2px;font-family:var(--mono)}
+.map-h{width:100%;height:clamp(320px,52vh,640px);min-width:0}
+.dock{display:flex;justify-content:space-between;gap:8px;padding:7px 2px;border-bottom:1px solid var(--line);font-size:13px}
+.dock:hover{background:rgba(52,211,153,.06)}
+.dock b{color:#fff;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.q{flex:1 1 220px;min-width:0}
+.nbox{width:5.2em}
+/* ---------- 电商商品卡 ---------- */
+.prods{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,210px),1fr));gap:10px}
+.prod{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:12px 13px;min-width:0}
+.prod-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.prod-rk{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.prod-asin{font-size:13px;font-weight:600;color:#fff;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-clamp:2;min-width:0}
+.prod-star{font-size:13px;color:var(--warn);margin-top:6px;letter-spacing:1px}
+.prod-star b{color:var(--ink);font-weight:700;margin-left:6px;letter-spacing:0}
+.prod-n{font-size:12px;color:var(--muted)}
+.stack{display:flex;height:7px;border-radius:4px;overflow:hidden;margin-top:9px;background:rgba(148,163,184,.12)}
+.stack i{display:block;height:100%}
+.stack-lg{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:3px}
+/* ---------- 网页图 / 基因 ---------- */
+.prrow{display:grid;grid-template-columns:2.4em minmax(0,1fr) 5.2em 4.6em;gap:8px;align-items:center;
+  padding:6px 2px;border-bottom:1px solid var(--line);font-size:12.5px}
+.prrow .id{font-family:var(--mono);color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prrow .bar{height:6px;border-radius:4px;background:rgba(148,163,184,.14);overflow:hidden;margin-top:3px}
+.prrow .bar i{display:block;height:100%;background:linear-gradient(90deg,#818cf8,#f472b6)}
+.prrow .n{font-family:var(--mono);color:var(--muted);text-align:right}
+.hits{display:flex;flex-wrap:wrap;gap:6px}
+.hit{font-family:var(--mono);font-size:12px;padding:3px 9px;border-radius:999px;cursor:pointer;
+  background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.3);color:#a5f3fc}
+.hit:hover,.hit:focus-visible{background:rgba(34,211,238,.2);outline:none}
+@media(max-width:720px){
+  h1{font-size:19px}
+  .kpi .num{font-size:20px}
+  nav button{flex:1 1 46%}
+  .films{grid-template-columns:repeat(auto-fill,minmax(110px,1fr))}
+}
+@media(min-width:1440px){
+  .wrap{max-width:min(1760px,100%)}
+  .films{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="brand">
+    <div class="logo" aria-hidden="true">
+      <svg viewBox="0 0 32 32" width="26" height="26"><rect x="3" y="14" width="5" height="14" rx="1.5" fill="#e0f2fe"/><rect x="11" y="7" width="5" height="21" rx="1.5" fill="#e0f2fe"/><rect x="19" y="11" width="5" height="17" rx="1.5" fill="#e0f2fe"/><rect x="27" y="3" width="2.6" height="25" rx="1.3" fill="#fde68a"/></svg>
+    </div>
+    <div>
+      <h1>CineRank <span class="thin">· 排序算法性能比较与应用</span></h1>
+      <div class="sub">题目二 · 一套自实现排序内核 × 六个真实数据领域 · 8 种算法 + AdaptSort + 库基线</div>
+    </div>
+  </div>
+  <div class="hero-stats">
+    <div class="hs"><b class="num" id="hs-keys">—</b><span>真实排序键</span></div>
+    <div class="hs"><b class="num">6</b><span>真实领域</span></div>
+    <div class="hs"><b class="num" id="hs-ratio">—</b><span>AdaptSort 最大加速</span></div>
+  </div>
+</header>
+<nav>
+  <button data-p="lab" class="active">算法实验室</button>
+  <button data-p="bench">性能基准</button>
+  <button data-p="app">应用</button>
+  <button data-p="multi">六场景总览</button>
+  <button data-p="about">关于</button>
+</nav>
+
+<!-- ================= 算法实验室 ================= -->
+<section class="page active" id="p-lab">
+  <div class="card">
+    <h2>排序过程可视化 <span class="chip" id="lab-strategy" style="display:none"></span></h2>
+    <div class="note">教学动画实现：按交换/写事件记录帧，大规格自动时间抽帧（n≤10,000）。AdaptSort 会先真实决策，再回放所选策略的动画。</div>
+    <div class="row">
+      <label class="ck">算法
+        <select id="lab-algo">
+          <option value="bubble">冒泡</option><option value="insertion">直接插入</option>
+          <option value="selection">选择</option><option value="shell">希尔</option>
+          <option value="quick">快速</option><option value="heap">堆</option>
+          <option value="merge">归并</option><option value="radix">基数</option>
+          <option value="adapt" selected>AdaptSort(普适)</option>
+        </select></label>
+      <label class="ck">数据分布
+        <select id="lab-dist">
+          <option value="uniform">均匀随机</option><option value="near">近有序</option>
+          <option value="desc">逆序</option><option value="asc">正序</option>
+          <option value="dup">高重复</option><option value="wide">宽值域(0~9999)</option>
+          <option value="negative">有符号值(-10000~10000)</option>
+        </select></label>
+      <label class="ck">规模 <input type="number" id="lab-n-num" min="8" max="10000" step="1" value="32" style="width:86px">
+        <input type="range" id="lab-n" min="0" max="1000" value="194"></label>
+      <label class="ck">速度 <input type="range" id="lab-speed" min="1" max="60" value="20"></label>
+      <button class="btn" id="lab-play">播放</button>
+      <button class="btn ghost" id="lab-step">单步</button>
+      <button class="btn ghost" id="lab-reset">重新生成</button>
+    </div>
+    <canvas id="canvas" width="1120" height="340"></canvas>
+    <div class="counters">
+      <div class="counter"><div class="v" id="lab-c">0</div><div class="l">比较次数</div></div>
+      <div class="counter"><div class="v" id="lab-m">0</div><div class="l">移动次数</div></div>
+      <div class="counter"><div class="v" id="lab-f">0/0</div><div class="l">帧</div></div>
+      <div class="counter"><div class="v" id="lab-state">—</div><div class="l">状态</div></div>
+    </div>
+  </div>
+  <div class="bento">
+  <div class="card">
+    <h2>现场单格实测（合成数据 · 真实计时/计数）</h2>
+    <div class="note">后端预热 + 5 轮取最小，再另跑一轮计数。预计来自本机矩阵量级，不是倒计时。单线程服务：点取消只停本页等待，这次排序仍会在服务器跑完。</div>
+    <div class="row">
+      <label class="ck">算法 <select id="run-algo">
+        <option value="insertion">直接插入</option><option value="bubble">冒泡</option><option value="selection">选择</option>
+        <option value="shell">希尔</option><option value="quick">快速</option><option value="heap">堆</option>
+        <option value="radix">基数</option><option value="merge">归并</option><option value="adapt" selected>AdaptSort(普适)</option>
+      </select></label>
+      <label class="ck">规模 <select id="run-n">
+        <option>1000</option><option>10000</option><option selected>100000</option>
+        <option>1000000</option></select></label>
+      <label class="ck">分布 <select id="run-dist">
+        <option value="uniform">均匀</option><option value="gauss">高斯</option>
+        <option value="poisson">泊松</option><option value="asc">正序</option>
+        <option value="desc">逆序</option></select></label>
+      <button class="btn" id="run-go">运行</button>
+      <button class="btn ghost" id="run-stop" hidden>取消等待</button>
+      <span class="bar-note" id="run-eta">预计 —</span>
+    </div>
+    <div class="bar-note" id="run-out" style="margin-top:8px">—</div>
+    <div class="sk" id="run-sk" style="display:none;margin-top:14px"></div>
+  </div>
+  <div class="card">
+    <h2>图例与说明</h2>
+    <div class="note">动画为教学实现（与被测内核分离，n≤10,000，大规格自动抽帧）；基准数据一律来自统一测量框架。</div>
+    <div class="about">
+      <li>柱色随<b>数值大小</b>映射 —— 低→高：蓝→紫渐变</li>
+      <li><b>橙色发光柱</b> = 当前比较 / 写入触达的下标</li>
+      <li>播放结束的<b>绿色扫光</b> = 已就位的有序前缀</li>
+      <li><span class="chip" style="margin-left:0">AdaptSort 决策</span> 徽章显示真实策略（如 S5 基数排序）</li>
+      <li>帧间含 60~300ms 补间过渡，速度滑杆调节</li>
+      <li>AdaptSort 选中<b>计数/基数</b>策略时，动画形态完全不同：没有两两交换，元素按值<b>直接落到目标位</b>（有序前缀从左向右生长）——这是线性排序的形态，不是"没在排序"</li>
+    </div>
+  </div>
+  </div>
+</section>
+
+<!-- ================= 性能基准 ================= -->
+<section class="page" id="p-bench">
+  <div class="card">
+    <h2>时间–规模（合成五分布 · C / C++ 双构建 · 真实数据）</h2>
+    <div class="row" style="margin-bottom:8px">
+      <label class="ck">数据源 <select id="bc-src">
+        <option value="cpp">C++ 构建（合成）</option><option value="c">C 构建（合成）</option>
+        <option value="real">真实数据（MovieLens postings）</option></select></label>
+      <label class="ck">分布 <select id="bc-dist">
+        <option value="uniform" selected>均匀</option><option value="gauss">高斯</option>
+        <option value="poisson">泊松</option><option value="asc">正序</option>
+        <option value="desc">逆序</option><option value="real">真实posting</option></select></label>
+    </div>
+    <div id="ch-time" class="chart"></div>
+  </div>
+  <div class="card">
+    <h2>真实数据：各算法耗时与操作次数 <span class="chip num" id="ch-real-n" style="display:none"></span></h2>
+    <div class="note">数据来自 results/results_real.csv（MovieLens postings 键排序矩阵）。</div>
+    <div id="ch-real" class="chart2"></div>
+  </div>
+  <div class="card">
+    <h2>C vs C++（同一份源码，gcc / g++，语言实现差异）</h2>
+    <div class="note">比值 = t(C++)/t(C)，逐格几何平均。数据来自 results/c_vs_cpp.csv。</div>
+    <div id="ch-lang" class="chart2"></div>
+  </div>
+  <div class="card">
+    <h2>真实数据矩阵明细</h2>
+    <div class="scroll-tbl"><table id="tbl-real"></table></div>
+  </div>
+</section>
+
+<!-- ================= 应用（多场景） ================= -->
+<section class="page" id="p-app">
+  <div class="card" style="padding:12px 18px">
+    <div class="row">
+      <label class="ck">场景 <select id="scn-sel">
+        <option value="movie">🎬 电影排序（MovieLens 32M · 收录至 2023）</option>
+        <option value="amazon">📦 电商商品排序</option>
+        <option value="bikesz">🚲 城市骑行调度 · 深圳 2021（国内）</option>
+        <option value="bikecn">🚲 城市骑行调度 · 北京 2017（国内）</option>
+        <option value="web">🌐 网页重要性排序（搜索排序 · PageRank）</option>
+        <option value="flight">✈️ 航班准点调度</option>
+        <option value="gene">🧬 基因组后缀数组</option>
+      </select></label>
+      <span class="bar-note" id="scn-desc"></span>
+    </div>
+  </div>
+
+  <div id="app-movie">
+  <div class="kpis" id="app-kpis"></div>
+  <div class="caveat">把评分还原成一张海报墙。换排序键：关注度出商业大片，好评度（且票数门槛）出老片与文艺片——它们只是同一个 int64 键里字段的先后顺序。缺海报的片子用首字母色块占位。
+  <br><b>关于近年影片：</b>本场景已升级到 GroupLens <b>MovieLens 32M</b>（3,200 万条评分，8.76 万部影片，收录至 <b>2023 年</b>，其中 2020 年后影片约 7,800 部）。不过「关注度」按<b>评分条数</b>排序，1990 年代的经典动辄十万票，新片几年内积累不到这个量级——所以总榜首仍是老片，这是票数结构的必然，不是新片被过滤。想看近年佳作可把<b>排序依据切到「评分优先（加权）」</b>并适度下调「最少评分」，或直接检索片名（如 Oppenheimer / Spider-Verse）。</div>
+  <div class="card">
+    <h2>海报墙 · 多级键排序</h2>
+    <div class="note">候选 → 键编码 → 自实现排序 → Top-K。三种排序依据：<b>关注度</b>（count≪8|(63−avg×10)）、<b>好评度</b>（avg×10≪24|count）、<b>评分优先</b>（加权评分 w·avg+(1−w)·全局均分，w=count/(count+m)，m=全局票数中位数）——同一批影片、同一套排序内核，只换 int64 键的字段优先级。最低票数滑杆进一步避免「3 条 5.0 星」挤掉「三千条 4.4 星」。</div>
+    <div class="row">
+      <label class="ck">K <input type="number" id="tp-k" value="12" min="5" max="50" class="nbox"></label>
+      <label class="ck">类型 <select id="tp-genre"></select></label>
+      <label class="ck">最少评分 <input type="number" id="tp-mv" value="1000" min="0" class="nbox"></label>
+      <label class="ck">排序依据 <select id="tp-mode">
+        <option value="pop">关注度优先</option><option value="rat">好评度优先</option>
+        <option value="bayes">评分优先（加权）</option></select></label>
+      <button class="btn" id="tp-go">生成榜单</button>
+    </div>
+    <div class="films" id="mv-wall" style="margin-top:14px"></div>
+    <div id="ch-topk" class="chart-sm" style="margin-top:12px"></div>
+    <div class="scroll-tbl"><table id="tbl-topk"></table></div>
+  </div>
+  <div class="card">
+    <h2>单片评分分布 <span class="chip" id="fh-chip" style="display:none"></span></h2>
+    <div class="note" id="fh-note">默认展示当前榜单第一名的 10 档评分（0.5★–5.0★）形状；点击海报墙卡片或榜单行可换片。好评度排序只看均分，而均分相同的两片，「高分厚尾」和「双峰争议」是两种完全不同的口碑。</div>
+    <div id="ch-filmhist" class="chart-sm"></div>
+  </div>
+  <div class="story">
+    <div class="card">
+      <h2>双榜名次迁移（关注度 → 好评度）</h2>
+      <div class="note">同一批影片、两套排序键。交叉的连线 = 换键后名次大变的片。</div>
+      <div id="ch-rankmove" class="chart2"></div>
+    </div>
+    <div class="card">
+      <h2>类型 × 年代</h2>
+      <div class="note">主类型口径（preprocess 只留 genres 首段），格子 = 影片部数，不是评分条数。</div>
+      <div id="ch-heat" class="chart2"></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>影片检索 Top-N（倒排索引 + 堆选择）</h2>
+    <div class="row">
+      <input type="text" id="se-q" class="q" placeholder="输入英文片名关键词，如 toy story / matrix">
+      <button class="btn" id="se-go">检索</button>
+    </div>
+    <div class="movies" id="se-out" style="margin-top:12px"></div>
+  </div>
+  <div class="card">
+    <h2>数据集画像</h2>
+    <div class="pair">
+      <div id="ch-year" class="chart-sm"></div>
+      <div id="ch-genre" class="chart-sm"></div>
+    </div>
+  </div>
+  </div><!-- /app-movie -->
+
+  <div id="app-flight" style="display:none">
+    <div class="kpis" id="fl-kpis"></div>
+    <div class="caveat" id="fl-caveat">旅客问的不是「平均延误档 2.1」，而是哪家航司、哪条航线最不靠谱。平均延误目前是 <b>档位号 0–9</b>，不是分钟；准点 = delayIdx ≤ 2（≤15 分钟）。仅 1 / 10 / 11 / 12 月，缺月不插值。机场坐标来自 OpenFlights，缺 EAR、XWA。</div>
+    <div class="story">
+      <div class="card">
+        <h2>全美机场 · 航班量落点</h2>
+        <div class="note">点大小 ∝ √航班量。点机场 → 榜单高亮 + 下方「机场倒排」联动。<b>航线图需要 Dest 字段</b>（postings 键里只有起点，全量 records 未随包），这里先呈现机场倒排的地理形态。</div>
+        <div id="fl-map" class="map-h"></div>
+      </div>
+      <div class="card">
+        <h2>延误榜 · 多级键</h2>
+        <div class="note">点击芯片切换「航班量 / 平均延误档」优先级，榜单用现有 rank_topk 重排。int64 键：origin≪25 | minute≪4 | delayIdx。</div>
+        <div class="keylab">
+          <span class="kl-chip on" data-k="pop">航班量 ↓</span>
+          <span class="kl-chip" data-k="rat">平均延误档 ↓</span>
+          <span class="kl-bits" id="fl-keybits">key = origin≪25 | minute≪4 | delayIdx</span>
+        </div>
+        <div id="fl-board" class="scroll-tbl"></div>
+      </div>
+    </div>
+    <div class="story">
+      <div class="card">
+        <h2>延误长尾（真实直方图）</h2>
+        <div class="note">0 档 = 提前/准点，占 61.7%。&gt;600 分钟仍有 2,254 班——长尾让计数排序在这里比比较排序快。</div>
+        <div id="fl-hist" class="chart2"></div>
+      </div>
+      <div class="card">
+        <h2>机场检索（名称子串 + 堆选择）</h2>
+        <div class="row">
+          <input type="text" id="fl-q" class="q" placeholder="IATA 或城市，如 ORD / JFK">
+          <button class="btn" id="fl-sego">检索</button>
+        </div>
+        <div id="fl-seout" style="margin-top:10px"></div>
+      </div>
+    </div>
+    <div class="story">
+      <div class="card">
+        <h2>键位实验台 · 真实键重排（keyLab）</h2>
+        <div class="note">1200 条<b>真实抽样键</b>（key = origin≪25 | minuteOfYear≪4 | delayIdx）。调整三个子键的优先级，看同一批键的排序结果与 int64 位域拼装——多级键排序的本质是<b>先比高位字段</b>；想换优先级就得重新设计键。悬停行查看 34 位二进制拼装。</div>
+        <div class="keylab" id="fl-kl">
+          <span class="kl-slot" data-f="o"><i>机场</i><span class="up" title="上移">▲</span><span class="dn" title="下移">▼</span></span>
+          <span class="kl-slot" data-f="m"><i>时段</i><span class="up" title="上移">▲</span><span class="dn" title="下移">▼</span></span>
+          <span class="kl-slot" data-f="d"><i>延误档</i><span class="up" title="上移">▲</span><span class="dn" title="下移">▼</span></span>
+          <span class="kl-bits" id="fl-kl-order"></span>
+        </div>
+        <div class="kl-bits" id="fl-kl-bits"></div>
+        <div id="fl-kl-board" class="scroll-tbl"></div>
+      </div>
+      <div class="card">
+        <h2>准点率分组（≤15 分钟口径）</h2>
+        <div class="row">
+          <label class="ck">视角 <select id="fl-ontime-view">
+            <option value="air">机场 · 按航班量 Top 20</option>
+            <option value="bad">机场 · 准点率最差（≥2000 班）</option>
+            <option value="month">月度（缺月不插值）</option>
+          </select></label>
+        </div>
+        <div class="note" id="fl-ontime-note">准点 = delayIdx ≤ 2（≤15 分钟）。航司视角在 ledger.dat 键里（未随包），暂缺。</div>
+        <div id="ch-fl-ontime" class="chart2"></div>
+      </div>
+    </div>
+    <div class="story">
+      <div class="card">
+        <h2>日期 × 平均延误（缺月留白）</h2>
+        <div class="note">横轴是一年中的一天（1–365），只有 1 / 10 / 11 / 12 月有数据——2–9 月的空白是真实空白，不插值。悬停看当日航班量与平均延误档。</div>
+        <div id="ch-fl-cal" class="chart2"></div>
+      </div>
+      <div class="card">
+        <h2>机场倒排 · 延误降序 <span class="chip" id="fl-inv-chip">—</span></h2>
+        <div class="note" id="fl-inv-note">点地图、榜单或检索结果里的机场：该机场出港航班按延误档从重到轻排——真实系统里是倒排索引 + 堆选择 Top-N（O(n log k)）。数据来自抽样键聚合。</div>
+        <div id="ch-fl-inv" class="chart2"></div>
+      </div>
+    </div>
+  </div><!-- /app-flight -->
+  <div id="app-bikecn" style="display:none">
+    <div class="kpis" id="bc-kpis"></div>
+    <div class="caveat" id="bc-caveat">国内真实骑行数据：<b>2017 摩拜杯算法挑战赛</b>订单（北京城区，2017-05-10 ~ 05-24，约 320 万单）。自由流单车没有固定站点，实体 = <b>起点 ~500m 网格</b>，键 = gridDense≪21 | minuteOfYear，与深圳场景同构、排序内核零改动。起终点经纬度都在原始记录里，<b>OD 流线</b>因此可画。05-17 缺失（镜像 0 字节），如实留白。<b>底图按数据覆盖裁剪</b>：延庆/密云/怀柔/平谷等远郊在本数据中无骑行记录，已从底图移除，避免大片空白被误读为"点位偏移"。</div>
+    <div class="story">
+      <div class="card">
+        <h2>北京城区 · 网格出发量</h2>
+        <div class="note">点大小 ∝ √骑行量，落点 = 网格中心。悬停看网格坐标与骑行量。</div>
+        <div id="bc-map" class="map-h"></div>
+      </div>
+      <div class="card">
+        <h2>出发量榜</h2>
+        <div class="note">网格名由行政区划 GeoJSON 点定位得到（区 + 相对城市中心的方位），网格号仅作精确定位后缀。网格数只有 ~10³ 量级 —— 计数排序的优势场景（与深圳场景同一结论，两地数据互证）。</div>
+        <div id="bc-board" class="scroll-tbl"></div>
+      </div>
+    </div>
+    <div class="story">
+      <div class="card">
+        <h2>OD 流线 · 最忙 60 对（起点 → 终点）</h2>
+        <div class="note" id="bc-od-note">真实起终点聚合成 ~500m 网格对流：线宽 = 流量，流动动画 = 方向。起点=终点的同格归还不画线。</div>
+        <div id="bc-od" class="map-h"></div>
+      </div>
+      <div class="card">
+        <h2>通勤热力 · 星期 × 小时</h2>
+        <div class="note" id="bc-heat-note">按 2017 年历还原（05-10 是周三）。</div>
+        <div id="ch-bc-heat" class="chart2"></div>
+      </div>
+    </div>
+    <div class="story">
+      <div class="card">
+        <h2>逐日覆盖（真实日期，缺失留白）</h2>
+        <div class="note">只有半个月（05-10 ~ 05-24），05-17 缺失不插值——键里的「年内心分钟」还原出真实日期。</div>
+        <div id="ch-bc-days" class="chart-sm"></div>
+      </div>
+      <div class="card">
+        <h2>网格检索</h2>
+        <div class="row">
+          <input type="text" id="bc-q" class="q" placeholder="区名 / 网格号 / 经纬度，如 朝阳 / 网格 12 / 116.36">
+          <button class="btn" id="bc-sego">检索</button>
+        </div>
+        <div class="movies" id="bc-seout" style="margin-top:12px"></div>
+      </div>
+    </div>
+  </div><!-- /app-bikecn -->
+
+  <div id="app-bikesz" style="display:none">
+    <div class="kpis" id="sz-kpis"></div>
+    <div class="caveat" id="sz-caveat">国内真实骑行数据：<b>深圳市政府数据开放平台「共享单车企业每日订单表」</b>（无条件开放；经平台 API 分页拉取 2021-07-01 ~ 07-14 存档抽样）。自由流单车无固定站点，实体 = <b>起点 ~500m 网格</b>，键 = gridDense≪21 | minuteOfYear，与前两个骑行场景同构——<b>同一套排序内核与 UI 框架零改动接入第三个城市</b>。坐标已 BD09→GCJ02 纠偏，起终点真实可测 → <b>OD 流线</b>。<b>底图按数据覆盖裁剪</b>：坪山/大鹏在本批数据中几乎无记录，已移除。</div>
+    <div class="story">
+      <div class="card">
+        <h2>深圳全域 · 网格出发量</h2>
+        <div class="note">点大小 ∝ √骑行量，落点 = 网格中心。悬停看网格坐标与骑行量。</div>
+        <div id="sz-map" class="map-h"></div>
+      </div>
+      <div class="card">
+        <h2>出发量榜</h2>
+        <div class="note">网格名由行政区划 GeoJSON 点定位得到（区 + 方位），网格号仅作精确定位后缀。计数排序的优势场景（k≈10³ 网格）——第三个城市复现同一结论。</div>
+        <div id="sz-board" class="scroll-tbl"></div>
+      </div>
+    </div>
+    <div class="story">
+      <div class="card">
+        <h2>OD 流线 · 最忙 60 对（起点 → 终点）</h2>
+        <div class="note" id="sz-od-note">真实起终点聚合成 ~500m 网格对流：线宽 = 流量，流动动画 = 方向。同格归还不画线。</div>
+        <div id="sz-od" class="map-h"></div>
+      </div>
+      <div class="card">
+        <h2>通勤热力 · 星期 × 小时</h2>
+        <div class="note" id="sz-heat-note">按 2021 年历还原（07-01 是周四）。</div>
+        <div id="ch-sz-heat" class="chart2"></div>
+      </div>
+    </div>
+    <div class="story">
+      <div class="card">
+        <h2>逐日覆盖（真实日期）</h2>
+        <div class="note">键里的「年内心分钟」还原出真实日期；每日条数不均是平台存档抽样的真实形态。</div>
+        <div id="ch-sz-days" class="chart-sm"></div>
+      </div>
+      <div class="card">
+        <h2>网格检索 <span style="font-weight:400;font-size:11px;color:var(--muted)">（含企业构成）</span></h2>
+        <div class="row">
+          <input type="text" id="sz-q" class="q" placeholder="区名 / 网格号 / 经纬度，如 福田 / 网格 12 / 114.05">
+          <button class="btn" id="sz-sego">检索</button>
+        </div>
+        <div class="movies" id="sz-seout" style="margin-top:12px"></div>
+        <div class="note" id="sz-comp-note" style="margin-top:12px"></div>
+        <div id="ch-sz-comp" class="chart-sm"></div>
+      </div>
+    </div>
+  </div><!-- /app-bikesz -->
+
+  <div id="app-amazon" style="display:none">
+    <div class="kpis" id="az-kpis"></div>
+    <div class="caveat" id="az-caveat">好评度排序不是只看平均分：3 条评论的 5.0 星，不该排在两千条评论的 4.7 星前面。所以键里<b>评论数要先过门槛</b>，再比均分。星级 = 档均值 × 0.5 + 1.0（已修正原先偏低 0.5 星）。商品标题已从 Amazon 元数据本地化（469,625 / 476,002 = 98.7% 命中，缺标题的保留 ASIN，覆盖率见 namecoverage.json）；商品图/类目/价格仍未随包，缺失不虚构。</div>
+    <div class="card">
+      <h2>商品榜 · 多级键排序</h2>
+      <div class="note">候选 → 键编码 → 自实现快速排序 → Top-K。卡片下方的色条是这件商品在抽样里的 1–5 星分布。</div>
+      <div class="row">
+        <label class="ck">排序依据 <select id="az-mode">
+          <option value="pop">关注度（评论数↓）</option><option value="rat">好评度（均分↓）</option></select></label>
+        <label class="ck">最少评论 <input type="number" id="az-mc" value="200" min="0" class="nbox"></label>
+        <button class="btn" id="az-go">生成榜单</button>
+      </div>
+      <div class="prods" id="az-wall" style="margin-top:14px"></div>
+    </div>
+    <div class="card">
+      <h2>双榜名次迁移（关注度 → 好评度，同评论门槛）</h2>
+      <div class="note">同一批商品、两套排序键。灰线 = 名次基本不变；红/绿 = 换键后名次大变。悬停连线看具体商品。</div>
+      <div id="ch-az-rankmove" class="chart2"></div>
+    </div>
+    <div class="story">
+      <div class="card">
+        <h2>评论数 × 均分</h2>
+        <div class="note">每个点是一件商品（抽样里评论最多的 600 件）。右上 = 热门且好评；左上 = 评论少的高分，正是门槛要挡住的那一类。</div>
+        <div id="az-scatter" class="chart2"></div>
+      </div>
+      <div class="card">
+        <h2>星级分布</h2>
+        <div class="note">100 万条抽样评论的星级。5 星一档独大，1 星又比 2、3 星多，是电商评分典型的 J 形分布。</div>
+        <div id="az-stars" class="chart2"></div>
+      </div>
+    </div>
+    <div class="story">
+      <div class="card">
+        <h2>评论长尾</h2>
+        <div class="note">多数商品只有几条评论。长尾决定了门槛该设多高。</div>
+        <div id="az-tail" class="chart-sm"></div>
+      </div>
+      <div class="card">
+        <h2>按 ASIN 检索</h2>
+        <div class="row">
+          <input type="text" id="az-q" class="q" placeholder="ASIN 片段，如 B00DR0 / B0074">
+          <button class="btn" id="az-sego">检索</button>
+        </div>
+        <div class="movies" id="az-seout" style="margin-top:10px"></div>
+      </div>
+    </div>
+  </div><!-- /app-amazon -->
+
+  <div id="app-web" style="display:none">
+    <div class="kpis" id="wb-kpis"></div>
+    <div class="caveat">这个数据集（Stanford web-Google，2002 年抓取的 Google 网页图）<b>从头到尾不含网址</b>：875,713 个网页在原始数据里只是匿名数字编号和它们之间的超链接边，没有 URL，也不存在官方的 编号→网址 对照表。界面上显示的「网页 #N」就是数据集里的原始网页编号——不是本项目漏标，而是数据里根本没有网址可标，也不编造。PageRank 的分值是浮点数，经 IEEE-754 保序映射转成 int64 后，8 种自实现排序都能直接用；510 万条边排成 CSR 本身也是一次 40 位键的大排序。</div>
+    <div class="caveat" style="margin-top:-6px">本页各图按<b>网页在搜索系统里的作用</b>命名：<b>重要性</b> = PageRank（搜索引擎排序的核心依据，"被高质量网页推荐的程度"）、<b>被链接数</b> = 入度（多少网页指向它）、<b>外链数</b> = 出度（它指向多少网页）、<b>链接结构</b> = 网页之间的链接关系。数据集只含这几类信息，因此界面不虚构"点击量/搜索量"这类原始数据里不存在的指标——只用真实存在的量说话。</div>
+    <div class="story">
+      <div class="card">
+        <h2>网页重要性排行 Top-100（PageRank）</h2>
+        <div class="note">按<b>重要性</b>降序——这正是搜索引擎"搜索结果按重要性从高到低显示"的那一步。条长 = 重要性相对第一名；旁边<b>被链接数</b>（多少网页指向它）与<b>外链数</b>（它指向多少网页）。<b>为什么没有网址列？</b>本数据集只提供匿名网页编号（web-Google，2002 年 Google 网页 crawl），不含 URL、也没有官方的 编号→网址 对照表，所以「网页 #N」是数据集原始编号而非网址——无法还原，也不编造。</div>
+        <div id="wb-board" class="scroll-tbl"></div>
+      </div>
+      <div class="card">
+        <h2>重要网页及其邻居（链接关系图）</h2>
+        <div class="note">重要性前 40 的网页（粉）和它们在抽样边里最常互相链接的邻居（灰）。可拖拽，滚轮缩放。图中标签同样是数据集匿名编号（非网址）。</div>
+        <div id="wb-graph" class="map-h"></div>
+      </div>
+    </div>
+    <div class="story">
+      <div class="card">
+        <h2>被链接数分布（log-log）</h2>
+        <div class="note">横轴：一个网页被多少个别的网页链接（入度）；纵轴：有多少网页处在这个量级。近似一条直线 = 幂律长尾：少数枢纽被大量网页链接，绝大多数网页只被少数几个链接到——这正是搜索引擎必须做重要性排序的原因。</div>
+        <div id="wb-deg" class="chart2"></div>
+      </div>
+      <div class="card">
+        <h2>被链接数 × 重要性</h2>
+        <div class="note">正相关但不完全一致：重要性会沿链接传导，被链接数不高的网页也可能因为<b>被重要的网页链接</b>而排名靠前——说明只按"被链接数"排序并不够，PageRank 才是搜索排序的依据。</div>
+        <div id="wb-prscatter" class="chart2"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>网页链接结构（排序后的链接关系片段）</h2>
+      <div class="note" id="wb-mnote">链接边按（来源页, 目标页）键排序后，同一来源页的出链连成一段，这就是 CSR 的行索引。点 = 抽样里存在的链接。</div>
+      <div id="wb-matrix" class="chart2"></div>
+    </div>
+  </div><!-- /app-web -->
+
+  <div id="app-gene" style="display:none">
+    <div class="kpis" id="gn-kpis"></div>
+    <div class="caveat">4,641,652 个碱基，一次倍增排序把整个基因组变成可二分搜索的后缀数组。实际 <b>12 轮</b>后全部后缀已区分，提前终止（理论上界 23 轮）；这份数据每轮策略都是 S5 基数排序，并不随轮次变化。</div>
+    <div class="card">
+      <h2>基因组轨道</h2>
+      <div class="note">横轴是 4.64 Mb 染色体。上：GC 含量；中：累积 GC 偏斜，谷底 ≈ 复制起点、峰顶 ≈ 终点；下：每个窗口的基因数。搜索命中会画成竖线。拖动下方滑块放大。</div>
+      <div id="gn-track" class="map-h"></div>
+    </div>
+    <div class="story">
+      <div class="card">
+        <h2>子串搜索（后缀数组二分）</h2>
+        <div class="note">O(m log n)：两次二分找到区间，区间长度就是出现次数。只接受 A/C/G/T，长度 1–32。</div>
+        <div class="row">
+          <input type="text" id="gn-q" class="q" placeholder="如 GATC / ACGTACGT / TTGACA" value="TTGACA">
+          <button class="btn" id="gn-go">搜索</button>
+        </div>
+        <div class="bar-note" id="gn-out" style="margin-top:8px">—</div>
+        <div id="gn-hits" style="margin-top:10px"></div>
+      </div>
+      <div class="card">
+        <h2>倍增轮次：键域收缩</h2>
+        <div class="note">柱 = 每轮排序耗时；线 = 区分出的不同 rank 数（对数轴）。到第 12 轮 distinct = n，排序结束。</div>
+        <div id="gn-rounds" class="chart2"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>基因清单（NCBI GFF 前 12 个）</h2>
+      <div class="note" id="gn-gnote">thrL / thrA / thrB / thrC 在 190–5,020 bp 成簇，是苏氨酸操纵子。</div>
+      <div id="gn-genes" class="scroll-tbl"></div>
+    </div>
+  </div><!-- /app-gene -->
+
+  <div id="app-generic" style="display:none">
+    <div class="kpis" id="g-kpis"></div>
+    <div class="card">
+      <h2 id="g-board-title">多级键榜单</h2>
+      <div class="note" id="g-board-note"></div>
+      <div class="row">
+        <label class="ck">K <input type="number" id="g-k" value="15" min="5" max="50" class="nbox"></label>
+        <label class="ck">排序依据 <select id="g-mode"></select></label>
+        <label class="ck">最小计数 <input type="number" id="g-mc" value="0" min="0" class="nbox"></label>
+        <button class="btn" id="g-go">生成榜单</button>
+      </div>
+      <div id="g-ch" class="chart2" style="margin-top:12px"></div>
+      <div class="scroll-tbl"><table id="g-tbl"></table></div>
+    </div>
+    <div class="card">
+      <h2 id="g-se-title">检索 Top-N（名称子串 + 堆选择）</h2>
+      <div class="row">
+        <input type="text" id="g-q" class="q" placeholder="输入关键词">
+        <button class="btn" id="g-sego">检索</button>
+      </div>
+      <div class="movies" id="g-seout" style="margin-top:12px"></div>
+    </div>
+    <div class="card">
+      <h2>数据画像</h2>
+      <div class="pair">
+        <div id="g-ch-cat" class="chart-sm"></div>
+        <div id="g-ch-year" class="chart-sm"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 六场景总览 ================= -->
+<section class="page" id="p-multi">
+  <div class="card">
+    <h2>一套排序框架 × 六个真实领域</h2>
+    <div class="note">题目原文："在许多看似无关的领域中，排序是一个重要的子问题"——六个场景共用同一套自实现排序内核、同一套多级键编码与同一份数据契约，每个场景的数据都来自真实数据集。</div>
+    <div class="scroll-tbl"><table id="tbl-multi"></table></div>
+  </div>
+  <div class="bento">
+  <div class="card">
+    <h2>真实数据上的语言库基线 vs AdaptSort（各场景最大档）</h2>
+    <div class="note">柱高 = t(std::sort)/t(AdaptSort)，&gt;1 表示 AdaptSort 快于标准库；数据来自各场景 results_real_&lt;scn&gt;.csv。</div>
+    <div id="ch-multi" class="chart2"></div>
+  </div>
+  <div class="card">
+    <h2>场景 F · 基因组后缀数组（倍增法，E. coli K-12）</h2>
+    <div class="note">每轮对 (rank[i], rank[i+k]) 复合键全量排序。实际 12 轮提前终止（全后缀已区分；理论上界 23 轮）。本数据 12 轮策略全部是「S5 基数排序+S5 基数排序」，并不随轮次变化。</div>
+    <div class="kpis" id="gene-kpis"></div>
+    <div id="ch-gene" class="chart2"></div>
+    <div class="row" style="margin-top:10px">
+      <input type="text" id="gene-q" class="q" placeholder="子串搜索演示：输入 A/C/G/T 片段（如 ACGTACGTACGT）">
+      <button class="btn" id="gene-go">搜索</button>
+      <span class="bar-note" id="gene-out">—</span>
+    </div>
+  </div>
+  </div><!-- /bento -->
+</section>
+
+<!-- ================= 关于 ================= -->
+<section class="page" id="p-about">
+  <div class="card about">
+    <h2>应用需求分析（对应评分点 9）</h2>
+    <p>题目原文："在许多看似无关的领域中，排序是一个重要的子问题"。本系统用<b>同一套自实现排序内核</b>（8 种算法 + AdaptSort）覆盖六个真实数据领域，每个场景共用一份数据契约（postings 键 + 实体台账 + 元数据）与同一套多级键编码方法：</p>
+    <li><b>电影（MovieLens 32M）</b>：3.2×10⁷ 条 (movieId, userId, ratingIdx) 打包为 int64 键排序建倒排索引——排序是索引构建的真正瓶颈；</li>
+    <li><b>电商（Amazon Electronics 782 万评论）</b>：商品关注度/好评度双模式榜单，ASIN 稠密化=键域变换；</li>
+    <li><b>城市骑行（Citi Bike 2019 全年 1279 万次）</b>：站点台账序=真实版"块状近序"，AdaptSort run-merge 路径的现实原型；</li>
+    <li><b>搜索（Stanford Web 图 510 万边）</b>：CSR 建图的排序瓶颈 + PageRank 分值经 IEEE-754 保序映射后直接复用整数排序内核；</li>
+    <li><b>航班（US DOT 2019）</b>：长尾延误分桶=计数排序的现实用例；</li>
+    <li><b>基因组（E. coli K-12 4.64 Mb）</b>：倍增后缀数组每轮对 (rank[i], rank[i+k]) 复合键全量排序——实际 12 轮提前终止（全后缀已区分）。本数据每轮策略均为 S5 基数排序，并不随轮次变化。</li>
+    <h2 style="margin-top:14px">系统架构</h2>
+    <p>C++ 单二进制（排序内核 common/ + AdaptSort + 应用层 app/）── WinSock2 手写 HTTP 服务 ── 浏览器前端（本页面，ECharts 本地化）。数据由 <code>app/pre/pre_&lt;scn&gt;.py</code> 流式预处理：原始数据 → records.jsonl.gz（JSON 交付形态）→ int64 键编码（postings.dat）；排序核心全部为 C/C++ 自实现。</p>
+    <h2 style="margin-top:14px">扩充功能（评分点 10）</h2>
+    <li>外部排序（BSBI）：内存 1/10 限流 → 块内 AdaptSort → k 路堆归并，统计 I/O 块数（<code>sort_demo_app extsort app/data/&lt;scn&gt;</code>）；</li>
+    <li>Top-K 选择对比：堆 O(n log k) vs 快速选择 O(n) vs 全排序 O(n log n)，任意场景可跑（<code>sort_demo_app topk app/data/&lt;scn&gt;</code>）；</li>
+    <li>多场景扩展框架：新增场景只需一个预处理脚本 + 键位参数（meta.txt），排序内核与 UI 零改动；</li>
+    <li>基因组子串搜索：O(m log n) 后缀数组二分（六场景总览页演示）。</li>
+  </div>
+</section>
+
+<footer>CineRank · 算法设计综合实验 题目二 · 排序内核与统计模块均为课程自实现 · 数据集 GroupLens MovieLens</footer>
+</div>
+
+<script>
+/* 待布局元素上的图表调用暂存（mkChart 用）：尺寸就绪后按原顺序补执行，
+ * 使 mkChart(...).setOption(...) 在首帧/隐藏页也安全。声明必须早于 showPage。 */
+var pendingCharts={};
+
+/* ================= 导航 ================= */
+function showPage(pid){
+  const btn=[...document.querySelectorAll("nav button")].find(x=>x.dataset.p===pid);
+  if(!btn) return;
+  document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));
+  document.querySelectorAll("section.page").forEach(x=>x.classList.remove("active"));
+  btn.classList.add("active");
+  document.getElementById("p-"+pid).classList.add("active");
+  if(pid==="app"){
+    if(CUR_SCN==="movie"){ kpis(); topk(); movieHeat(); }
+    else if(CUR_SCN==="flight") flightBoot();
+    else if(CUR_SCN==="bikecn") bikecnBoot();
+    else if(CUR_SCN==="bikesz") bikeszBoot();
+    else if(CUR_SCN==="amazon") amazonBoot();
+    else if(CUR_SCN==="web") webBoot();
+    else if(CUR_SCN==="gene") geneBoot();
+  }
+  if(pid==="lab") setTimeout(labResize, 40);
+  if(pid==="bench") benchOnShow();
+  if(pid==="multi") multiOnShow();
+  setTimeout(()=>{
+    Object.keys(pendingCharts).forEach(flushChart);        /* 切页后补建暂存的图表 */
+    Object.values(charts).forEach(c=>{try{c.resize();}catch(e){}});
+  },80);
+}
+document.querySelectorAll("nav button").forEach(b=>{
+  b.onclick=()=>showPage(b.dataset.p);
+});
+if(location.protocol==="file:"){
+  const bar=document.createElement("div");
+  bar.style.cssText="position:sticky;top:0;z-index:80;background:#7f1d1d;color:#fecaca;padding:10px 16px;font-size:13px;text-align:center";
+  bar.textContent="这是本地 html 文件，接口全是空的。请运行 sort_demo_app.exe server 后打开 http://127.0.0.1:8080";
+  document.body.prepend(bar);
+}
+
+/* ================= 全局助手 ================= */
+window.__errs=[];
+window.addEventListener("error",e=>{
+  /* ECharts 已知首帧竞态：隐藏容器里的特效层在 0×0 画布上 drawImage 抛
+   * InvalidStateError，属一次性噪声（图表随后 resize 即正常），不计入自检。 */
+  if(/drawImage[\s\S]*width or height of 0/.test(String(e.message||""))) return;
+  window.__errs.push(String(e.message));
+});
+const PALETTE=["#38bdf8","#818cf8","#34d399","#fbbf24","#f87171","#a78bfa","#22d3ee","#fb923c","#4ade80","#f472b6"];
+const TIP={backgroundColor:"rgba(8,14,28,.94)",borderColor:"rgba(148,163,184,.25)",
+  textStyle:{color:"#e6edf7"},extraCssText:"box-shadow:0 10px 28px rgba(0,0,0,.45);border-radius:10px;"};
+function grad(c1,c2,vertical=true){
+  return new echarts.graphic.LinearGradient(0,0,vertical?0:1,vertical?1:0,
+    [{offset:0,color:c1},{offset:1,color:c2}]);
+}
+function countUp(el,target,dur=700){
+  const fmt=n=>(+n).toLocaleString("en-US");
+  if(document.hidden||!el.isConnected||el.offsetParent===null){
+    el.textContent=fmt(target);return;          /* 不可见：跳过动画直接落终值 */
+  }
+  const t0=performance.now();
+  let done=false;
+  const finish=()=>{if(!done){done=true;el.textContent=fmt(target);}};
+  (function step(t){
+    if(done)return;
+    const p=Math.min(1,(t-t0)/dur),e=1-Math.pow(1-p,3);
+    el.textContent=fmt(Math.round(target*e));
+    if(p<1)requestAnimationFrame(step);else finish();
+  })(t0);
+  setTimeout(finish,dur+150);   /* 后台标签页 rAF 节流兜底：到点保证落终值 */
+}
+function mountCounters(root){root.querySelectorAll("[data-v]").forEach(n=>countUp(n,+n.dataset.v));}
+function setLoading(el,on){
+  if(!el)return;
+  /* 只加骨架遮罩，禁止 innerHTML="" —— 那会拆掉 ECharts 的 canvas，
+   * 换分布/数据源后仍复用已死的实例，图就变成空白。 */
+  el.classList.toggle("sk", !!on);
+}
+
+/* ================= 算法实验室 ================= */
+const lab={frames:[],meta:[],i:0,raf:0,t:1,sweep:-1,dpr:1,cw:0,ch:340};
+/* 规模滑杆：0..1000 对数映射到 8..10000（小规格精细、大规格粗粒度） */
+const N_MIN=8,N_MAX=10000;
+function sliderToN(t){
+  const v=N_MIN*Math.pow(N_MAX/N_MIN,t/1000);
+  return v<100?Math.round(v):v<1000?Math.round(v/10)*10:Math.round(v/100)*100;
+}
+function nToSlider(n){return Math.round(1000*Math.log(n/N_MIN)/Math.log(N_MAX/N_MIN));}
+const cv=document.getElementById("canvas"),ctx=cv.getContext("2d");
+function labResize(){
+  if(!cv||!cv.parentElement)return;
+  if(cv.offsetParent===null)return;          /* 实验室页隐藏时不要把画布量成 0 */
+  const r=cv.getBoundingClientRect();
+  const w=Math.floor(r.width), h=Math.floor(r.height);
+  if(w<80||h<80)return;
+  lab.dpr=window.devicePixelRatio||1;
+  lab.cw=w; lab.ch=h;
+  cv.width=Math.round(lab.cw*lab.dpr);
+  cv.height=Math.round(lab.ch*lab.dpr);
+  drawTween(lab.i,lab.i,1);
+}
+function barColor(v,maxV){          /* 值→色相：蓝(212°)→紫(264°)，越亮越高 */
+  const t=maxV>0?v/maxV:0;
+  return `hsl(${212+t*52} 85% ${42+t*22}%)`;
+}
+/* 帧值域：返回绝对值上界与是否含负数。含负数时以画布中线为 0 基线，
+ * 正柱向上、负柱向下——否则负值会被压成 0 高度（只看到贴底的一条线）。 */
+function frameRange(frames){
+  let maxAbs=1,minV=0,maxV=0;
+  for(const f of frames) for(let i=0;i<f.length;i++){const v=f[i];
+    if(v>maxV)maxV=v; if(v<minV)minV=v;
+    const a=v<0?-v:v; if(a>maxAbs)maxAbs=a;}
+  return {maxAbs,minV,maxV,signed:minV<0};
+}
+function drawTween(fi,ci,t){
+  const W=lab.cw,H=lab.ch,n=lab.frames.length?lab.frames[0].length:0;
+  ctx.setTransform(lab.dpr,0,0,lab.dpr,0,0);
+  ctx.clearRect(0,0,W,H);
+  if(!n)return;
+  const cur=lab.frames[ci],mt=lab.meta[ci];
+  const prev=lab.frames[fi]||cur;
+  const rg=lab.rg||frameRange(lab.frames);
+  const maxV=rg.maxAbs;
+  /* 有符号值：0 基线居中（±各占一半）；否则沿用贴底基线 */
+  const pad=24, plotH=H-pad*1.6;
+  const zeroY=rg.signed?H/2:H-pad;
+  const unit=rg.signed?plotH/2/maxV:plotH/maxV;   /* 每单位像素 */
+  const hOf=v=>(v<0?-v:v)*unit;
+  const bw=W/n;
+  const mono=getComputedStyle(document.body).fontFamily;
+  if(rg.signed){    /* 中线 = 0 轴，画一条细参考线，负数侧不再被截断 */
+    ctx.strokeStyle="rgba(148,163,184,.35)";ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(0,zeroY+.5);ctx.lineTo(W,zeroY+.5);ctx.stroke();
+  }
+  if(n>W){
+    /* 大规格：按像素桶聚合均值 —— 有序后呈单调色带，混沌区呈噪声 */
+    const buckets=Math.max(1,Math.floor(W));
+    for(let b=0;b<buckets;b++){
+      const i0=Math.floor(b*n/buckets),i1=Math.max(i0+1,Math.floor((b+1)*n/buckets));
+      let s0=0,s1=0;
+      for(let i=i0;i<i1;i++){s0+=prev[i];s1+=cur[i];}
+      const v0=s0/(i1-i0),v1=s1/(i1-i0);
+      const v=v0+(v1-v0)*t;
+      const h=hOf(v);
+      let col=barColor(v,maxV);
+      if(lab.sweep>=0&&i1-1<=lab.sweep)col="#34d399";
+      ctx.fillStyle=col;
+      ctx.fillRect(b,v<0?zeroY:zeroY-h,1,h);
+    }
+    if(mt&&mt[2]>=0){   /* 触达位置画竖线（写指针） */
+      const x=(mt[2]+0.5)*W/n;
+      ctx.strokeStyle="rgba(249,115,22,.85)";ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(x,10);ctx.lineTo(x,H-pad);ctx.stroke();
+    }
+    return;
+  }
+  for(let i=0;i<n;i++){
+    const v=prev[i]+(cur[i]-prev[i])*t;
+    const h=hOf(v);
+    const x=i*bw+1;
+    const y=v<0?zeroY:zeroY-h;             /* 负值从 0 轴向下生长 */
+    let col=barColor(v,maxV),glow=false;
+    if(mt&&(i===mt[2]||i===mt[3])){col="#f97316";glow=true;}   /* 最近触达 */
+    if(lab.sweep>=0&&i<=lab.sweep){col="#34d399";glow=true;}   /* 有序前缀扫光 */
+    ctx.save();
+    if(glow){ctx.shadowColor=col;ctx.shadowBlur=14;}
+    ctx.fillStyle=col;
+    ctx.beginPath();
+    const r=Math.min(3,bw/2-1);
+    const rr=v<0?[0,0,r,r]:[r,r,0,0];       /* 负柱圆角朝下 */
+    if(ctx.roundRect)ctx.roundRect(x,y,Math.max(1,bw-2),h,rr);
+    else ctx.rect(x,y,Math.max(1,bw-2),h);
+    ctx.fill();
+    ctx.restore();
+    if(n<=40&&lab.sweep<0){
+      ctx.fillStyle="rgba(230,237,247,.72)";ctx.font="10px "+mono;ctx.textAlign="center";
+      ctx.fillText(Math.round(v),x+(bw-2)/2,v<0?y+h+11:y-4);   /* 负值标签放柱底之下 */
+    }
+  }
+}
+function labSetCounters(a,b,t){
+  document.getElementById("lab-c").textContent=Math.round(a[0]+(b[0]-a[0])*t);
+  document.getElementById("lab-m").textContent=Math.round(a[1]+(b[1]-a[1])*t);
+  document.getElementById("lab-f").textContent=(lab.i+1)+"/"+lab.frames.length;
+}
+function labShow(i){
+  lab.i=Math.max(0,Math.min(i,lab.frames.length-1));
+  lab.t=1;lab.sweep=-1;
+  drawTween(lab.i,lab.i,1);
+  const mt=lab.meta[lab.i],mp=lab.meta[lab.i-1]||mt;
+  labSetCounters(mt,mp,1);
+}
+function labStop(){
+  if(lab.raf){cancelAnimationFrame(lab.raf);lab.raf=0;}
+  document.getElementById("lab-play").textContent="播放";
+}
+function labSweep(cb){               /* 完成：绿色有序前缀扫光 */
+  const t0=performance.now(),dur=750,n=lab.frames.length?lab.frames[0].length:0;
+  (function step(ts){
+    const p=Math.min(1,(ts-t0)/dur);
+    lab.sweep=Math.floor(p*(n-1));
+    drawTween(lab.i,lab.i,1);
+    if(p<1)lab.raf=requestAnimationFrame(step);
+    else{lab.sweep=-1;cb&&cb();}
+  })(t0);
+}
+function labLoad(){
+  labStop();
+  const algo=document.getElementById("lab-algo").value,
+        dist=document.getElementById("lab-dist").value,
+        n=Math.max(N_MIN,Math.min(N_MAX,Math.round(+document.getElementById("lab-n-num").value)||32));
+  document.getElementById("lab-state").textContent="计算中...";
+  fetch(`/api/sort/steps?algo=${algo}&n=${n}&dist=${dist}&order=1`)
+    .then(r=>r.json()).then(j=>{
+      lab.frames=j.frames;lab.meta=j.meta;lab.i=0;lab.t=1;lab.sweep=-1;
+      lab.rg=frameRange(j.frames);          /* 值域/符号性一次性算出，逐帧复用 */
+      const chip=document.getElementById("lab-strategy");
+      if(j.strategy){chip.style.display="inline-block";chip.textContent="AdaptSort 决策: "+j.strategy;}
+      else chip.style.display="none";
+      document.getElementById("lab-state").textContent="就绪";
+      labResize();
+      drawTween(0,0,1);
+      labSetCounters(lab.meta[0],lab.meta[0],1);
+    });
+}
+document.getElementById("lab-play").onclick=()=>{
+  if(lab.raf){labStop();return;}
+  if(lab.i>=lab.frames.length-1)labShow(0);
+  document.getElementById("lab-play").textContent="暂停";
+  let t0=0;
+  const step=(ts)=>{
+    if(!t0)t0=ts;
+    const dur=Math.max(16,320/+document.getElementById("lab-speed").value);
+    let p=(ts-t0)/dur;
+    while(p>=1&&lab.i<lab.frames.length-1){lab.i++;t0+=dur;p=(ts-t0)/dur;}  /* 快进档追帧 */
+    if(lab.i>=lab.frames.length-1){
+      lab.raf=0;
+      document.getElementById("lab-state").textContent="完成 ✓";
+      labSweep(()=>labStop());
+      return;
+    }
+    lab.t=Math.min(1,p);
+    drawTween(lab.i,lab.i+1,lab.t);
+    labSetCounters(lab.meta[lab.i],lab.meta[lab.i+1],lab.t);
+    lab.raf=requestAnimationFrame(step);
+  };
+  lab.raf=requestAnimationFrame(step);
+};
+document.getElementById("lab-step").onclick=()=>{labStop();labShow(lab.i+1);};
+document.getElementById("lab-reset").onclick=labLoad;
+document.getElementById("lab-n").oninput=e=>{
+  document.getElementById("lab-n-num").value=sliderToN(+e.target.value);   /* 滑杆 → 输入框同步 */
+};
+document.getElementById("lab-n-num").onchange=e=>{                         /* 输入框 → 滑杆同步并加载 */
+  let n=Math.round(+e.target.value||32);
+  n=Math.max(N_MIN,Math.min(N_MAX,n));
+  e.target.value=n;
+  document.getElementById("lab-n").value=nToSlider(n);
+  labLoad();
+};
+document.getElementById("lab-n").onchange=labLoad;
+document.getElementById("lab-algo").onchange=labLoad;
+document.getElementById("lab-dist").onchange=labLoad;
+function fmtWait(ms){
+  if(ms<800) return "不到 1 秒";
+  if(ms<10000) return "约 "+Math.max(1,Math.round(ms/1000))+" 秒";
+  if(ms<90000) return "约 "+Math.round(ms/1000)+" 秒";
+  const m=ms/60000;
+  if(m<10) return "约 "+m.toFixed(1)+" 分钟";
+  return "约 "+Math.round(m)+" 分钟";
+}
+function estRunMs(algo,n,dist){
+  const N=+n, lg=Math.log2(Math.max(2,N));
+  let one=1e-4*N;                         /* 单轮 ms，量级来自 results_cpp.csv */
+  if(algo==="insertion") one=1.5e-7*N*N;
+  else if(algo==="bubble") one=2.5e-6*N*N;
+  else if(algo==="selection") one=1.3e-6*N*N;
+  else if(algo==="shell") one=1.1e-4*N*lg*lg;
+  else if(algo==="heap") one=8.6e-5*N*lg;
+  else if(algo==="quick"||algo==="merge") one=6.0e-5*N*lg;
+  else if(algo==="radix"||algo==="adapt") one=5.0e-6*N;
+  if(dist==="desc" && (algo==="insertion"||algo==="bubble")) one*=2;
+  if(dist==="asc" && (algo==="insertion"||algo==="bubble")) one=Math.max(0.05, one*0.02);
+  return one*7+40;                        /* 预热+5 轮计时 + 1 轮计数 */
+}
+function runEtaText(){
+  const algo=document.getElementById("run-algo").value,
+        n=document.getElementById("run-n").value,
+        dist=document.getElementById("run-dist").value;
+  const ms=estRunMs(algo,n,dist);
+  let s="预计墙钟 "+fmtWait(ms);
+  if(ms>8000) s+=" · 二次算法 × 大 n 会明显变慢，不是卡住";
+  return {ms,s};
+}
+function refreshRunEta(){
+  if(runJob.busy) return;
+  document.getElementById("run-eta").textContent=runEtaText().s;
+}
+const runJob={ctl:null, timer:0, t0:0, busy:false};
+function runIdle(){
+  runJob.busy=false; runJob.ctl=null;
+  if(runJob.timer){clearInterval(runJob.timer); runJob.timer=0;}
+  document.getElementById("run-go").disabled=false;
+  document.getElementById("run-stop").hidden=true;
+  setLoading(document.getElementById("run-sk"),false);
+  refreshRunEta();
+}
+["run-algo","run-n","run-dist"].forEach(id=>document.getElementById(id).onchange=refreshRunEta);
+refreshRunEta();
+document.getElementById("run-go").onclick=()=>{
+  if(runJob.busy) return;
+  const algo=document.getElementById("run-algo").value,
+        n=document.getElementById("run-n").value,
+        dist=document.getElementById("run-dist").value;
+  const eta=runEtaText();
+  runJob.busy=true; runJob.t0=performance.now();
+  runJob.ctl=typeof AbortController==="function"?new AbortController():null;
+  document.getElementById("run-go").disabled=true;
+  document.getElementById("run-stop").hidden=false;
+  setLoading(document.getElementById("run-sk"),true);
+  const tick=()=>{
+    const el=Math.round((performance.now()-runJob.t0)/1000);
+    document.getElementById("run-out").textContent=`运行中 · 已等待 ${el} 秒 · ${eta.s}`;
+    document.getElementById("run-eta").textContent=`已等待 ${el} 秒 / ${eta.s}`;
+  };
+  tick();
+  runJob.timer=setInterval(tick,400);
+  const opts=runJob.ctl?{signal:runJob.ctl.signal}:{};
+  fetch(`/api/sort/run?algo=${algo}&n=${n}&dist=${dist}`,opts).then(r=>r.json()).then(j=>{
+    if(j.error){ document.getElementById("run-out").textContent="错误: "+j.error; return; }
+    const wall=((performance.now()-runJob.t0)/1000).toFixed(1);
+    document.getElementById("run-out").textContent=
+      `耗时(min of 5)=${j.min_ms.toFixed(3)} ms, 比较=${j.cmp}, 移动=${j.mv}, 附加空间=${j.aux}B, 正确=${j.ok?"✓":"✗"} · 墙钟 ${wall}s`;
+  }).catch(e=>{
+    if(e&&e.name==="AbortError"){
+      document.getElementById("run-out").textContent="已停止等待。后端这次仍会跑完（单线程），请稍后再点运行。";
+      return;
+    }
+    document.getElementById("run-out").textContent="请求失败: "+(e&&e.message?e.message:e);
+  }).finally(runIdle);
+};
+document.getElementById("run-stop").onclick=()=>{
+  if(runJob.ctl) runJob.ctl.abort();
+  else runIdle();
+};
+labLoad();
+labResize();
+setTimeout(labResize, 80);
+
+/* ================= 性能基准 ================= */
+const charts={};
+
+function flushChart(id,tries){
+  const q=pendingCharts[id];
+  const el=document.getElementById(id);
+  if(!q||!el) return;
+  if(el.clientWidth<2||el.clientHeight<2){
+    /* 布局未就绪：定时重试（上限 ~2 分钟）。用 setTimeout 而非 rAF——
+     * 后台标签页里 rAF 完全不触发，图表会永远建不出来。 */
+    if((tries||0)<1000) setTimeout(()=>flushChart(id,(tries||0)+1),120);
+    return;
+  }
+  delete pendingCharts[id];
+  const ch=echarts.init(el,{renderer:"canvas"});
+  charts[id]=ch;
+  q.forEach(fn=>{ try{fn(ch);}catch(e){} });
+}
+function mkChart(id){
+  const el=document.getElementById(id);
+  if(!el) return {setOption(){},clear(){},dispose(){},resize(){},getOption(){return {};},on(){}};
+  if(charts[id]){
+    try{
+      const dom=charts[id].getDom();
+      if(dom!==el || !el.querySelector("canvas")){
+        charts[id].dispose();
+        delete charts[id];
+      }
+    }catch(e){ try{charts[id].dispose();}catch(_){ } delete charts[id]; }
+  }
+  if(charts[id]) return charts[id];
+  if(el.clientWidth<2||el.clientHeight<2){
+    /* 尚未布局：登记调用，等有尺寸再真正建实例执行（避免 0×0 画布报错） */
+    const q=pendingCharts[id]=pendingCharts[id]||[];
+    setTimeout(()=>flushChart(id),120);
+    const stub={};
+    ["setOption","clear","dispose","resize","on","off","dispatchAction","getOption","isDisposed"]
+      .forEach(m=>{ stub[m]=(...a)=>{ q.push(ch=>ch[m](...a)); return stub; }; });
+    return stub;
+  }
+  charts[id]=echarts.init(el,{renderer:"canvas"});
+  return charts[id];
+}
+let rzT=0;
+window.addEventListener("resize",()=>{
+  labResize();
+  clearTimeout(rzT);
+  rzT=setTimeout(()=>Object.values(charts).forEach(c=>{try{c.resize();}catch(e){}}),70);
+});
+
+function parseCSV(t){
+  const lines=t.trim().split("\n");const head=lines[0].split(",");
+  return lines.slice(1).filter(l=>l.trim()).map(l=>{
+    const v=l.split(","),o={};head.forEach((h,i)=>o[h]=v[i]);return o;});
+}
+const ALGO_ZH={insertion:"直接插入",bubble:"冒泡",selection:"选择",shell:"希尔",
+quick:"快速",heap:"堆",radix:"基数",merge:"归并",adapt:"AdaptSort",
+stdsort:"std::sort",qsort:"qsort"};
+const DIST_ZH={uniform:"均匀",gauss:"高斯",poisson:"泊松",asc:"正序",desc:"逆序",
+cve:"CVE替身",real:"真实posting"};
+
+function chartTime(){
+  const src=document.getElementById("bc-src").value;
+  const distSel=document.getElementById("bc-dist");
+  let dist=distSel.value;
+  if(src==="real"){ dist="real"; distSel.value="real"; distSel.disabled=true; }
+  else {
+    distSel.disabled=false;
+    if(dist==="real"){ dist="uniform"; distSel.value="uniform"; }
+  }
+  const csvName=src==="real"?"real":src;
+  const host=document.getElementById("ch-time");
+  setLoading(host,true);
+  fetch(`/api/bench/data?name=${csvName}`).then(r=>r.text()).then(t=>{
+    setLoading(host,false);
+    const rows=parseCSV(t).filter(r=>+r.tmin_ms>0 &&
+      (src==="real" ? r.dist==="real" : r.dist===dist));
+    const byAlgo={};
+    rows.forEach(r=>{
+      const a=r.algo;
+      (byAlgo[a]=byAlgo[a]||[]).push([+r.n,+r.tmin_ms]);
+    });
+    const ch=mkChart("ch-time");
+    if(!ch) return;
+    if(!Object.keys(byAlgo).length){
+      ch.clear();
+      ch.setOption({
+        title:{text:"该组合无有效计时（矩阵里可能是 −1 超时）",left:"center",top:"middle",
+          textStyle:{color:"#8fa3bf",fontSize:14,fontWeight:400}},
+        xAxis:{show:false},yAxis:{show:false},series:[]
+      },true);
+      return;
+    }
+    const series=Object.entries(byAlgo).map(([a,pts],i)=>{
+      pts.sort((x,y)=>x[0]-y[0]);
+      return {name:ALGO_ZH[a]||a,type:"line",smooth:true,data:pts,symbolSize:5,
+        lineStyle:{width:2,color:PALETTE[i%PALETTE.length]},
+        itemStyle:{color:PALETTE[i%PALETTE.length]}};
+    });
+    ch.setOption({
+      title:{show:false},
+      tooltip:{...TIP,trigger:"axis"},
+      legend:{textStyle:{color:"#8fa3bf"},top:2,icon:"roundRect",itemWidth:14,itemHeight:3},
+      grid:{top:44,left:64,right:26,bottom:46},
+      xAxis:{type:"log",name:"n",nameTextStyle:{color:"#8fa3b8"},show:true,
+        axisLabel:{color:"#8fa3bf"},axisLine:{lineStyle:{color:"rgba(148,163,184,.25)"}},
+        splitLine:{show:false}},
+      yAxis:{type:"log",name:"ms",nameTextStyle:{color:"#8fa3bf"},show:true,
+        axisLabel:{color:"#8fa3bf"},splitLine:{lineStyle:{color:"rgba(148,163,184,.09)"}}},
+      series},true);
+    setTimeout(()=>ch.resize(),30);
+  }).catch(e=>{
+    setLoading(host,false);
+    const ch=mkChart("ch-time");
+    if(ch) ch.setOption({title:{text:"加载失败: "+(e&&e.message?e.message:e),left:"center",top:"middle",
+      textStyle:{color:"#f87171",fontSize:13,fontWeight:400}},xAxis:{show:false},yAxis:{show:false},series:[]},true);
+  });
+}
+function chartReal(){
+  setLoading(document.getElementById("ch-real"),true);
+  setLoading(document.getElementById("tbl-real"),true);
+  fetch("/api/bench/data?name=real").then(r=>r.text()).then(t=>{
+    setLoading(document.getElementById("ch-real"),false);
+    const rows=parseCSV(t).filter(r=>+r.tmin_ms>=0);
+    const maxN=Math.max(...rows.map(r=>+r.n));
+    const chip=document.getElementById("ch-real-n");
+    chip.style.display="inline-block";
+    chip.textContent="n = "+maxN.toLocaleString("en-US");
+    const rs=rows.filter(r=>+r.n===maxN).sort((a,b)=>a.tmin_ms-b.tmin_ms);
+    const mn=rs[0].tmin_ms;
+    mkChart("ch-real").setOption({
+      tooltip:{...TIP,trigger:"axis",axisPointer:{type:"shadow"}},
+      grid:{left:110,right:86,top:14,bottom:26},
+      xAxis:{type:"value",name:"ms",nameTextStyle:{color:"#8fa3bf"},
+        axisLabel:{color:"#8fa3bf"},splitLine:{lineStyle:{color:"rgba(148,163,184,.09)"}}},
+      yAxis:{type:"category",data:rs.map(r=>ALGO_ZH[r.algo]||r.algo),
+        axisLabel:{color:"#e6edf7"},axisLine:{show:false},axisTick:{show:false}},
+      series:[{type:"bar",data:rs.map(r=>+r.tmin_ms),
+        barMaxWidth:16,itemStyle:{borderRadius:[0,7,7,0],
+          color:p=>p.dataIndex===0?grad("#34d399","#0d9488"):grad("#38bdf8","#6366f1")},
+        label:{show:true,position:"right",color:"#8fa3bf",fontFamily:"Consolas",
+          formatter:p=>p.value>=1?p.value.toFixed(2)+" ms":p.value.toFixed(3)+" ms"}}]},true);
+    /* 明细表 */
+    let h="<thead><tr><th>算法</th><th>n</th><th>耗时min/ms</th><th>中位/ms</th><th>标准差</th><th>比较</th><th>移动</th><th>附加空间B</th><th>策略</th></tr></thead><tbody>";
+    rows.slice().sort((a,b)=>a.n-b.n||a.tmin_ms-b.tmin_ms).forEach(r=>{
+      h+=`<tr><td>${ALGO_ZH[r.algo]||r.algo}</td><td class="num">${r.n}</td><td class="num">${r.tmin_ms}</td><td class="num">${r.tmed_ms}</td><td class="num">${r.tstd_ms}</td><td class="num">${r.cmp}</td><td class="num">${r.mv}</td><td class="num">${r.aux_peak}</td><td>${r.strategy||""}</td></tr>`;});
+    const tb=document.getElementById("tbl-real");
+    tb.innerHTML=h+"</tbody>";
+    setLoading(tb,false);
+  });
+}
+function chartLang(){
+  setLoading(document.getElementById("ch-lang"),true);
+  fetch("/api/bench/data?name=c_vs_cpp").then(r=>r.text()).then(t=>{
+    setLoading(document.getElementById("ch-lang"),false);
+    const rows=parseCSV(t).filter(r=>r.ratio_cpp_over_c);
+    const byAlgo={};
+    rows.forEach(r=>{(byAlgo[r.algo]=byAlgo[r.algo]||[]).push(+r.ratio_cpp_over_c);});
+    const names=Object.keys(byAlgo);
+    const geo=names.map(a=>Math.exp(byAlgo[a].reduce((s,v)=>s+Math.log(v),0)/byAlgo[a].length));
+    mkChart("ch-lang").setOption({
+      tooltip:{...TIP,trigger:"axis",axisPointer:{type:"shadow"}},
+      grid:{left:96,right:70,top:14,bottom:26},
+      xAxis:{type:"value",axisLabel:{color:"#8fa3bf"},
+        splitLine:{lineStyle:{color:"rgba(148,163,184,.09)"}}},
+      yAxis:{type:"category",data:names.map(a=>ALGO_ZH[a]||a),axisLabel:{color:"#e6edf7"},
+        axisLine:{show:false},axisTick:{show:false}},
+      series:[{type:"bar",data:geo.map(v=>+v.toFixed(3)),
+        barMaxWidth:16,itemStyle:{borderRadius:[0,7,7,0],
+          color:p=>p.value>1.02?grad("#f87171","#dc2626"):(p.value<0.98?grad("#34d399","#0d9488"):grad("#fbbf24","#d97706"))},
+        label:{show:true,position:"right",color:"#8fa3bf",fontFamily:"Consolas",
+          formatter:p=>p.value.toFixed(3)+"×"},
+        markLine:{symbol:"none",silent:true,
+          data:[{xAxis:1}],lineStyle:{color:"rgba(148,163,184,.4)",type:"dashed"},
+          label:{show:false}}}]},true);
+  });
+}
+function benchOnShow(){chartTime();chartReal();chartLang();
+  Object.values(charts).forEach(c=>setTimeout(()=>c.resize(),50));}
+document.getElementById("bc-src").onchange=e=>{
+  const opts=document.getElementById("bc-dist");
+  if(e.target.value==="real"){opts.value="real";opts.disabled=true;}
+  else{opts.disabled=false;}
+  chartTime();};
+document.getElementById("bc-dist").onchange=chartTime;
+
+/* ================= 电影应用 ================= */
+function hueOf(s){let h=0;for(let i=0;i<(s||"").length;i++)h=(h*33+s.charCodeAt(i))>>>0;return h%360;}
+function filmShort(t){return (t||"").replace(/\s*\(\d{4}\)\s*$/,"");}
+function paintWall(rs){
+  const box=document.getElementById("mv-wall");
+  if(!box)return;
+  box.innerHTML=(rs||[]).map(m=>`
+    <button type="button" class="film" style="--h:${hueOf(m.title)}" data-id="${m.id}" title="点击查看评分分布">
+      <div class="film-art">
+        <span class="film-fb" aria-hidden="true">${escH(filmShort(m.title).slice(0,1).toUpperCase()||"?")}</span>
+        <img alt="${escH(m.title)}" src="/assets/posters/${m.id}.jpg" loading="lazy"
+          onerror="this.remove()">
+        <span class="film-rk">#${m.rank}</span>
+        <span class="film-yr">${m.year||""}</span>
+      </div>
+      <div class="film-t">${escH(m.title)}</div>
+      <div class="film-s"><b>★ ${m.mean.toFixed(2)}</b> · ${m.count.toLocaleString()} 票</div>
+    </button>`).join("");
+  box.querySelectorAll(".film").forEach(el=>{el.onclick=()=>filmHist(+el.dataset.id,true);});
+}
+
+/* ---------- 单片评分分布（moviehist.json，来自 postings_1e6 等距抽样） ---------- */
+let MH=null, fhPicked=false;   /* fhPicked：用户手动选过片后，不再自动跟随榜单第一名 */
+function filmHist(mid,byUser){
+  if(byUser) fhPicked=true;
+  const chip=document.getElementById("fh-chip"), note=document.getElementById("fh-note");
+  const draw=j=>{
+    const m=j.movies[String(mid)];
+    if(!m){
+      chip.style.display="none";
+      note.textContent="该影片不在评分抽样的 Top 1200 里（抽样来自 postings_1e6.dat）——点一部榜单上的影片即可。";
+      mkChart("ch-filmhist").clear();
+      return;
+    }
+    chip.style.display="inline-block";
+    chip.textContent=m.title;
+    const h=m.hist, tot=h.reduce((s,v)=>s+v,0)||1;
+    const hi=h.slice(7).reduce((s,v)=>s+v,0), lo=h.slice(0,4).reduce((s,v)=>s+v,0);
+    const peak=h.indexOf(Math.max(...h));
+    let shape="口碑集中";
+    if(lo>tot*0.15&&hi>tot*0.4) shape="双峰争议：低分与高分都很厚，均分掩盖了对立";
+    else if(hi>tot*0.75) shape="高分厚尾：4★ 以上占绝对多数，均分可信";
+    else if(lo>tot*0.3) shape="低分偏多：差评尾部厚，均分容易被拉低";
+    /* scale=1 表示直方图取自全量数据，不必再写「×1 ≈ 全量」 */
+    const sc=+j.scale||1;
+    const cntTxt = sc>1.001
+      ? `抽样评分 ${tot.toLocaleString()} 条（×${sc.toFixed(0)} ≈ 全量）`
+      : `评分 ${tot.toLocaleString()} 条（全量精确值）`;
+    note.innerHTML=`<b>${escH(m.title)}</b>（${m.year||"—"} · ${escH(m.genre)}）· 均分 ★ ${(+m.mean).toFixed(2)} · ${cntTxt}。峰值 ${((peak+1)/2).toFixed(1)}★；≥4★ 占 ${(hi/tot*100).toFixed(1)}%，≤2★ 占 ${(lo/tot*100).toFixed(1)}% —— <b>${shape}</b>。`;
+    mkChart("ch-filmhist").setOption({
+      tooltip:{...TIP,trigger:"axis",axisPointer:{type:"shadow"},
+        formatter:p=>`${p[0].name}★<br>${(+p[0].value).toLocaleString()} 条 · ${(p[0].value/tot*100).toFixed(1)}%`},
+      grid:{left:56,right:18,top:18,bottom:30},
+      xAxis:{type:"category",data:h.map((_,i)=>((i+1)/2).toFixed(1)),axisLabel:{color:"#8fa3bf"},
+        axisLine:{lineStyle:{color:"rgba(148,163,184,.25)"}}},
+      yAxis:{type:"value",axisLabel:{color:"#8fa3bf"},splitLine:{lineStyle:{color:"rgba(148,163,184,.09)"}}},
+      series:[{type:"bar",data:h.map((v,i)=>({value:v,itemStyle:{
+          color:i>=7?grad("#34d399","#0d9488"):i<=3?grad("#f87171","#dc2626"):grad("#fbbf24","#d97706"),
+          borderRadius:[5,5,0,0]}})),barMaxWidth:26,
+        label:{show:true,position:"top",color:"#8fa3bf",fontSize:10,
+          formatter:p=>tot?(p.value/tot*100).toFixed(0)+"%":""}}]
+    },true);
+  };
+  if(MH){ draw(MH); return; }
+  note.textContent="评分分布加载中…";
+  fetch("/api/scn/extra?scn=movie&file=moviehist.json").then(r=>r.json())
+    .then(j=>{MH=j;draw(j);})
+    .catch(()=>{note.textContent="moviehist.json 加载失败。";});
+}
+/* ---------- 双榜名次迁移（A/B 场景共用） ---------- */
+function slopeChart(elId,L,R,nameOf,tipOf){
+  const keyOf=m=>m.id!=null?("i"+m.id):("n"+m.name);
+  const rOf=new Map(R.map((m,i)=>[keyOf(m),i]));
+  const lines=[];
+  L.forEach((m,i)=>{
+    const j=rOf.get(keyOf(m));
+    if(j===undefined)return;
+    const d=j-i;
+    lines.push({coords:[[0,i],[1,j]], d,
+      lineStyle:{width:Math.min(3,1.1+Math.abs(d)*0.18),
+        color:d>4?"#f87171":d<-4?"#34d399":"rgba(148,163,184,.42)"}});
+  });
+  const lab=t=>t.length>22?t.slice(0,21)+"…":t;
+  mkChart(elId).setOption({
+    tooltip:{...TIP, formatter:p=>{
+      if(p.seriesType==="lines"){
+        const d=p.data.d, m=L[p.data.coords[0][1]];
+        return `<b>${escH(nameOf(m))}</b><br>关注度 #${p.data.coords[0][1]+1} → 好评度 #${p.data.coords[1][1]+1}<br>名次 ${d===0?"不变":(d>0?"下降 ":"上升 ")+Math.abs(d)}${tipOf?("<br>"+tipOf(m)):""}`;
+      }
+      return p.name||"";
+    }},
+    grid:{left:128,right:128,top:28,bottom:18},
+    xAxis:{type:"value",min:-0.05,max:1.05,splitLine:{show:false},axisLine:{show:false},axisTick:{show:false},axisLabel:{show:false}},
+    yAxis:{type:"value",min:-0.4,max:Math.max(19.4,L.length-0.6),inverse:true,splitLine:{show:false},axisLine:{show:false},axisTick:{show:false},axisLabel:{show:false}},
+    graphic:[{type:"text",left:128,top:4,style:{text:"关注度",fill:"#8fa3bf",fontSize:11}},
+             {type:"text",right:128,top:4,style:{text:"好评度",fill:"#8fa3bf",fontSize:11,textAlign:"right"}}],
+    series:[
+      {type:"lines",coordinateSystem:"cartesian2d",data:lines,polyline:false,
+        lineStyle:{curveness:0.18},emphasis:{lineStyle:{width:3,color:"#38bdf8"}}},
+      {type:"scatter",data:L.map((m,i)=>({value:[0,i],name:lab(nameOf(m))})),
+        symbolSize:8,itemStyle:{color:"#38bdf8"},
+        label:{show:true,position:"left",color:"#e6edf7",fontSize:10,formatter:p=>p.name}},
+      {type:"scatter",data:R.map((m,i)=>({value:[1,i],name:lab(nameOf(m))})),
+        symbolSize:8,itemStyle:{color:"#818cf8"},
+        label:{show:true,position:"right",color:"#e6edf7",fontSize:10,formatter:p=>p.name}}
+    ]
+  },true);
+}
+function rankMove(){
+  const el=document.getElementById("ch-rankmove");
+  if(!el)return;
+  const mv=document.getElementById("tp-mv").value,
+        genre=document.getElementById("tp-genre").value||"(all)";
+  const q=`k=20&genre=${encodeURIComponent(genre)}&minvotes=${mv}`;
+  Promise.all([
+    fetch(`/api/movies/topk?${q}&mode=pop`).then(r=>r.json()),
+    fetch(`/api/movies/topk?${q}&mode=rat`).then(r=>r.json())
+  ]).then(([a,b])=>{
+    slopeChart("ch-rankmove",a.items||[],b.items||[],m=>filmShort(m.title),
+      m=>`★ ${m.mean.toFixed(2)} · ${m.count.toLocaleString()} 票`);
+  }).catch(()=>{});
+}
+function movieHeat(){
+  fetch("/api/scn/extra?scn=movie&file=movieheat.json").then(r=>r.json()).then(j=>{
+    if(!j||!j.matrix){mkChart("ch-heat").clear();return;}
+    const data=[];
+    j.matrix.forEach((row,yi)=>row.forEach((v,xi)=>data.push([xi,yi,v])));
+    mkChart("ch-heat").setOption({
+      tooltip:{...TIP,formatter:p=>`${j.genres[p.data[1]]} · ${j.decades[p.data[0]]}s<br>${p.data[2]} 部`},
+      grid:{left:88,right:18,top:16,bottom:36},
+      xAxis:{type:"category",data:j.decades.map(d=>d+"s"),axisLabel:{color:"#8fa3bf",fontSize:10},
+        axisLine:{lineStyle:{color:"rgba(148,163,184,.25)"}}},
+      yAxis:{type:"category",data:j.genres,axisLabel:{color:"#e6edf7",fontSize:11},
+        axisLine:{show:false},axisTick:{show:false}},
+      visualMap:{min:0,max:Math.max(1,...data.map(d=>d[2])),show:false,
+        inRange:{color:["#0b1322","#164e63","#38bdf8","#fde68a"]}},
+      series:[{type:"heatmap",data,emphasis:{itemStyle:{shadowBlur:8,shadowColor:"rgba(56,189,248,.45)"}}}]
+    },true);
+  }).catch(()=>{});
+}
+function kpis(){
+  fetch("/api/stats").then(r=>r.json()).then(j=>{
+    const box=document.getElementById("app-kpis");
+    box.innerHTML=[
+      ["评分条数",j.postings,true],
+      ["影片",j.movies,true],
+      ["用户(估)",j.maxUser,true],
+      ["年份跨度","1901–2019",false]
+    ].map(([l,v,num])=>`<div class="kpi"><div class="num"${num?` data-v="${v}"`:""}>${num?"0":v}</div><div class="lab">${l}</div></div>`).join("");
+    mountCounters(box);
+    /* 数据画像 */
+    mkChart("ch-year").setOption({
+      tooltip:{...TIP,trigger:"axis"},
+      grid:{left:70,right:24,top:18,bottom:34},
+      xAxis:{type:"category",data:j.yearHist.map(x=>x[0]),axisLabel:{color:"#8fa3bf"},
+        axisLine:{lineStyle:{color:"rgba(148,163,184,.25)"}}},
+      yAxis:{type:"value",axisLabel:{color:"#8fa3bf"},
+        splitLine:{lineStyle:{color:"rgba(148,163,184,.09)"}}},
+      series:[{type:"line",smooth:true,data:j.yearHist.map(x=>x[1]),
+        lineStyle:{width:2.4,color:grad("#38bdf8","#818cf8",false)},
+        areaStyle:{color:grad("rgba(56,189,248,.28)","rgba(129,140,248,0)")},
+        itemStyle:{color:"#38bdf8"},symbol:"none"}]},true);
+    const gh=j.genreHist.filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]).slice(0,10);
+    mkChart("ch-genre").setOption({
+      tooltip:{...TIP,trigger:"item"},
+      series:[{type:"pie",radius:["42%","72%"],center:["50%","52%"],
+        itemStyle:{borderColor:"#0b1322",borderWidth:2,borderRadius:5},
+        data:gh.map((x,i)=>({name:x[0],value:x[1],itemStyle:{color:PALETTE[i%PALETTE.length]}})),
+        label:{color:"#8fa3bf"},labelLine:{lineStyle:{color:"rgba(148,163,184,.35)"}}}]},true);
+  });
+  fetch("/api/genres").then(r=>r.json()).then(j=>{
+    document.getElementById("tp-genre").innerHTML=
+      `<option value="(all)">全部类型</option>`+
+      j.genres.map(g=>`<option>${g}</option>`).join("");
+  });
+}
+function topk(){
+  const k=document.getElementById("tp-k").value,
+        genre=document.getElementById("tp-genre").value,
+        mv=document.getElementById("tp-mv").value,
+        mode=document.getElementById("tp-mode").value;
+  fetch(`/api/movies/topk?k=${k}&genre=${encodeURIComponent(genre)}&minvotes=${mv}&mode=${mode}`)
+    .then(r=>r.json()).then(j=>{
+      const rs=j.items;
+      mkChart("ch-topk").setOption({
+        tooltip:{...TIP,trigger:"axis",axisPointer:{type:"shadow"}},
+        grid:{left:220,right:70,top:10,bottom:26},
+        xAxis:{type:"value",axisLabel:{color:"#8fa3bf"},
+          splitLine:{lineStyle:{color:"rgba(148,163,184,.09)"}}},
+        yAxis:{type:"category",
+          data:rs.map(m=>m.title.length>34?m.title.slice(0,33)+"…":m.title).reverse(),
+          axisLabel:{color:"#e6edf7",fontSize:11},axisLine:{show:false},axisTick:{show:false}},
+        series:[{type:"bar",
+          data:rs.map(m=>mode==="pop"?m.count:+(m.mean*10/10).toFixed(1)).reverse(),
+          barMaxWidth:15,itemStyle:{borderRadius:[0,7,7,0],color:grad("#818cf8","#38bdf8")},
+          label:{show:true,position:"right",color:"#8fa3bf",fontFamily:"Consolas",
+            formatter:p=>mode==="pop"?p.value.toLocaleString("en-US"):p.value.toFixed(1)}}]},true);
+      let h="<thead><tr><th>#</th><th>片名</th><th>年份</th><th>类型</th><th>评分人数</th><th>均分</th></tr></thead><tbody>";
+      rs.forEach((m,i)=>{h+=`<tr class="${i===0?"rank1":""}" data-id="${m.id}" style="cursor:pointer" title="点击查看评分分布"><td>${m.rank}</td><td>${m.title}</td><td>${m.year||"—"}</td><td>${m.genre}</td><td>${m.count.toLocaleString()}</td><td>${m.mean.toFixed(2)}</td></tr>`;});
+      const tt=document.getElementById("tbl-topk");
+      tt.innerHTML=h+"</tbody>";
+      tt.querySelectorAll("tr[data-id]").forEach(el=>{el.onclick=()=>filmHist(+el.dataset.id,true);});
+      paintWall(rs);
+      if(!fhPicked&&rs.length) filmHist(rs[0].id);   /* 默认展示榜单第一名，避免卡片空白 */
+      rankMove();
+    });
+}
+document.getElementById("tp-go").onclick=topk;
+document.getElementById("se-go").onclick=doSearch;
+document.getElementById("se-q").addEventListener("keydown",e=>{if(e.key==="Enter")doSearch();});
+function doSearch(){
+  const q=document.getElementById("se-q").value.trim();
+  if(!q)return;
+  fetch(`/api/movies/search?q=${encodeURIComponent(q)}&limit=12`).then(r=>r.json()).then(j=>{
+    document.getElementById("se-out").innerHTML=j.items.length?j.items.map(m=>`
+      <div class="movie"><div class="t">${m.title}</div>
+      <div class="m">${m.year||"—"} · ${m.genre}</div>
+      <div class="s"><span>★ ${m.mean.toFixed(2)}</span><b>${m.count.toLocaleString()} 人评分</b></div></div>`).join("")
+      :"<div class='bar-note'>无匹配结果</div>";
+  });
+}
+/* ================= 多场景应用 ================= */
+function escH(s){return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+let CUR_SCN="movie", CUR_META=null;
+(function bindScnSel(){
+  const sel=document.getElementById("scn-sel");
+  sel.onchange=()=>scnSwitch(sel.value);
+  fetch("/api/scn/list").then(r=>r.json()).then(j=>{
+    const have=new Set([...sel.options].map(o=>o.value));
+    (j.scenarios||[]).forEach(s=>{
+      if(have.has(s.scn)) return;
+      const o=document.createElement("option");
+      o.value=s.scn; o.textContent=s.name||s.scn; sel.appendChild(o);
+    });
+  }).catch(()=>{
+    document.getElementById("scn-desc").textContent="后端未连接：请用 http://127.0.0.1:8080 打开（不要直接打开 html 文件）";
+  });
+})();
+function hideScenes(){
+  ["app-movie","app-flight","app-bikecn","app-bikesz","app-amazon","app-web","app-gene","app-generic"].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.style.display="none";
+  });
+}
+function scnSwitch(v){
+  CUR_SCN=v;
+  hideScenes();
+  /* 场景切换后，把因页面隐藏而暂存的图表补建出来 */
+  setTimeout(()=>Object.keys(pendingCharts).forEach(flushChart),150);
+  setTimeout(()=>Object.keys(pendingCharts).forEach(flushChart),600);
+  document.getElementById("scn-desc").textContent="";
+  if(v==="movie"){
+    document.getElementById("app-movie").style.display="";
+    kpis();topk();movieHeat();
+    setTimeout(()=>Object.values(charts).forEach(c=>c.resize()),60);
+    return;
+  }
+  if(v==="flight"){
+    document.getElementById("app-flight").style.display="";
+    flightBoot();
+    return;
+  }
+  if(v==="bikecn"){
+    document.getElementById("app-bikecn").style.display="";
+    bikecnBoot();
+    return;
+  }
+  if(v==="bikesz"){
+    document.getElementById("app-bikesz").style.display="";
+    bikeszBoot();
+    return;
+  }
+  if(v==="amazon"){
+    document.getElementById("app-amazon").style.display="";
+    amazonBoot();
+    return;
+  }
+  if(v==="web"){
+    document.getElementById("app-web").style.display="";
+    webBoot();
+    return;
+  }
+  if(v==="gene"){
+    document.getElementById("app-gene").style.display="";
+    geneBoot();
+    return;
+  }
+  document.getElementById("app-generic").style.display="";
+  fetch(`/api/scn/meta?scn=${v}`).then(r=>r.json()).then(m=>{
+    CUR_META=m;
+    let desc=`${m.domain||""} · 键打包: ${m.keyPack||"—"}`;
+    if(v==="web") desc+=" · 数据集只有匿名网页编号、不含网址（详见网页图页首说明）";
+    if(v==="amazon") desc+=" · 星级 = 0.5×档均值 + 1.0（已校正原先 −0.5 偏差）；商品标题已本地化（98.7%），商品图/类目/价格未随包";
+    if(v==="gene") desc+=" · 实际 12 轮提前终止，策略全程 S5 基数排序";
+    document.getElementById("scn-desc").textContent=desc;
+    const modes=Object.entries(m.rankModes||{});
+    document.getElementById("g-mode").innerHTML=
+      modes.map(([k,l])=>`<option value="${k}">${escH(l)}</option>`).join("")||`<option value="pop">关注度</option>`;
+    if(modes.length)scnBoard();
+  });
+  scnStats(v);
+}
+function scnStats(scn){
+  fetch(`/api/scn/stats?scn=${scn}`).then(r=>r.json()).then(j=>{
+    const box=document.getElementById("g-kpis");
+    box.innerHTML=[
+      [`${j.countLabel||"计数"}（键数）`, j.postings, true],
+      [j.entityLabel||"实体", j.entities, true],
+      ["子键最大ID(估)", j.maxSub, true],
+      ["数据文件", "postings.dat / entities.dat", false]
+    ].map(([l,v,num])=>`<div class="kpi"><div class="num"${num?` data-v="${v}"`:""}>${num?"0":v}</div><div class="lab">${l}</div></div>`).join("");
+    mountCounters(box);
+    if(j.catHist && j.catHist.length>1){
+      const gh=j.catHist.filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]).slice(0,10);
+      mkChart("g-ch-cat").setOption({
+        tooltip:{...TIP,trigger:"item"},
+        series:[{type:"pie",radius:["42%","72%"],center:["50%","52%"],
+          itemStyle:{borderColor:"#0b1322",borderWidth:2,borderRadius:5},
+          data:gh.map((x,i)=>({name:x[0],value:x[1],itemStyle:{color:PALETTE[i%PALETTE.length]}})),
+          label:{color:"#8fa3bf"},labelLine:{lineStyle:{color:"rgba(148,163,184,.35)"}}}]},true);
+    } else mkChart("g-ch-cat").clear();
+    if(j.yearHist && j.yearHist.length){
+      mkChart("g-ch-year").setOption({
+        tooltip:{...TIP,trigger:"axis"},
+        grid:{left:70,right:24,top:18,bottom:34},
+        xAxis:{type:"category",data:j.yearHist.map(x=>x[0]),axisLabel:{color:"#8fa3bf"},
+          axisLine:{lineStyle:{color:"rgba(148,163,184,.25)"}}},
+        yAxis:{type:"value",axisLabel:{color:"#8fa3bf"},
+          splitLine:{lineStyle:{color:"rgba(148,163,184,.09)"}}},
+        series:[{type:"line",smooth:true,data:j.yearHist.map(x=>x[1]),symbol:"none",
+          lineStyle:{width:2.4,color:grad("#38bdf8","#818cf8",false)},
+          areaStyle:{color:grad("rgba(56,189,248,.28)","rgba(129,140,248,0)")},
+          itemStyle:{color:"#38bdf8"}}]},true);
+    } else mkChart("g-ch-year").clear();
+  });
+}
+function scnBoard(){
+  if(CUR_SCN==="movie")return;
+  const k=document.getElementById("g-k").value,
+        mode=document.getElementById("g-mode").value,
+        mc=document.getElementById("g-mc").value;
+  fetch(`/api/scn/topk?scn=${CUR_SCN}&k=${k}&mode=${mode}&mincount=${mc}`)
+    .then(r=>r.json()).then(j=>{
+      const rs=j.items||[];
+      const valOf=m=> mode==="pop"?m.count:(mode==="val"?m.val:+m.mean.toFixed(2));
+      mkChart("g-ch").setOption({
+        tooltip:{...TIP,trigger:"axis",axisPointer:{type:"shadow"}},
+        grid:{left:220,right:80,top:10,bottom:26},
+        xAxis:{type:"value",axisLabel:{color:"#8fa3bf"},
+          splitLine:{lineStyle:{color:"rgba(148,163,184,.09)"}}},
+        yAxis:{type:"category",
+          data:rs.map(m=>m.name.length>34?m.name.slice(0,33)+"…":m.name).reverse(),
+          axisLabel:{color:"#e6edf7",fontSize:11},axisLine:{show:false},axisTick:{show:false}},
+        series:[{type:"bar",data:rs.map(valOf).reverse(),
+          barMaxWidth:15,itemStyle:{borderRadius:[0,7,7,0],color:grad("#38bdf8","#818cf8")},
+          label:{show:true,position:"right",color:"#8fa3bf",fontFamily:"Consolas",
+            formatter:p=>(+p.value).toLocaleString("en-US")}}]},true);
+      let h=`<thead><tr><th>#</th><th>名称</th><th>${escH(j.countLabel||"计数")}</th>`+
+        (mode!=="pop"?`<th>${mode==="val"?escH(j.valLabel||"数值"):"均分/档"}</th>`:"")+`</tr></thead><tbody>`;
+      rs.forEach((m,i)=>{
+        h+=`<tr class="${i===0?"rank1":""}"><td>${m.rank}</td><td>${escH(m.name)}</td><td>${m.count.toLocaleString()}</td>`+
+           (mode!=="pop"?`<td>${mode==="val"?m.val:m.mean.toFixed(2)}</td>`:"")+`</tr>`;});
+      document.getElementById("g-tbl").innerHTML=h+"</tbody>";
+    });
+}
+function scnSearch(){
+  const q=document.getElementById("g-q").value.trim();
+  if(!q||CUR_SCN==="movie")return;
+  fetch(`/api/scn/search?scn=${CUR_SCN}&q=${encodeURIComponent(q)}&limit=12`).then(r=>r.json()).then(j=>{
+    document.getElementById("g-seout").innerHTML=j.items&&j.items.length?j.items.map(m=>`
+      <div class="movie"><div class="t">${escH(m.name)}</div>
+      <div class="m">${escH(m.cat)}</div>
+      <div class="s"><span>${m.val?"val "+m.val.toLocaleString():""}</span><b>${m.count.toLocaleString()}</b></div></div>`).join("")
+      :"<div class='bar-note'>无匹配结果</div>";
+  });
+}
+document.getElementById("g-go").onclick=scnBoard;
+document.getElementById("g-sego").onclick=scnSearch;
+document.getElementById("g-q").addEventListener("keydown",e=>{if(e.key==="Enter")scnSearch();});
+
+/* ================= 场景 E 航班 ================= */
+const fl={mode:"pop", geo:null, mapOk:false, items:[], bound:false,
+  fd:null, id2code:null, selAp:null, klOrder:["o","m","d"], mapBound:false};
+const DELAY_LB=["提前/准点","≤5 min","≤15 min","≤30 min","≤60 min","≤120 min","≤180 min","≤300 min","≤600 min",">600 min"];
+const FL_CUM=[0,31,59,90,120,151,181,212,243,273,304,334];
+function flMtyStr(mty){
+  const d=(mty/1440)|0, r=mty%1440;
+  let m=0; for(let i=11;i>=0;i--){if(FL_CUM[i]<=d){m=i;break;}}
+  const day=d-FL_CUM[m]+1;
+  return `${m+1}-${String(day).padStart(2,"0")} ${String((r/60)|0).padStart(2,"0")}:${String(r%60).padStart(2,"0")}`;
+}
+function kpisFrom(el, rows){
+  el.innerHTML=rows.map(([l,v,num])=>`<div class="kpi"><div class="num"${num?` data-v="${v}"`:""}>${num?"0":v}</div><div class="lab">${l}</div></div>`).join("");
+  mountCounters(el);
+}
+function flightBoot(){
+  fetch("/api/scn/meta?scn=flight").then(r=>r.json()).then(m=>{
+    document.getElementById("scn-desc").textContent=`${m.domain||""} · ${m.keyPack||""}`;
+  });
+  fetch("/api/scn/stats?scn=flight").then(r=>r.json()).then(j=>{
+    kpisFrom(document.getElementById("fl-kpis"),[
+      ["航班(键)",j.postings,true],
+      ["机场",j.entities,true],
+      ["覆盖月份","1 / 10 / 11 / 12",false],
+      ["准点口径","delayIdx ≤ 2（≤15 min）",false]
+    ]);
+  });
+  fetch("/api/scn/extra?scn=flight&file=delayhist.json").then(r=>r.json()).then(h=>{
+    if(!h||!h.bins)return;
+    const ontime=((h.ontime_n||0)/(h.flights||1)*100).toFixed(1);
+    mkChart("fl-hist").setOption({
+      tooltip:{...TIP,trigger:"axis",axisPointer:{type:"shadow"},
+        formatter:p=>{const b=h.bins[p.dataIndex];return `${b.label}<br>${(+p.value).toLocaleString()} 班`;}},
+      grid:{left:64,right:18,top:18,bottom:48},
+      xAxis:{type:"category",data:h.bins.map(b=>b.label),axisLabel:{color:"#8fa3bf",fontSize:10,rotate:28},
+        axisLine:{lineStyle:{color:"rgba(148,163,184,.25)"}}},
+      yAxis:{type:"log",name:"航班数",nameTextStyle:{color:"#8fa3bf"},axisLabel:{color:"#8fa3bf"},
+        splitLine:{lineStyle:{color:"rgba(148,163,184,.09)"}}},
+      series:[{type:"bar",data:h.bins.map(b=>b.n),barMaxWidth:22,
+        itemStyle:{borderRadius:[6,6,0,0],
+          color:p=>p.dataIndex<=2?grad("#34d399","#0d9488"):grad("#f472b6","#fb7185")},
+        markLine:{symbol:"none",silent:true,data:[{xAxis:2}],
+          lineStyle:{color:"rgba(52,211,153,.55)",type:"dashed"},
+          label:{formatter:"准点界",color:"#34d399",fontSize:10}}}]},true);
+    const cv=document.getElementById("fl-caveat");
+    if(cv) cv.innerHTML=`旅客问的不是「平均延误档」，而是哪条航线最不靠谱。当前 mean 是 <b>档位号 0–9</b>，不是分钟。准点 = delayIdx ≤ 2（≤15 分钟），约占 ${ontime}%。仅 1 / 10 / 11 / 12 月，缺月不插值。机场坐标 OpenFlights，缺 EAR、XWA。<b>航线图需 Dest 字段、航司视角需 ledger.dat（均未随包）</b>；下方键位实验台用 1200 条真实抽样键演示多级键排序。<b>国内对照</b>：民航局《2019 年民航行业发展统计公报》——全国客运航班 461.11 万班次，正常率 <b>81.65%</b>，平均延误 <b>14 分钟</b>（<a style="color:#7dd3fc" href="https://www.caac.gov.cn/XXGK/XXGK/TJSJ/202006/t20200605_202977.html" target="_blank" rel="noopener">官方公报</a>）。逐航班计划/实际时刻民航局不公开，竞赛数据需账号申请，故本场景采用美国 DOT 2019 数据；国内对照数字为公报真实值。`;
+  }).catch(()=>{});
+  Promise.all([
+    fetch("/api/scn/extra?scn=flight&file=usstates.json").then(r=>r.json()),
+    fetch("/api/scn/extra?scn=flight&file=flightgeo.json").then(r=>r.json())
+  ]).then(([geo,air])=>{
+    if(geo&&geo.features){echarts.registerMap("US", geo); mapBBox("US",geo); fl.mapOk=true;}
+    fl.geo=air&&air.airports?air.airports:{};
+    fl.id2code={};
+    Object.entries(fl.geo).forEach(([code,g])=>{fl.id2code[g.id]=code;});
+    flightBoard();
+  }).catch(()=>flightBoard());
+  fetch("/api/scn/extra?scn=flight&file=flightdelay.json").then(r=>r.json()).then(j=>{
+    fl.fd=j;
+    ontimeChart(); calChart(); klBoard();
+    let best=null;
+    Object.entries(j.airports||{}).forEach(([code,a])=>{
+      if(!best||a.count>best[1].count)best=[code,a];
+    });
+    if(best)flSelAirport(best[0]);
+  }).catch(()=>{});
+  if(!fl.bound){
+    fl.bound=true;
+    document.getElementById("fl-sego").onclick=flightSearch;
+    document.getElementById("fl-q").onkeydown=e=>{if(e.key==="Enter")flightSearch();};
+    document.querySelectorAll("#app-flight .kl-chip").forEach(ch=>{
+      ch.onclick=()=>{
+        document.querySelectorAll("#app-flight .kl-chip").forEach(x=>x.classList.remove("on"));
+        ch.classList.add("on");
+        fl.mode=ch.dataset.k;
+        document.getElementById("fl-keybits").textContent=
+          fl.mode==="pop" ? "榜单键：count≪6 | (63−档×10)  ← 航班量优先"
+                          : "榜单键：档×10 ≪34 | count  ← 延误档优先";
+        flightBoard();
+      };
+    });
+    document.getElementById("fl-ontime-view").onchange=ontimeChart;
+    document.querySelectorAll("#fl-kl .kl-slot").forEach(slot=>{
+      const mv=dir=>{
+        const f=slot.dataset.f, i=fl.klOrder.indexOf(f);
+        const j=i+dir;
+        if(j<0||j>=fl.klOrder.length)return;
+        [fl.klOrder[i],fl.klOrder[j]]=[fl.klOrder[j],fl.klOrder[i]];
+        klBoard();
+      };
+      slot.querySelector(".up").onclick=()=>mv(-1);
+      slot.querySelector(".dn").onclick=()=>mv(1);
+    });
+  }
+}
+function flightBoard(){
+  fetch(`/api/scn/topk?scn=flight&k=356&mode=${fl.mode}&mincount=0`).then(r=>r.json()).then(j=>{
+    fl.items=j.items||[];
+    const geo=fl.geo||{};
+    document.getElementById("fl-board").innerHTML=fl.items.slice(0,20).map(m=>{
+      const g=geo[m.name]||{};
+      const city=g.city?` · ${escH(g.city)}`:"";
+      const val=fl.mode==="rat"?`档 ${m.mean.toFixed(2)}`:`${m.count.toLocaleString()} 班`;
+      return `<div class="ticket" data-code="${escH(m.name)}" style="cursor:pointer" title="点击查看该机场延误倒排"><div class="iata">${escH(m.name)}</div>
+        <div class="meta">${escH(g.name||"机场")}${city}<br><span class="n">#${m.rank}</span> ${val}</div></div>`;
+    }).join("");
+    document.querySelectorAll("#fl-board .ticket").forEach(el=>{
+      el.onmouseenter=()=>flightHighlight(el.dataset.code);
+      el.onclick=()=>flSelAirport(el.dataset.code);
+    });
+    flightMap();
+  });
+}
+function flightHighlight(code){
+  if(!charts["fl-map"])return;
+  charts["fl-map"].dispatchAction({type:"downplay", seriesIndex:1});
+  charts["fl-map"].dispatchAction({type:"highlight", seriesIndex:1, name:code});
+  charts["fl-map"].dispatchAction({type:"showTip", seriesIndex:1, name:code});
+}
+function flSelAirport(code){
+  fl.selAp=code;
+  invChart();
+  flightHighlight(code);
+}
+function flightMap(){
+  if(!fl.mapOk){document.getElementById("fl-map").innerHTML="<div class='bar-note'>底图 usstates.json 未加载</div>";return;}
+  const geo=fl.geo||{}, items=fl.items||[];
+  const by=new Map(items.map(m=>[m.name,m]));
+  const pts=Object.entries(geo).filter(([,g])=>g.lat!=null).map(([code,g])=>{
+    const it=by.get(code);
+    const n=it?it.count:0;
+    return {name:code, value:[g.lon,g.lat,n], count:n, mean:it?it.mean:0, city:g.city||"", ap:g.name||code};
+  });
+  const topIds=new Set((items||[]).slice(0,20).map(m=>m.name));
+  const top=pts.filter(p=>topIds.has(p.name));
+  const rest=pts.filter(p=>!topIds.has(p.name));
+  const ch=mkChart("fl-map");
+  ch.setOption({
+    tooltip:{...TIP, formatter:p=>{
+      const d=p.data; if(!d)return p.name;
+      const a=fl.fd&&fl.fd.airports[d.name];
+      return `<b>${d.name}</b> ${d.city||""}<br>${d.ap}<br>${d.count?d.count.toLocaleString()+" 班":"有坐标，未进 Top-20"}`+
+        (a?`<br>准点率 ${(a.ontime*100).toFixed(1)}% · 平均延误档 ${a.mean}<br><span style='color:#8fa3bf'>点击查看延误倒排</span>`:"");
+    }},
+    geo:{map:"US", roam:true, itemStyle:{areaColor:"#122033",borderColor:"rgba(148,163,184,.28)"},
+      emphasis:{itemStyle:{areaColor:"#1e3a5f"}}, label:{show:false},
+      boundingCoords:[[-125,24],[-66,50]]},
+    series:[
+      {type:"scatter", coordinateSystem:"geo", data:rest, symbolSize:5,
+        itemStyle:{color:"rgba(148,163,184,.38)"}},
+      {type:"effectScatter", coordinateSystem:"geo", data:top, z:3,
+        symbolSize:p=>7+Math.sqrt(p[2]||0)/16,
+        itemStyle:{color:"#f472b6"},
+        rippleEffect:{scale:2.6, brushType:"stroke"}}
+    ]
+  },true);
+  if(!fl.mapBound){
+    fl.mapBound=true;
+    ch.on("click",p=>{if(p&&p.name&&p.componentType==="series")flSelAirport(p.name);});
+  }
+  setTimeout(()=>{if(charts["fl-map"])charts["fl-map"].resize();},40);
+}
+function flightSearch(){
+  const q=document.getElementById("fl-q").value.trim();
+  if(!q)return;
+  fetch(`/api/scn/search?scn=flight&q=${encodeURIComponent(q)}&limit=8`).then(r=>r.json()).then(j=>{
+    const geo=fl.geo||{};
+    document.getElementById("fl-seout").innerHTML=j.items&&j.items.length?j.items.map(m=>{
+      const g=geo[m.name]||{};
+      return `<div class="ticket" data-code="${escH(m.name)}" style="cursor:pointer"><div class="iata">${escH(m.name)}</div>
+        <div class="meta">${escH(g.name||"")}${g.city?" · "+escH(g.city):""}<br>
+        <span class="n">${m.count.toLocaleString()} 班</span> · 延误档 ${m.mean.toFixed(2)}</div></div>`;
+    }).join():"<div class='bar-note'>无匹配</div>";
+    document.querySelectorAll("#fl-seout .ticket").forEach(el=>{
+      el.onclick=()=>flSelAirport(el.dataset.code);
+    });
+  });
+}
+/* ---------- 准点率分组 ---------- */
+function ontimeChart(){
+  if(!fl.fd)return;
+  const view=document.getElementById("fl-ontime-view").value;
+  const note=document.getElementById("fl-ontime-note");
+  if(view==="month"){
+    const ms=fl.fd.months||[];
+    if(note) note.innerHTML=`准点 = delayIdx ≤ 2（≤15 分钟）。数据只有 ${ms.map(m=>(+m.k.slice(5))+" 月").join(" / ")} —— 2–9 月直链不可达，空白是真实空白。<b>航司视角在 ledger.dat 键里（未随包），暂缺。</b>`;
+    mkChart("ch-fl-ontime").setOption({
+      tooltip:{...TIP,trigger:"axis",axisPointer:{type:"shadow"},
+        formatter:p=>{const m=ms[p.dataIndex];return `${m.k}<br>${(+m.n).toLocaleString()} 班（抽样）<br>准点率 ${(m.ontime*100).toFixed(1)}%<br>平均延误档 ${m.mean}`;}},
+      grid:{left:64,right:22,top:26,bottom:32},
+      xAxis:{type:"category",data:ms.map(m=>m.k),axisLabel:{color:"#8fa3bf"},
+        axisLine:{lineStyle:{color:"rgba(148,163,184,.25)"}}},
+      yAxis:{type:"value",min:60,max:100,name:"准点率 %",nameTextStyle:{color:"#8fa3bf"},
+        axisLabel:{color:"#8fa3bf",formatter:"{value}%"},splitLine:{lineStyle:{color:"rgba(148,163,184,.09)"}}},
+      series:[{type:"bar",data:ms.map(m=>+(m.ontime*100).toFixed(1)),barMaxWidth:44,
+        itemStyle:{borderRadius:[6,6,0,0],color:grad("#f472b6","#fb7185")},
+        label:{show:true,position:"top",color:"#8fa3bf",fontFamily:"Consolas",formatter:p=>p.value+"%"}}]
+    },true);
+    return;
+  }
+  let arr=Object.entries(fl.fd.airports).map(([code,a])=>({code,...a}));
+  if(view==="air"){
+    arr=arr.filter(a=>a.count>=500).sort((a,b)=>b.count-a.count).slice(0,20)
+      .sort((a,b)=>b.ontime-a.ontime);
+    if(note) note.innerHTML=`按航班量取 Top 20 机场（各 ≥500 班抽样），柱 = 准点率。准点 = delayIdx ≤ 2（≤15 分钟）。<b>航司视角在 ledger.dat 键里（未随包），暂缺。</b>`;
+  }else{
+    arr=arr.filter(a=>a.count>=2000).sort((a,b)=>a.ontime-b.ontime).slice(0,15);
+    if(note) note.innerHTML=`航班量 ≥2000 班（抽样）的机场里，准点率最差的 15 个。准点 = delayIdx ≤ 2（≤15 分钟）。样本小机场不在列——门槛就是多级键里「评论数/票数先行」的同一思想。<b>航司视角在 ledger.dat 键里（未随包），暂缺。</b>`;
+  }
+  mkChart("ch-fl-ontime").setOption({
+    tooltip:{...TIP,trigger:"axis",axisPointer:{type:"shadow"},
+      formatter:p=>{const a=arr[p.dataIndex];return `<b>${a.code}</b> ${escH((fl.geo[a.code]||{}).city||"")}<br>${(+a.count).toLocaleString()} 班（抽样）<br>准点率 ${(a.ontime*100).toFixed(1)}%<br>平均延误档 ${a.mean}`;}},
+    grid:{left:60,right:56,top:14,bottom:26},
+    xAxis:{type:"value",min:60,max:100,axisLabel:{color:"#8fa3bf",formatter:"{value}%"},
+      splitLine:{lineStyle:{color:"rgba(148,163,184,.09)"}}},
+    yAxis:{type:"category",data:arr.map(a=>a.code),axisLabel:{color:"#e6edf7"},
+      axisLine:{show:false},axisTick:{show:false}},
+    series:[{type:"bar",data:arr.map(a=>+(a.ontime*100).toFixed(1)),barMaxWidth:16,
+      itemStyle:{borderRadius:[0,7,7,0],
+        color:p=>p.value>=85?grad("#34d399","#0d9488"):p.value>=75?grad("#fbbf24","#d97706"):grad("#f87171","#dc2626")},
+      label:{show:true,position:"right",color:"#8fa3bf",fontFamily:"Consolas",formatter:p=>p.value+"%"}}]
+  },true);
+}
+/* ---------- 日期 × 平均延误（缺月留白） ---------- */
+function calChart(){
+  if(!fl.fd)return;
+  const dates=fl.fd.dates||[];
+  const data=dates.map(x=>[x.d, x.avg, x.n]);
+  const marks=[];
+  const MONTHS=[1,2,3,4,5,6,7,8,9,10,11,12];
+  const covered=new Set((fl.fd.months||[]).map(m=>+m.k.slice(5)));
+  MONTHS.forEach((mo,i)=>{
+    marks.push({xAxis:FL_CUM[i]+1,
+      lineStyle:{color:covered.has(mo)?"rgba(244,114,182,.5)":"rgba(148,163,184,.18)",type:"dashed"},
+      label:{formatter:mo+"月",color:covered.has(mo)?"#f472b6":"rgba(148,163,184,.4)",fontSize:10}});
+  });
+  mkChart("ch-fl-cal").setOption({
+    tooltip:{...TIP,formatter:p=>{
+      const v=p.data;
+      let m=0; for(let i=11;i>=0;i--){if(FL_CUM[i]<=v[0]-1){m=i;break;}}
+      const day=v[0]-FL_CUM[m];
+      return `2019-${String(m+1).padStart(2,"0")}-${String(day).padStart(2,"0")}<br>平均延误档 ${(+v[1]).toFixed(2)}<br>${(+v[2]).toLocaleString()} 班（抽样）`;}
+    },
+    grid:{left:56,right:18,top:22,bottom:30},
+    xAxis:{type:"value",min:1,max:365,name:"一年中的第几天",nameLocation:"middle",nameGap:24,
+      nameTextStyle:{color:"#8fa3bf"},axisLabel:{color:"#8fa3bf"},splitLine:{show:false}},
+    yAxis:{type:"value",name:"平均延误档",nameTextStyle:{color:"#8fa3bf"},
+      axisLabel:{color:"#8fa3bf"},splitLine:{lineStyle:{color:"rgba(148,163,184,.09)"}}},
+    series:[{type:"bar",data,barWidth:1.6,
+      itemStyle:{color:grad("#34d399","#f87171")},
+      markLine:{symbol:"none",silent:true,data:marks}}]
+  },true);
+}
+/* ---------- 机场倒排 · 延误降序 ---------- */
+function invChart(){
+  const chip=document.getElementById("fl-inv-chip"), note=document.getElementById("fl-inv-note");
+  if(!fl.fd||!fl.selAp)return;
+  const code=fl.selAp, a=fl.fd.airports[code];
+  const g=fl.geo[code]||{};
+  if(chip)chip.textContent=code;
+  if(!a){
+    if(note)note.innerHTML=`<b>${escH(code)}</b> 不在抽样键里（该机场在 1e6 抽样中无出港航班或无坐标）。`;
+    mkChart("ch-fl-inv").clear();
+    return;
+  }
+  if(note)note.innerHTML=`<b>${escH(code)}</b> ${escH(g.name||"机场")}${g.city?" · "+escH(g.city):""}：抽样 ${a.count.toLocaleString()} 班 · 准点率 ${(a.ontime*100).toFixed(1)}% · 平均延误档 ${a.mean}。<br>倒排索引 → 出港航班按延误档<b>从重到轻</b>排（下图）；真实系统取 Top-N 用堆选择 O(n log k)，不必全排序。`;
+  const idx=[9,8,7,6,5,4,3,2,1,0];
+  mkChart("ch-fl-inv").setOption({
+    tooltip:{...TIP,trigger:"axis",axisPointer:{type:"shadow"},
+      formatter:p=>{const i=idx[p.dataIndex];return `${DELAY_LB[i]}<br>${a.h[i].toLocaleString()} 班 · 占 ${(a.h[i]/a.count*100).toFixed(1)}%`;}},
+    grid:{left:70,right:20,top:14,bottom:56},
+    xAxis:{type:"category",data:idx.map(i=>DELAY_LB[i]),
+      axisLabel:{color:"#8fa3bf",fontSize:10,rotate:32},
+      axisLine:{lineStyle:{color:"rgba(148,163,184,.25)"}}},
+    yAxis:{type:"log",name:"班次",nameTextStyle:{color:"#8fa3bf"},axisLabel:{color:"#8fa3bf"},
+      splitLine:{lineStyle:{color:"rgba(148,163,184,.09)"}}},
+    series:[{type:"bar",data:idx.map(i=>a.h[i]||null),barMaxWidth:24,
+      itemStyle:{borderRadius:[6,6,0,0],
+        color:p=>idx[p.dataIndex]<=2?grad("#34d399","#0d9488"):grad("#f87171","#b91c1c")}}]
+  },true);
+}
+/* ---------- 键位实验台 · 真实键重排 ---------- */
+const KL_NAMES={o:"机场",m:"时段",d:"延误档"};
+const KL_COL={o:"#f472b6",m:"#38bdf8",d:"#fbbf24"};
+function klKey(k){return (k.o*33554432)+(k.m*16)+k.d;}   /* o<<25 | m<<4 | d */
+function klBitsHtml(k){
+  let h="";
+  for(let b=33;b>=25;b--)h+=`<span class="bitbox" style="background:${KL_COL.o};opacity:${(k.o>>(b-25))&1?".95":".22"}"></span>`;
+  h+=`<span style="display:inline-block;width:8px"></span>`;
+  for(let b=24;b>=4;b--)h+=`<span class="bitbox" style="background:${KL_COL.m};opacity:${(k.m>>(b-4))&1?".95":".22"}"></span>`;
+  h+=`<span style="display:inline-block;width:8px"></span>`;
+  for(let b=3;b>=0;b--)h+=`<span class="bitbox" style="background:${KL_COL.d};opacity:${(k.d>>b)&1?".95":".22"}"></span>`;
+  return h;
+}
+function klBoard(){
+  if(!fl.fd)return;
+  const ks=fl.fd.keys||[];
+  if(!ks.length)return;
+  const ord=fl.klOrder;
+  const val=(k,f)=>f==="o"?k.o:f==="m"?k.m:k.d;
+  const sorted=ks.slice().sort((a,b)=>{
+    for(const f of ord){const d=val(b,f)-val(a,f);if(d)return d;}
+    return 0;
+  });
+  const oEl=document.getElementById("fl-kl-order");
+  if(oEl)oEl.textContent="优先级 "+ord.map(f=>KL_NAMES[f]).join(" → ")+"（降序）";
+  const bitsEl=document.getElementById("fl-kl-bits");
+  const codeOf=oid=>(fl.id2code&&fl.id2code[oid])||("#"+oid);
+  const showBits=k=>{
+    if(!bitsEl)return;
+    bitsEl.innerHTML=
+      `<span style="color:${KL_COL.o}">机场 9b≪25</span> <span style="color:${KL_COL.m}">时段 21b≪4</span> <span style="color:${KL_COL.d}">延误 4b</span>　`+
+      klBitsHtml(k)+`　= 0x${klKey(k).toString(16).toUpperCase().padStart(9,"0")}`;
+  };
+  let h="<table><thead><tr><th>#</th><th>机场</th><th>时刻</th><th>延误档</th><th>int64 键（hex）</th></tr></thead><tbody>";
+  sorted.slice(0,8).forEach((k,i)=>{
+    h+=`<tr data-i="${i}" style="cursor:default"><td class="num">${i+1}</td><td>${escH(codeOf(k.o))}</td><td class="num">${flMtyStr(k.m)}</td><td class="num">${k.d}（${DELAY_LB[k.d]}）</td><td class="num">0x${klKey(k).toString(16).toUpperCase().padStart(9,"0")}</td></tr>`;
+  });
+  const tb=document.getElementById("fl-kl-board");
+  tb.innerHTML=h+"</tbody></table>";
+  tb.querySelectorAll("tr[data-i]").forEach(el=>{
+    el.onmouseenter=()=>showBits(sorted[+el.dataset.i]);
+  });
+  showBits(sorted[0]);
+}
+
+/* ================= 场景 C' 骑行 · 北京（国内摩拜杯 2017） ================= */
+const bc={grid:null, mapOk:false, items:[], bound:false};
+function bikecnBoot(){
+  fetch("/api/scn/meta?scn=bikecn").then(r=>r.json()).then(m=>{
+    document.getElementById("scn-desc").textContent=`${m.domain||""} · ${m.keyPack||""}`;
+  }).catch(()=>{});
+  fetch("/api/scn/stats?scn=bikecn").then(r=>r.json()).then(j=>{
+    kpisFrom(document.getElementById("bc-kpis"),[
+      ["骑行(出发)",j.postings,true],
+      ["起点网格",j.entities,true],
+      ["覆盖日期","2017-05-10 ~ 24",false],
+      ["热度口径","起点 ~500m 网格",false]
+    ]);
+  }).catch(()=>{});
+  fetch("/api/scn/extra?scn=bikecn&file=cnheat.json").then(r=>r.json()).then(j=>{
+    if(j&&j.matrix){bcHeat(j); bcDays(j);}
+  }).catch(()=>{});
+  Promise.all([
+    fetch("/api/scn/extra?scn=bikecn&file=bjgeo.json").then(r=>r.json()),
+    fetch("/api/scn/extra?scn=bikecn&file=gridgeo.json").then(r=>r.json()),
+    fetch("/api/scn/extra?scn=bikecn&file=od.json").then(r=>r.json())
+  ]).then(([geo,gg,od])=>{
+    if(geo&&geo.features){echarts.registerMap("BJ", geo); mapBBox("BJ",geo); bc.mapOk=true;}
+    bc.grid=(gg&&gg.grids)||{};
+    bc.od=(od&&od.pairs)||[];
+    bcMap();
+    bcOd();
+  }).catch(()=>{});
+  bcBoard();
+  if(!bc.bound){
+    bc.bound=true;
+    document.getElementById("bc-sego").onclick=bikecnSearch;
+    document.getElementById("bc-q").onkeydown=e=>{if(e.key==="Enter")bikecnSearch();};
+  }
+}
+/* 数据点的经纬度包围盒 → ECharts boundingCoords [[西南],[东北]]。
+ * 用 boundingCoords 而不是 center+zoom：适配精度与底图投影尺度无关。
+ * 注意：boundingCoords 同时也是 geo 的可见经纬范围——若只按数据点取bbox，
+ * 底图多边形会超出画布被裁掉，看起来就像"底图与点位脱离"。所以这里必须与
+ * 注册底图自身的 bbox 取并集（见 mapBBox / bboxWithMap）。 */
+function bboxOf(pts,padRatio=0.06){
+  if(!pts||!pts.length) return null;
+  let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;
+  pts.forEach(p=>{const x=p.value[0],y=p.value[1];
+    if(x<x0)x0=x; if(x>x1)x1=x; if(y<y0)y0=y; if(y>y1)y1=y;});
+  const px=(x1-x0)*padRatio||0.01, py=(y1-y0)*padRatio||0.01;
+  return [[+(x0-px).toFixed(5),+(y0-py).toFixed(5)],[+(x1+px).toFixed(5),+(y1+py).toFixed(5)]];
+}
+/* 注册底图（GeoJSON FeatureCollection）自身的经纬包围盒，结果按地图名缓存 */
+const MAP_BBOX={};
+function mapBBox(name,geo){
+  if(MAP_BBOX[name]) return MAP_BBOX[name];
+  let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;
+  const walk=c=>{
+    if(typeof c[0]==="number"){const x=c[0],y=c[1];
+      if(x<x0)x0=x; if(x>x1)x1=x; if(y<y0)y0=y; if(y>y1)y1=y;}
+    else c.forEach(walk);
+  };
+  (geo&&geo.features||[]).forEach(f=>walk(f.geometry.coordinates));
+  if(x0>x1) return (MAP_BBOX[name]=null);
+  return (MAP_BBOX[name]=[[x0,y0],[x1,y1]]);
+}
+/* 数据 bbox 与底图 bbox 的并集：保证底图完整显示、点位仍贴在地图上。
+ * 另外按画布宽高比把经纬矩形适度外扩：boundingCoords 是"经纬矩形→画布矩形"
+ * 的仿射映射，两者宽高比差太多时底图会被拉伸变形，视觉上同样像"脱离"。 */
+function bboxWithMap(pts,padRatio,mapName){
+  const d=bboxOf(pts,padRatio), m=MAP_BBOX[mapName];
+  let box;
+  if(!d) box=m||null;
+  else if(!m) box=d;
+  else box=[[Math.min(d[0][0],m[0][0]),Math.min(d[0][1],m[0][1])],
+            [Math.max(d[1][0],m[1][0]),Math.max(d[1][1],m[1][1])]];
+  if(!box) return null;
+  const el=(mapName==="SZ")?document.getElementById("sz-map")
+        :(mapName==="BJ")?document.getElementById("bc-map"):null;
+  const ar=(el&&el.clientWidth&&el.clientHeight)?el.clientWidth/el.clientHeight:1.6;
+  let x0=box[0][0], y0=box[0][1], x1=box[1][0], y1=box[1][1];
+  const latMid=(y0+y1)/2;
+  const cosLat=Math.max(0.2,Math.cos(latMid*Math.PI/180));  /* 等距近似下经度方向的实际宽度 */
+  const spanX=(x1-x0)*cosLat, spanY=y1-y0;
+  if(spanY>0&&spanX/spanY<ar){                 /* 经度偏窄 → 左右补 */
+    const add=(spanY*ar/cosLat-(x1-x0))/2;
+    x0-=add; x1+=add;
+  }else if(spanX>0){                           /* 纬度偏窄 → 上下补 */
+    const add=(spanX/ar-(y1-y0))/2;
+    y0-=add; y1+=add;
+  }
+  return [[+x0.toFixed(5),+y0.toFixed(5)],[+x1.toFixed(5),+y1.toFixed(5)]];
+}
+function bcMap(){
+  if(!bc.mapOk){document.getElementById("bc-map").innerHTML="<div class='bar-note'>底图 bjgeo.json 未加载</div>";return;}
+  const g=bc.grid||{};
+  const pts=Object.entries(g).map(([id,x])=>({name:gridLabel(g,id), value:[x.lon,x.lat,x.n],
+    title:`${gridLabel(g,id)}（${x.lat}, ${x.lon}）`}));
+  const top=pts.slice().sort((a,b)=>b.value[2]-a.value[2]).slice(0,20);
+  const topSet=new Set(top.map(p=>p.value.join(",")));
+  const rest=pts.filter(p=>!topSet.has(p.value.join(",")));
+  mkChart("bc-map").setOption({
+    tooltip:{...TIP,formatter:p=>{
+      const d=p.data; if(!d)return p.name;
+      return `<b>${d.title||""}</b><br>出发 ${d.value[2].toLocaleString()} 次`;}},
+    geo:{map:"BJ", roam:true, boundingCoords:bboxWithMap(pts,0.06,"BJ"),
+      itemStyle:{areaColor:"#0c1828",borderColor:"rgba(52,211,153,.4)"},
+      emphasis:{itemStyle:{areaColor:"#163044"}}, label:{show:false}},
+    series:[
+      {type:"scatter", coordinateSystem:"geo", data:rest, z:2, symbolSize:4,
+        itemStyle:{color:"rgba(148,163,184,.35)"}},
+      {type:"effectScatter", coordinateSystem:"geo", data:top, z:3,
+        symbolSize:p=>9+Math.sqrt(p[2]||0)/8,
+        itemStyle:{color:"#f97316", borderColor:"#ffedd5", borderWidth:1},
+        rippleEffect:{scale:2.2, brushType:"stroke"}}
+    ]
+  },true);
+  setTimeout(()=>{if(charts["bc-map"])charts["bc-map"].resize();},40);
+}
+function bcOd(){
+  const g=bc.grid||{};
+  const same=bc.od.filter(p=>p.s===p.e).reduce((s,p)=>s+p.n,0);
+  const lines=bc.od.filter(p=>p.s!==p.e&&g[p.s]&&g[p.e]).slice(0,60)
+    .map(p=>({coords:[[g[p.e].lon,g[p.e].lat],[g[p.s].lon,g[p.s].lat]], n:p.n}));
+  const odPts=lines.flatMap(l=>l.coords.map(c=>({value:[c[0],c[1],0]})));
+  const note=document.getElementById("bc-od-note");
+  if(note) note.innerHTML=`真实起终点聚合成 ~500m 网格对流：线宽 = 流量，流动动画 = 方向（起点 → 终点）。同格归还不画线（Top-200 对里占 ${same.toLocaleString()} 单）——短途购物流正是调度重 rebalancing 的对象。`;
+  mkChart("bc-od").setOption({
+    tooltip:{...TIP,formatter:p=>{
+      if(p.seriesType==="lines") return `${(+p.data.n).toLocaleString()} 次`;
+      return p.name||"";}},
+    geo:{map:"BJ", roam:true, boundingCoords:bboxWithMap(odPts,0.18,"BJ"),
+      itemStyle:{areaColor:"#122033",borderColor:"rgba(148,163,184,.4)"},
+      emphasis:{itemStyle:{areaColor:"#163044"}}, label:{show:false}},
+    series:[
+      {type:"lines", coordinateSystem:"geo", z:2, data:lines,
+        lineStyle:{color:grad("#fbbf24","#f97316"), width:3, curveness:.3, opacity:.95},
+        effect:{show:true, period:4.5, trailLength:.25, symbolSize:3, color:"#fde68a"},
+        emphasis:{lineStyle:{width:4.5, color:"#38bdf8"}}},
+      {type:"effectScatter", coordinateSystem:"geo", z:3,
+        data:lines.slice(0,30).flatMap(l=>l.coords.map(c=>({value:[c[0],c[1],0]}))),
+        symbolSize:4, itemStyle:{color:"rgba(253,230,138,.9)"}}
+    ]
+  },true);
+  setTimeout(()=>{if(charts["bc-od"])charts["bc-od"].resize();},40);
+}
+function bcHeat(j){
+  const rows=["周一","周二","周三","周四","周五","周六","周日"];
+  const data=[];
+  let peak=[0,0,0], wd=0, we=0;
+  j.matrix.forEach((r,w)=>r.forEach((v,h)=>{
+    data.push([h,w,v]);
+    if(v>peak[2])peak=[h,w,v];
+    if(w<5)wd+=v;else we+=v;
+  }));
+  const tot=wd+we||1;
+  const hn=document.getElementById("bc-heat-note");
+  if(hn) hn.innerHTML=`按 2017 年历还原（05-10 是周三）。高峰 <b>${rows[peak[1]]} ${peak[0]} 点</b>（${peak[2].toLocaleString()} 次）；工作日占 ${(wd/tot*100).toFixed(1)}% —— 北京通勤早高峰 8 点与晚高峰 17–18 点双峰，两个国内城市互证该形态。`;
+  mkChart("ch-bc-heat").setOption({
+    tooltip:{...TIP,formatter:p=>`${rows[p.data[1]]} ${p.data[0]}:00<br>${(+p.data[2]).toLocaleString()} 次`},
+    grid:{left:64,right:14,top:14,bottom:40},
+    xAxis:{type:"category",data:Array.from({length:24},(_,h)=>h+"时"),
+      axisLabel:{color:"#8fa3bf",fontSize:10,interval:2},
+      axisLine:{lineStyle:{color:"rgba(148,163,184,.25)"}}},
+    yAxis:{type:"category",data:rows,axisLabel:{color:"#e6edf7"},
+      axisLine:{show:false},axisTick:{show:false}},
+    visualMap:{show:false,min:0,max:peak[2],
+      inRange:{color:["#0b1322","#7c2d12","#ea580c","#fbbf24","#fde68a"]}},
+    series:[{type:"heatmap",data,itemStyle:{borderColor:"#0b1322",borderWidth:2,borderRadius:3},
+      emphasis:{itemStyle:{shadowBlur:10,shadowColor:"rgba(251,146,60,.5)"}}}]
+  },true);
+}
+function bcDays(j){
+  const days=j.days||{};
+  const xs=Object.keys(days);
+  const data=xs.map(k=>days[k]>0?days[k]:null);
+  mkChart("ch-bc-days").setOption({
+    tooltip:{...TIP,trigger:"axis",axisPointer:{type:"shadow"},
+      formatter:p=>`2017-${xs[p.dataIndex]}<br>${p[0].value?(+p[0].value).toLocaleString()+" 单":"缺失（镜像 0 字节）"}`},
+    grid:{left:70,right:14,top:18,bottom:32},
+    xAxis:{type:"category",data:xs,axisLabel:{color:"#8fa3bf",fontSize:10,rotate:32},
+      axisLine:{lineStyle:{color:"rgba(148,163,184,.25)"}}},
+    yAxis:{type:"value",axisLabel:{color:"#8fa3bf"},splitLine:{lineStyle:{color:"rgba(148,163,184,.09)"}}},
+    series:[{type:"bar",data,barMaxWidth:24,
+      itemStyle:{borderRadius:[6,6,0,0],color:grad("#34d399","#0d9488")}}]
+  },true);
+}
+function bcBoard(){
+  fetch("/api/scn/topk?scn=bikecn&k=2000&mode=pop&mincount=0").then(r=>r.json()).then(j=>{
+    bc.items=j.items||[];
+    document.getElementById("bc-board").innerHTML=bc.items.slice(0,20).map(m=>{
+      const pin=(bc.grid[String(m.id)]||{}).lat!=null?"●":"○";
+      return `<div class="dock"><b>${pin} ${escH(gridLabel(bc.grid,m.id))}</b>`
+           + `<span class="num">${m.count.toLocaleString()}</span></div>`;
+    }).join("");
+  });
+}
+function bikecnSearch(){
+  const q=document.getElementById("bc-q").value.trim();
+  if(!q)return;
+  const g=bc.grid||{};
+  fetch(`/api/scn/search?scn=bikecn&q=${encodeURIComponent(q)}&limit=12`).then(r=>r.json()).then(j=>{
+    let items=(j.items||[]).map(m=>({id:m.id,count:m.count}));
+    if(!items.length){
+      items=Object.entries(g).filter(([,x])=>x.area&&x.area.includes(q))
+        .sort((a,b)=>b[1].n-a[1].n).slice(0,12).map(([id,x])=>({id:+id,count:x.n}));
+    }
+    document.getElementById("bc-seout").innerHTML=items.length?items.map(m=>`
+      <div class="movie"><div class="t">${escH(gridLabel(g,m.id))}</div>
+      <div class="m">${escH(gridCoord(g,m.id))}</div>
+      <div class="s"><b>${(+m.count).toLocaleString()} 次出发</b></div></div>`).join("")
+      :"<div class='bar-note'>无匹配（可输入网格号、经纬度或区名，如「朝阳」）</div>";
+  });
+}
+
+/* ================= 场景 C'' 骑行 · 深圳（国内开放平台 2021） ================= */
+const sz={grid:null, mapOk:false, items:[], bound:false};
+function bikeszBoot(){
+  fetch("/api/scn/meta?scn=bikesz").then(r=>r.json()).then(m=>{
+    document.getElementById("scn-desc").textContent=`${m.domain||""} · ${m.keyPack||""}`;
+  }).catch(()=>{});
+  fetch("/api/scn/stats?scn=bikesz").then(r=>r.json()).then(j=>{
+    kpisFrom(document.getElementById("sz-kpis"),[
+      ["骑行(出发)",j.postings,true],
+      ["起点网格",j.entities,true],
+      ["覆盖日期","2021-07-01 ~ 14",false],
+      ["热度口径","起点 ~500m 网格",false]
+    ]);
+  }).catch(()=>{});
+  fetch("/api/scn/extra?scn=bikesz&file=cnheat.json").then(r=>r.json()).then(j=>{
+    if(j&&j.matrix){szHeat(j); szDays(j); szComp(j);}
+  }).catch(()=>{});
+  Promise.all([
+    fetch("/api/scn/extra?scn=bikesz&file=szgeo.json").then(r=>r.json()),
+    fetch("/api/scn/extra?scn=bikesz&file=gridgeo.json").then(r=>r.json()),
+    fetch("/api/scn/extra?scn=bikesz&file=od.json").then(r=>r.json())
+  ]).then(([geo,gg,od])=>{
+    if(geo&&geo.features){echarts.registerMap("SZ", geo); mapBBox("SZ",geo); sz.mapOk=true;}
+    sz.grid=(gg&&gg.grids)||{};
+    sz.od=(od&&od.pairs)||[];
+    szMap();
+    szOd();
+  }).catch(()=>{});
+  szBoard();
+  if(!sz.bound){
+    sz.bound=true;
+    document.getElementById("sz-sego").onclick=szSearch;
+    document.getElementById("sz-q").onkeydown=e=>{if(e.key==="Enter")szSearch();};
+  }
+}
+/* 骑行网格的可读名：gridgeo.json 里 dist/area 是用行政区划 GeoJSON 点定位得到的
+ * 真实地名（如「福田区西南」）。网格号只作为精确定位后缀，不再当作主称。 */
+function gridLabel(grid, id){
+  const x=(grid||{})[String(id)];
+  const area=x&&x.area?x.area:"";
+  if(area&&area!=="(区界外)") return `${area} · 网格${id}`;
+  return `网格${id}`;
+}
+function gridCoord(grid, id){
+  const x=(grid||{})[String(id)];
+  return x&&x.lat!=null?`（${x.lat}, ${x.lon}）`:"";
+}
+function szMap(){
+  if(!sz.mapOk){document.getElementById("sz-map").innerHTML="<div class='bar-note'>底图 szgeo.json 未加载</div>";return;}
+  const g=sz.grid||{};
+  const pts=Object.entries(g).map(([id,x])=>({name:gridLabel(g,id), value:[x.lon,x.lat,x.n],
+    title:`${gridLabel(g,id)}（${x.lat}, ${x.lon}）`}));
+  const top=pts.slice().sort((a,b)=>b.value[2]-a.value[2]).slice(0,20);
+  const topSet=new Set(top.map(p=>p.value.join(",")));
+  const rest=pts.filter(p=>!topSet.has(p.value.join(",")));
+  mkChart("sz-map").setOption({
+    tooltip:{...TIP,formatter:p=>{
+      const d=p.data; if(!d)return p.name;
+      return `<b>${d.title||""}</b><br>出发 ${d.value[2].toLocaleString()} 次`;}},
+    geo:{map:"SZ", roam:true, boundingCoords:bboxWithMap(pts,0.06,"SZ"),
+      itemStyle:{areaColor:"#0c1828",borderColor:"rgba(52,211,153,.4)"},
+      emphasis:{itemStyle:{areaColor:"#163044"}}, label:{show:false}},
+    series:[
+      {type:"scatter", coordinateSystem:"geo", data:rest, z:2, symbolSize:4,
+        itemStyle:{color:"rgba(148,163,184,.35)"}},
+      {type:"effectScatter", coordinateSystem:"geo", data:top, z:3,
+        symbolSize:p=>9+Math.sqrt(p[2]||0)/8,
+        itemStyle:{color:"#f97316", borderColor:"#ffedd5", borderWidth:1},
+        rippleEffect:{scale:2.2, brushType:"stroke"}}
+    ]
+  },true);
+  setTimeout(()=>{if(charts["sz-map"])charts["sz-map"].resize();},40);
+}
+function szOd(){
+  const g=sz.grid||{};
+  const same=bcSameNote();
+  const lines=sz.od.filter(p=>p.s!==p.e&&g[p.s]&&g[p.e]).slice(0,60)
+    .map(p=>({coords:[[g[p.e].lon,g[p.e].lat],[g[p.s].lon,g[p.s].lat]], n:p.n}));
+  const odPts=lines.flatMap(l=>l.coords.map(c=>({value:[c[0],c[1],0]})));
+  const note=document.getElementById("sz-od-note");
+  if(note) note.innerHTML=`真实起终点聚合成 ~500m 网格对流：线宽 = 流量，流动动画 = 方向（起点 → 终点）。同格归还不画线（Top-200 对里占 ${same.toLocaleString()} 单）——短途归还正是调度 rebalancing 的对象。`;
+  mkChart("sz-od").setOption({
+    tooltip:{...TIP,formatter:p=>{
+      if(p.seriesType==="lines") return `${(+p.data.n).toLocaleString()} 次`;
+      return p.name||"";}},
+    geo:{map:"SZ", roam:true, boundingCoords:bboxWithMap(odPts,0.18,"SZ"),
+      itemStyle:{areaColor:"#122033",borderColor:"rgba(148,163,184,.4)"},
+      emphasis:{itemStyle:{areaColor:"#163044"}}, label:{show:false}},
+    series:[
+      {type:"lines", coordinateSystem:"geo", z:2, data:lines,
+        lineStyle:{color:grad("#fbbf24","#f97316"), width:3, curveness:.3, opacity:.95},
+        effect:{show:true, period:4.5, trailLength:.25, symbolSize:3, color:"#fde68a"},
+        emphasis:{lineStyle:{width:4.5, color:"#38bdf8"}}},
+      {type:"effectScatter", coordinateSystem:"geo", z:3,
+        data:lines.slice(0,30).flatMap(l=>l.coords.map(c=>({value:[c[0],c[1],0]}))),
+        symbolSize:4, itemStyle:{color:"rgba(253,230,138,.9)"}}
+    ]
+  },true);
+  setTimeout(()=>{if(charts["sz-od"])charts["sz-od"].resize();},40);
+}
+function bcSameNote(){
+  return (sz.od||[]).filter(p=>p.s===p.e).reduce((s,p)=>s+p.n,0);
+}
+function szHeat(j){
+  const rows=["周一","周二","周三","周四","周五","周六","周日"];
+  const data=[];
+  let peak=[0,0,0], wd=0, we=0;
+  j.matrix.forEach((r,w)=>r.forEach((v,h)=>{
+    data.push([h,w,v]);
+    if(v>peak[2])peak=[h,w,v];
+    if(w<5)wd+=v;else we+=v;
+  }));
+  const tot=wd+we||1;
+  const hn=document.getElementById("sz-heat-note");
+  if(hn) hn.innerHTML=`按 2021 年历还原（07-01 是周四）。高峰 <b>${rows[peak[1]]} ${peak[0]} 点</b>（${peak[2].toLocaleString()} 次）；工作日占 ${(wd/tot*100).toFixed(1)}% —— 深圳通勤双峰与北京同构。`;
+  mkChart("ch-sz-heat").setOption({
+    tooltip:{...TIP,formatter:p=>`${rows[p.data[1]]} ${p.data[0]}:00<br>骑行 ${(+p.data[2]).toLocaleString()} 次`},
+    grid:{left:64,right:14,top:14,bottom:40},
+    xAxis:{type:"category",data:Array.from({length:24},(_,h)=>h+"时"),
+      axisLabel:{color:"#8fa3bf",fontSize:10,interval:2},
+      axisLine:{lineStyle:{color:"rgba(148,163,184,.25)"}}},
+    yAxis:{type:"category",data:rows,axisLabel:{color:"#e6edf7"},
+      axisLine:{show:false},axisTick:{show:false}},
+    visualMap:{show:false,min:0,max:peak[2],
+      inRange:{color:["#0b1322","#134e4a","#0d9488","#34d399","#fde68a"]}},
+    series:[{type:"heatmap",data,itemStyle:{borderColor:"#0b1322",borderWidth:2,borderRadius:3},
+      emphasis:{itemStyle:{shadowBlur:10,shadowColor:"rgba(52,211,153,.5)"}}}]
+  },true);
+}
+function szDays(j){
+  const days=j.days||{};
+  const xs=Object.keys(days);
+  const data=xs.map(k=>days[k]>0?days[k]:null);
+  mkChart("ch-sz-days").setOption({
+    tooltip:{...TIP,trigger:"axis",axisPointer:{type:"shadow"},
+      formatter:p=>`2021-${xs[p.dataIndex]}<br>${p[0].value?(+p[0].value).toLocaleString()+" 单":"无数据"}`},
+    grid:{left:80,right:14,top:18,bottom:32},
+    xAxis:{type:"category",data:xs,axisLabel:{color:"#8fa3bf",fontSize:10,rotate:32},
+      axisLine:{lineStyle:{color:"rgba(148,163,184,.25)"}}},
+    yAxis:{type:"value",axisLabel:{color:"#8fa3bf"},splitLine:{lineStyle:{color:"rgba(148,163,184,.09)"}}},
+    series:[{type:"bar",data,barMaxWidth:24,
+      itemStyle:{borderRadius:[6,6,0,0],color:grad("#34d399","#0d9488")}}]
+  },true);
+}
+function szComp(j){
+  const comp=Object.entries(j.companies||{}).filter(([,v])=>v>0);
+  const note=document.getElementById("sz-comp-note");
+  if(!comp.length){
+    if(note) note.textContent="本批存档样例的 COM_ID（企业维度）为空——平台脱敏样例未包含企业字段，如实展示不虚构。";
+    mkChart("ch-sz-comp").clear();
+    return;
+  }
+  if(note) note.textContent="订单量的企业构成（COM_ID 来自平台原始字段）：";
+  const tot=comp.reduce((s,[,v])=>s+v,0)||1;
+  mkChart("ch-sz-comp").setOption({
+    tooltip:{...TIP,trigger:"item",formatter:p=>`企业 ${p.name}<br>${(+p.value).toLocaleString()} 单（${p.percent}%）`},
+    series:[{type:"pie",radius:["40%","70%"],center:["50%","50%"],
+      itemStyle:{borderColor:"#0b1322",borderWidth:2,borderRadius:5},
+      data:comp.map(([k,v],i)=>({name:k,value:v,itemStyle:{color:PALETTE[i%PALETTE.length]}})),
+      label:{color:"#8fa3bf"},labelLine:{lineStyle:{color:"rgba(148,163,184,.35)"}}}]
+  },true);
+}
+function szBoard(){
+  fetch("/api/scn/topk?scn=bikesz&k=2000&mode=pop&mincount=0").then(r=>r.json()).then(j=>{
+    sz.items=j.items||[];
+    document.getElementById("sz-board").innerHTML=sz.items.slice(0,20).map(m=>{
+      const pin=(sz.grid[String(m.id)]||{}).lat!=null?"●":"○";
+      return `<div class="dock"><b>${pin} ${escH(gridLabel(sz.grid,m.id))}</b>`
+           + `<span class="num">${m.count.toLocaleString()}</span></div>`;
+    }).join("");
+  });
+}
+function szSearch(){
+  const q=document.getElementById("sz-q").value.trim();
+  if(!q)return;
+  const g=sz.grid||{};
+  /* 先按网格号/坐标走后端检索；若输入的是区名（如「福田」），在前端按 area 过滤 */
+  fetch(`/api/scn/search?scn=bikesz&q=${encodeURIComponent(q)}&limit=12`).then(r=>r.json()).then(j=>{
+    let items=(j.items||[]).map(m=>({id:m.id,count:m.count}));
+    if(!items.length){
+      items=Object.entries(g).filter(([,x])=>x.area&&x.area.includes(q))
+        .sort((a,b)=>b[1].n-a[1].n).slice(0,12).map(([id,x])=>({id:+id,count:x.n}));
+    }
+    document.getElementById("sz-seout").innerHTML=items.length?items.map(m=>`
+      <div class="movie"><div class="t">${escH(gridLabel(g,m.id))}</div>
+      <div class="m">${escH(gridCoord(g,m.id))}</div>
+      <div class="s"><b>${(+m.count).toLocaleString()} 次出发</b></div></div>`).join("")
+      :"<div class='bar-note'>无匹配（可输入网格号、经纬度或区名，如「福田」）</div>";
+  });
+}
+
+/* ================= 场景 B 电商 ================= */
+const az={board:null, bound:false};
+const STAR_COL=["#7f1d1d","#991b1b","#b45309","#a16207","#ca8a04","#65a30d","#16a34a","#059669","#10b981"];
+function starText(m){
+  const full=Math.floor(m), half=(m-full)>=0.5?1:0;
+  return "★".repeat(full)+(half?"½":"")+"☆".repeat(Math.max(0,5-full-half));
+}
+function stackBar(h){
+  const tot=(h||[]).reduce((s,v)=>s+v,0);
+  if(!tot) return `<div class="stack"></div><div class="stack-lg"><span>不在抽样里</span></div>`;
+  /* 9 档 → 5 星：1, 1.5–2, 2.5–3, 3.5–4, 4.5–5 */
+  const g=[h[0], h[1]+h[2], h[3]+h[4], h[5]+h[6], h[7]+h[8]];
+  const col=["#ef4444","#f97316","#eab308","#84cc16","#22c55e"];
+  const seg=g.map((v,i)=>`<i style="width:${(v/tot*100).toFixed(1)}%;background:${col[i]}" title="${i+1} 星档 ${(v/tot*100).toFixed(1)}%"></i>`).join("");
+  return `<div class="stack">${seg}</div><div class="stack-lg"><span>1★</span><span>5★ ${(g[4]/tot*100).toFixed(0)}%</span></div>`;
+}
+function amazonBoot(){
+  fetch("/api/scn/meta?scn=amazon").then(r=>r.json()).then(m=>{
+    document.getElementById("scn-desc").textContent=`${m.domain||""} · ${m.keyPack||""}`;
+  }).catch(()=>{});
+  fetch("/api/scn/stats?scn=amazon").then(r=>r.json()).then(j=>{
+    kpisFrom(document.getElementById("az-kpis"),[
+      ["评论（抽样键）",j.postings,true],
+      ["商品",j.entities,true],
+      ["全量评论","7,824,482",false],
+      ["星级口径","档均值×0.5+1.0",false]
+    ]);
+  }).catch(()=>{});
+  const p=az.board?Promise.resolve(az.board)
+    :fetch("/api/scn/extra?scn=amazon&file=amazonboard.json").then(r=>r.json()).then(b=>(az.board=b));
+  p.then(b=>{ amazonCharts(b); amazonBoard(); }).catch(()=>amazonBoard());
+  if(!az.bound){
+    az.bound=true;
+    document.getElementById("az-go").onclick=amazonBoard;
+    document.getElementById("az-mode").onchange=amazonBoard;
+    document.getElementById("az-sego").onclick=amazonSearch;
+    document.getElementById("az-q").onkeydown=e=>{if(e.key==="Enter")amazonSearch();};
+  }
+}
+function amazonBoard(){
+  const mode=document.getElementById("az-mode").value,
+        mc=document.getElementById("az-mc").value||0;
+  fetch(`/api/scn/topk?scn=amazon&k=12&mode=${mode}&mincount=${mc}`).then(r=>r.json()).then(j=>{
+    const hist=(az.board&&az.board.hist)||{};
+    const items=j.items||[];
+    document.getElementById("az-wall").innerHTML=items.length?items.map(m=>{
+      const h=hist[String(m.id)];
+      return `<div class="prod">
+        <div class="prod-top"><span class="prod-asin" title="${escH(m.name)}">${escH(m.name)}</span><span class="prod-rk">#${m.rank}</span></div>
+        <div class="prod-star">${starText(m.mean)}<b>${m.mean.toFixed(2)}</b></div>
+        <div class="prod-n">${m.count.toLocaleString()} 条评论</div>
+        ${stackBar(h&&h.h)}
+      </div>`;
+    }).join(""):"<div class='bar-note'>没有满足门槛的商品，把最少评论调低一些。</div>";
+  });
+  azRankMove();
+}
+function azRankMove(){
+  const mc=document.getElementById("az-mc").value||0;
+  const q=`scn=amazon&k=20&mincount=${mc}`;
+  Promise.all([
+    fetch(`/api/scn/topk?${q}&mode=pop`).then(r=>r.json()),
+    fetch(`/api/scn/topk?${q}&mode=rat`).then(r=>r.json())
+  ]).then(([a,b])=>{
+    slopeChart("ch-az-rankmove",a.items||[],b.items||[],m=>m.name,
+      m=>`${starText(m.mean)} ${m.mean.toFixed(2)} · ${m.count.toLocaleString()} 条`);
+  }).catch(()=>{});
+}
+function amazonCharts(b){
+  if(!b) return;
+  const sc=b.scatter||[];
+  mkChart("az-scatter").setOption({
+    tooltip:{...TIP,formatter:p=>`<b>${escH(p.data[2])}</b><br>${(+p.data[0]).toLocaleString()} 条（抽样）<br>均分 ${(+p.data[1]).toFixed(2)} ★`},
+    grid:{left:56,right:22,top:20,bottom:42},
+    xAxis:{type:"log",name:"抽样评论数",nameLocation:"middle",nameGap:26,nameTextStyle:{color:"#8fa3bf"},
+      axisLabel:{color:"#8fa3bf"},splitLine:{show:false},axisLine:{lineStyle:{color:"rgba(148,163,184,.25)"}}},
+    yAxis:{type:"value",min:1,max:5,name:"★",nameTextStyle:{color:"#8fa3bf"},axisLabel:{color:"#8fa3bf"},
+      splitLine:{lineStyle:{color:"rgba(148,163,184,.09)"}}},
+    visualMap:{show:false,dimension:1,min:2.5,max:5,inRange:{color:["#f97316","#eab308","#22c55e"]}},
+    series:[{type:"scatter",data:sc,symbolSize:p=>4+Math.sqrt(p[0])/3,itemStyle:{opacity:.78},
+      markLine:{silent:true,symbol:"none",lineStyle:{type:"dashed",color:"rgba(148,163,184,.45)"},
+        label:{color:"#8fa3bf",fontSize:10},
+        data:[{yAxis:4.5,label:{formatter:"4.5★"}}]}}]
+  },true);
+  /* Amazon 原始评分只有整数星：9 档里偶数档才有值，合成 5 档 */
+  const sh=b.star_hist||[];
+  const s5=[0,2,4,6,8].map(i=>sh[i]||0);
+  const s5tot=s5.reduce((a,v)=>a+v,0)||1;
+  const s5col=["#ef4444","#f97316","#eab308","#84cc16","#22c55e"];
+  mkChart("az-stars").setOption({
+    tooltip:{...TIP,trigger:"axis",axisPointer:{type:"shadow"},
+      formatter:p=>`${p[0].name}<br>${(+p[0].value).toLocaleString()} 条 · ${(p[0].value/s5tot*100).toFixed(1)}%`},
+    grid:{left:66,right:18,top:18,bottom:32},
+    xAxis:{type:"category",data:["1 星","2 星","3 星","4 星","5 星"],axisLabel:{color:"#8fa3bf"},axisLine:{lineStyle:{color:"rgba(148,163,184,.25)"}}},
+    yAxis:{type:"value",axisLabel:{color:"#8fa3bf"},splitLine:{lineStyle:{color:"rgba(148,163,184,.09)"}}},
+    series:[{type:"bar",data:s5.map((v,i)=>({value:v,itemStyle:{color:s5col[i],borderRadius:[6,6,0,0]}})),barMaxWidth:46,
+      label:{show:true,position:"top",color:"#8fa3bf",fontSize:11,formatter:p=>(p.value/s5tot*100).toFixed(1)+"%"}}]
+  },true);
+  const lt=b.long_tail||[];
+  mkChart("az-tail").setOption({
+    tooltip:{...TIP,trigger:"axis",axisPointer:{type:"shadow"},
+      formatter:p=>`${p[0].name} 条<br>${(+p[0].value).toLocaleString()} 件商品`},
+    grid:{left:66,right:18,top:18,bottom:32},
+    xAxis:{type:"category",data:lt.map(x=>x.hi?`${x.lo}–${x.hi-1}`:`${x.lo}+`),
+      axisLabel:{color:"#8fa3bf",fontSize:10},axisLine:{lineStyle:{color:"rgba(148,163,184,.25)"}}},
+    yAxis:{type:"log",axisLabel:{color:"#8fa3bf"},splitLine:{lineStyle:{color:"rgba(148,163,184,.09)"}}},
+    series:[{type:"bar",data:lt.map(x=>x.items||null),barMaxWidth:26,
+      itemStyle:{color:grad("#fb923c","#c2410c"),borderRadius:[6,6,0,0]}}]
+  },true);
+  const cv=document.getElementById("az-caveat");
+  if(cv&&b.items_in_sample) cv.innerHTML+=` 下方图表来自 100 万条等距抽样，覆盖 ${(+b.items_in_sample).toLocaleString()} 件商品。`;
+}
+function amazonSearch(){
+  const q=document.getElementById("az-q").value.trim();
+  if(!q) return;
+  fetch(`/api/scn/search?scn=amazon&q=${encodeURIComponent(q)}&limit=12`).then(r=>r.json()).then(j=>{
+    document.getElementById("az-seout").innerHTML=j.items&&j.items.length?j.items.map(m=>`
+      <div class="movie"><div class="t num">${escH(m.name)}</div>
+      <div class="s"><span>${starText(m.mean)} ${m.mean.toFixed(2)}</span><b>${m.count.toLocaleString()} 条</b></div></div>`).join("")
+      :"<div class='bar-note'>无匹配</div>";
+  });
+}
+
+/* ================= 场景 D 网页图 ================= */
+const wb={board:null, pr:null, bound:false};
+function webBoot(){
+  fetch("/api/scn/meta?scn=web").then(r=>r.json()).then(m=>{
+    document.getElementById("scn-desc").textContent=`${m.domain||""} · ${m.keyPack||""}`;
+  }).catch(()=>{});
+  Promise.all([
+    wb.pr?Promise.resolve(wb.pr):fetch("/api/scn/extra?scn=web&file=pagerank.json").then(r=>r.json()).then(x=>(wb.pr=x)),
+    wb.board?Promise.resolve(wb.board):fetch("/api/scn/extra?scn=web&file=webboard.json").then(r=>r.json()).then(x=>(wb.board=x))
+  ]).then(([pr,b])=>{
+    kpisFrom(document.getElementById("wb-kpis"),[
+      ["网页数",pr.n||875713,true],
+      ["链接数",pr.edges||5105039,true],
+      ["重要性迭代轮数",pr.iters||30,true],
+      ["最终残差",pr.residual!=null?(+pr.residual).toExponential(2):"—",false]
+    ]);
+    webBoard(pr); webGraph(b); webDeg(b); webPrScatter(b); webMatrix(b);
+  }).catch(e=>{
+    document.getElementById("wb-board").innerHTML="<div class='bar-note'>pagerank.json / webboard.json 加载失败："+escH(String(e.message||e))+"</div>";
+  });
+}
+/* 「Node #864287」是数据集（web-Google）里的原始网页编号——数据集不含 URL，
+ * 措辞上叫「网页 #编号」而不是「节点」，避免被当成机器节点/无意义代号。 */
+const webNode=s=>(s||"").replace(/^Node\s*#/,"网页 #");
+function webBoard(pr){
+  const top=(pr&&pr.top)||[];
+  const mx=top.length?top[0].pr:1;
+  document.getElementById("wb-board").innerHTML=
+    `<div class="prrow" style="color:var(--muted);font-size:11px"><span>#</span><span>网页（数据集编号，非网址）/ 重要性</span><span class="n">被链接数</span><span class="n">外链数</span></div>`+
+    top.map(t=>`<div class="prrow">
+      <span class="n" style="text-align:left">${t.rank}</span>
+      <span><span class="id">${escH(webNode(t.name))}</span><div class="bar"><i style="width:${(t.pr/mx*100).toFixed(1)}%"></i></div></span>
+      <span class="n">${(+t.indeg).toLocaleString()}</span>
+      <span class="n">${t.outdeg}</span></div>`).join("");
+}
+function webGraph(b){
+  const h=(b&&b.hub)||{nodes:[],links:[]};
+  const maxPr=Math.max(...h.nodes.filter(n=>n.pr).map(n=>n.pr),1e-9);
+  const nodes=h.nodes.map(n=>({
+    id:String(n.id), name:webNode(n.name)||("网页 "+n.id),
+    symbolSize:n.hub?10+22*Math.sqrt(n.pr/maxPr):5,
+    value:n.pr||0,
+    itemStyle:{color:n.hub?"#f472b6":"rgba(148,163,184,.55)"},
+    label:{show:!!(n.hub&&n.pr>=maxPr*0.6),color:"#e6edf7",fontSize:10},
+    _in:n.indeg,_out:n.outdeg,_hub:n.hub
+  }));
+  const ids=new Set(nodes.map(n=>n.id));
+  const links=h.links.filter(l=>ids.has(String(l.source))&&ids.has(String(l.target)))
+    .map(l=>({source:String(l.source),target:String(l.target)}));
+  mkChart("wb-graph").setOption({
+    tooltip:{...TIP,formatter:p=>{
+      if(p.dataType==="edge") return "有向边";
+      const d=p.data;
+      return `<b>${escH(webNode(d.name))}</b><br>${d._hub?"重要性 "+(+d.value).toExponential(3)+"<br>":""}被链接数 ${(+d._in).toLocaleString()} · 外链数(抽样) ${d._out}<br><span style="color:#8fa3bf">编号为数据集原始 id，数据集不含网址</span>`;
+    }},
+    series:[{type:"graph",layout:"force",roam:true,draggable:true,data:nodes,links,
+      force:{repulsion:90,edgeLength:[30,90],gravity:.08},
+      edgeSymbol:["none","arrow"],edgeSymbolSize:5,
+      lineStyle:{color:"rgba(148,163,184,.35)",width:1,curveness:.12},
+      emphasis:{focus:"adjacency",lineStyle:{width:2,color:"#f472b6"}}}]
+  },true);
+}
+function webDeg(b){
+  const pts=(b&&b.indeg_logbins)||[];
+  mkChart("wb-deg").setOption({
+    tooltip:{...TIP,formatter:p=>`被链接数 ≥ ${p.data[0].toLocaleString()}<br>${p.data[1].toLocaleString()} 个网页`},
+    grid:{left:64,right:20,top:18,bottom:42},
+    xAxis:{type:"log",name:"被链接数 k（2 倍分桶下界）",nameLocation:"middle",nameGap:26,nameTextStyle:{color:"#8fa3bf"},
+      axisLabel:{color:"#8fa3bf"},splitLine:{show:false},axisLine:{lineStyle:{color:"rgba(148,163,184,.25)"}}},
+    yAxis:{type:"log",name:"网页数",nameTextStyle:{color:"#8fa3bf"},axisLabel:{color:"#8fa3bf"},
+      splitLine:{lineStyle:{color:"rgba(148,163,184,.09)"}}},
+    series:[{type:"line",data:pts,symbolSize:7,lineStyle:{color:"#818cf8",width:2},itemStyle:{color:"#a5b4fc"}}]
+  },true);
+}
+function webPrScatter(b){
+  const sc=(b&&b.pr_scatter)||[];
+  mkChart("wb-prscatter").setOption({
+    tooltip:{...TIP,formatter:p=>`<b>${escH(webNode(p.data[2]))}</b><br>被链接数 ${(+p.data[0]).toLocaleString()}<br>重要性 ${(+p.data[1]).toExponential(3)}<br>外链数 ${p.data[3]}`},
+    grid:{left:72,right:20,top:18,bottom:42},
+    xAxis:{type:"value",name:"被链接数（入度）",nameLocation:"middle",nameGap:26,nameTextStyle:{color:"#8fa3bf"},
+      axisLabel:{color:"#8fa3bf"},splitLine:{lineStyle:{color:"rgba(148,163,184,.09)"}}},
+    yAxis:{type:"value",name:"重要性（PageRank）",nameTextStyle:{color:"#8fa3bf"},
+      axisLabel:{color:"#8fa3bf",formatter:v=>v.toExponential(1)},splitLine:{lineStyle:{color:"rgba(148,163,184,.09)"}}},
+    series:[{type:"scatter",data:sc,symbolSize:p=>5+Math.sqrt(p[3]||0),
+      itemStyle:{color:"#f472b6",opacity:.8}}]
+  },true);
+}
+function webMatrix(b){
+  const m=(b&&b.matrix)||{size:0,cells:[]};
+  const base=m.base||0, N=m.size||0;
+  const note=document.getElementById("wb-mnote");
+  if(note) note.textContent=`链接边按（来源页, 目标页）键排序后，同一来源页的出链连成一段，这就是 CSR 的行索引。这里是稠密 id ${base.toLocaleString()}–${(base+N-1).toLocaleString()} 的 ${N}×${N} 片段，${m.cells.length} 条抽样链接；对角附近的块 = 同批爬到、互相链接的网页。`;
+  mkChart("wb-matrix").setOption({
+    tooltip:{...TIP,formatter:p=>`来源页 ${base+p.data[0]} → 目标页 ${base+p.data[1]}`},
+    grid:{left:56,right:20,top:14,bottom:40},
+    xAxis:{type:"value",min:0,max:N,name:"来源页（行）",nameLocation:"middle",nameGap:24,nameTextStyle:{color:"#8fa3bf"},
+      axisLabel:{color:"#8fa3bf",formatter:v=>base+v},splitLine:{show:false}},
+    yAxis:{type:"value",min:0,max:N,inverse:true,name:"目标页",nameTextStyle:{color:"#8fa3bf"},
+      axisLabel:{color:"#8fa3bf",formatter:v=>base+v},splitLine:{lineStyle:{color:"rgba(148,163,184,.06)"}}},
+    series:[{type:"scatter",data:m.cells,symbol:"rect",symbolSize:4,itemStyle:{color:"#818cf8",opacity:.85}}]
+  },true);
+}
+
+/* ================= 场景 F 基因组 ================= */
+const gn={board:null, info:null, genes:null, bound:false, hits:[]};
+function geneBoot(){
+  fetch("/api/scn/meta?scn=gene").then(r=>r.json()).then(m=>{
+    document.getElementById("scn-desc").textContent=`${m.domain||""} · ${m.keyPack||""}`;
+  }).catch(()=>{});
+  Promise.all([
+    gn.info?Promise.resolve(gn.info):fetch("/api/gene/info").then(r=>r.json()).then(x=>(gn.info=x)),
+    gn.board?Promise.resolve(gn.board):fetch("/api/scn/extra?scn=gene&file=geneboard.json").then(r=>r.json()).then(x=>(gn.board=x))
+  ]).then(([g,b])=>{
+    const comp=g.composition||{};
+    const gc=comp.G!=null?((comp.G+comp.C)/(g.seq_len-1||1)*100).toFixed(2)+"%":"—";
+    kpisFrom(document.getElementById("gn-kpis"),[
+      ["碱基（含哨兵）",g.seq_len||0,true],
+      ["GC 含量",gc,false],
+      ["倍增轮数",(g.rounds||[]).length,true],
+      ["排序合计",g.total_sort_ms?(g.total_sort_ms/1000).toFixed(2)+" s":"—",false],
+      ["BWT 游程率",g.bwt_ratio!=null?(+g.bwt_ratio*100).toFixed(1)+"%":"—",false]
+    ]);
+    geneTrack(b); geneRounds(g); geneList(b);
+    if(!gn.hits.length) geneSearch();
+  }).catch(e=>{
+    document.getElementById("gn-out").textContent="geneboard.json 加载失败："+(e.message||e);
+  });
+  if(!gn.bound){
+    gn.bound=true;
+    document.getElementById("gn-go").onclick=geneSearch;
+    document.getElementById("gn-q").onkeydown=e=>{if(e.key==="Enter")geneSearch();};
+  }
+}
+function geneTrack(b, focusBp){
+  if(!b) return;
+  const step=b.bin_bp, xs=b.gc.map((_,i)=>i*step);
+  const gc=b.gc.map((v,i)=>[xs[i],+(v*100).toFixed(2)]);
+  const sk=b.gc_skew_cum.map((v,i)=>[xs[i],v]);
+  const dn=b.gene_density.map((v,i)=>[xs[i],v]);
+  const L=b.seq_len;
+  const hitLines=gn.hits.map(p=>({xAxis:p}));
+  const fmtMb=v=>(v/1e6).toFixed(2)+" Mb";
+  let zs=0, ze=100;
+  if(focusBp!=null){
+    const span=0.04; const c=focusBp/L;
+    zs=Math.max(0,(c-span/2)*100); ze=Math.min(100,(c+span/2)*100);
+  }
+  const xa=i=>({type:"value",gridIndex:i,min:0,max:L,
+    axisLabel:{show:i===2,color:"#8fa3bf",formatter:fmtMb},axisTick:{show:i===2},
+    axisLine:{lineStyle:{color:"rgba(148,163,184,.25)"}},splitLine:{show:false}});
+  const ya=(i,name)=>({type:"value",gridIndex:i,name,nameTextStyle:{color:"#8fa3bf",fontSize:10},
+    axisLabel:{color:"#8fa3bf",fontSize:10},splitNumber:2,scale:true,
+    splitLine:{lineStyle:{color:"rgba(148,163,184,.07)"}}});
+  mkChart("gn-track").setOption({
+    tooltip:{...TIP,trigger:"axis",axisPointer:{type:"line",link:[{xAxisIndex:"all"}]},
+      formatter:ps=>{
+        const x=ps[0].value[0];
+        return `${(x).toLocaleString()} bp`+ps.map(p=>`<br>${p.seriesName}: ${p.value[1]}`).join("");
+      }},
+    axisPointer:{link:[{xAxisIndex:"all"}]},
+    grid:[{left:64,right:24,top:16,height:"22%"},{left:64,right:24,top:"34%",height:"26%"},{left:64,right:24,top:"68%",height:"16%"}],
+    xAxis:[xa(0),xa(1),xa(2)],
+    yAxis:[ya(0,"GC %"),ya(1,"累积偏斜"),ya(2,"基因数")],
+    dataZoom:[{type:"inside",xAxisIndex:[0,1,2],start:zs,end:ze},
+      {type:"slider",xAxisIndex:[0,1,2],start:zs,end:ze,bottom:6,height:16,
+        borderColor:"rgba(148,163,184,.2)",fillerColor:"rgba(34,211,238,.15)",
+        textStyle:{color:"#8fa3bf"},labelFormatter:v=>fmtMb(v)}],
+    series:[
+      {name:"GC %",type:"line",xAxisIndex:0,yAxisIndex:0,data:gc,showSymbol:false,
+        lineStyle:{width:1.2,color:"#22d3ee"},areaStyle:{color:"rgba(34,211,238,.12)"},
+        markLine:{silent:true,symbol:"none",lineStyle:{color:"rgba(248,113,113,.85)",width:1},label:{show:false},data:hitLines}},
+      {name:"累积偏斜",type:"line",xAxisIndex:1,yAxisIndex:1,data:sk,showSymbol:false,
+        lineStyle:{width:1.6,color:"#fbbf24"},
+        markLine:{silent:true,symbol:"none",lineStyle:{color:"rgba(248,113,113,.85)",width:1},label:{show:false},data:hitLines}},
+      {name:"基因数",type:"bar",xAxisIndex:2,yAxisIndex:2,data:dn,barWidth:"90%",
+        itemStyle:{color:"#34d399"}}
+    ]
+  },true);
+}
+function geneRounds(g){
+  const rs=(g&&g.rounds)||[];
+  mkChart("gn-rounds").setOption({
+    tooltip:{...TIP,trigger:"axis",formatter:ps=>{
+      const r=rs[ps[0].dataIndex];
+      return `第 ${r.round} 轮 · k=${r.k}<br>耗时 ${r.ms} ms<br>distinct ${(+r.distinct).toLocaleString()}<br>${escH(r.strategy)}`;
+    }},
+    legend:{data:["每轮耗时","distinct"],textStyle:{color:"#8fa3bf"},top:0},
+    grid:{left:56,right:64,top:30,bottom:36},
+    xAxis:{type:"category",data:rs.map(r=>"k="+r.k),axisLabel:{color:"#8fa3bf",fontSize:10,rotate:30},
+      axisLine:{lineStyle:{color:"rgba(148,163,184,.25)"}}},
+    yAxis:[
+      {type:"value",name:"ms",nameTextStyle:{color:"#8fa3bf"},axisLabel:{color:"#8fa3bf"},
+        splitLine:{lineStyle:{color:"rgba(148,163,184,.09)"}}},
+      {type:"log",name:"distinct",nameTextStyle:{color:"#8fa3bf"},axisLabel:{color:"#8fa3bf",
+        formatter:v=>v>=1e6?(v/1e6)+"M":v>=1e3?(v/1e3)+"k":v},splitLine:{show:false}}
+    ],
+    series:[
+      {name:"每轮耗时",type:"bar",data:rs.map(r=>r.ms),barMaxWidth:18,
+        itemStyle:{color:grad("#22d3ee","#0e7490"),borderRadius:[6,6,0,0]}},
+      {name:"distinct",type:"line",yAxisIndex:1,data:rs.map(r=>r.distinct),symbolSize:6,
+        lineStyle:{color:"#fbbf24",width:2},itemStyle:{color:"#fde68a"},
+        markLine:{silent:true,symbol:"none",lineStyle:{type:"dashed",color:"rgba(52,211,153,.6)"},
+          label:{formatter:"n（全区分）",color:"#34d399",fontSize:10},
+          data:[{yAxis:g.seq_len||4641653}]}}
+    ]
+  },true);
+}
+function geneList(b){
+  const gs=(b&&b.first_genes)||[];
+  let h=`<table><thead><tr><th>基因</th><th>起点 bp</th><th>终点 bp</th><th>长度</th><th>链</th></tr></thead><tbody>`;
+  gs.forEach(g=>{
+    h+=`<tr><td class="num">${escH(g.name)}</td><td class="num">${g.start.toLocaleString()}</td><td class="num">${g.end.toLocaleString()}</td><td class="num">${(g.end-g.start+1).toLocaleString()}</td><td>${g.strand==="+"?"正链 →":"← 负链"}</td></tr>`;
+  });
+  document.getElementById("gn-genes").innerHTML=h+"</tbody></table>";
+  const n=document.getElementById("gn-gnote");
+  if(n&&b) n.textContent=`共 ${(+b.genes_n).toLocaleString()} 个基因（正链 ${(+b.strand["+"]).toLocaleString()} / 负链 ${(+b.strand["-"]).toLocaleString()}），长度中位数 ${(+b.gene_len_q.p50).toLocaleString()} bp。thrL / thrA / thrB / thrC 在 190–5,020 bp 成簇，是苏氨酸操纵子。`;
+}
+function geneSearch(){
+  const pat=document.getElementById("gn-q").value.trim().toUpperCase();
+  const out=document.getElementById("gn-out"), box=document.getElementById("gn-hits");
+  if(!pat){ out.textContent="输入 A/C/G/T 片段"; return; }
+  if(!/^[ACGT]{1,32}$/.test(pat)){ out.textContent="只接受 A/C/G/T，长度 1–32"; return; }
+  out.textContent="搜索中…";
+  fetch(`/api/gene/search?pat=${encodeURIComponent(pat)}`).then(r=>r.json()).then(j=>{
+    if(j.error){ out.textContent="错误: "+j.error; box.innerHTML=""; gn.hits=[]; geneTrack(gn.board); return; }
+    const capped=j.count>=10000;
+    out.textContent=`${pat} 出现 ${capped?"≥ ":""}${j.count.toLocaleString()} 次 · 二分用时 ${(+j.ms).toFixed(3)} ms`+
+      (j.positions.length<j.count?` · 只回传前 ${j.positions.length} 个位置`:"");
+    gn.hits=j.positions.slice().sort((a,b)=>a-b);
+    box.innerHTML=`<div class="hits">`+gn.hits.slice(0,50).map(p=>
+      `<button type="button" class="hit" data-p="${p}">${p.toLocaleString()}</button>`).join("")+`</div>`;
+    box.querySelectorAll(".hit").forEach(el=>el.onclick=()=>geneTrack(gn.board,+el.dataset.p));
+    geneTrack(gn.board);
+  }).catch(e=>{ out.textContent="请求失败: "+(e.message||e); });
+}
+
+/* ================= 六场景总览 ================= */
+let multiLoaded=false;
+function multiOnShow(){
+  if(multiLoaded)return; multiLoaded=true;
+  const tb=document.getElementById("tbl-multi");
+  setLoading(tb,true);
+  fetch("/api/scn/list").then(r=>{
+    if(!r.ok) throw new Error("scn/list "+r.status);
+    return r.json();
+  }).then(async j=>{
+    const list=j.scenarios||[];
+    const ratios=[];
+    const rows=[];
+    for(const s of list){
+      const csv=await fetch(`/api/bench/data?name=real_${s.scn}`).then(r=>r.text());
+      const rs=parseCSV(csv).filter(r=>+r.tmin_ms>=0);
+      let maxN=0,ad=null,sd=null;
+      if(rs.length){
+        maxN=Math.max(...rs.map(r=>+r.n));
+        const sel=rs.filter(r=>+r.n===maxN);
+        const get=a=>{const x=sel.find(r=>r.algo===a);return x?+x.tmin_ms:null;};
+        ad=get("adapt"); sd=get("stdsort");
+      }
+      rows.push({...s,maxN});
+      if(ad&&sd) ratios.push({scn:s.scn,name:s.name,ratio:sd/ad});
+    }
+    /* movie 场景（既有 results_real.csv）。实体/键数从 /api/stats 实时读，
+     * 避免换数据集（ml-25m → ml-32m）后表里还写死旧规模。 */
+    const mv=await fetch("/api/bench/data?name=real").then(r=>r.text());
+    const st=await fetch("/api/stats").then(r=>r.json()).catch(()=>({}));
+    const rs=parseCSV(mv).filter(r=>+r.tmin_ms>=0);
+    if(rs.length){
+      const maxN=Math.max(...rs.map(r=>+r.n));
+      const sel=rs.filter(r=>+r.n===maxN);
+      const get=a=>{const x=sel.find(r=>r.algo===a);return x?+x.tmin_ms:null;};
+      rows.push({scn:"movie",name:"电影排序",domain:"影视作品关注度排序",
+        entities:st.movies||62423,postings:st.postings||25000095,maxN});
+      const ad=get("adapt"), sd=get("stdsort");
+      if(ad&&sd) ratios.push({scn:"movie",name:"电影(MovieLens)",ratio:sd/ad});
+    }
+    let h="<thead><tr><th>场景</th><th>领域（题目映射）</th><th>实体</th><th>键数</th><th>矩阵最大 n</th><th>AdaptSort vs std::sort</th></tr></thead><tbody>";
+    rows.sort((a,b)=>b.postings-a.postings).forEach(s=>{
+      const r=ratios.find(x=>x.scn===s.scn);
+      const cell=r
+        ?`<div class="rb"><span class="ratio-bar"><i style="width:${Math.min(100,r.ratio/5.5*100)}%"></i></span><span class="badge ${r.ratio>=1?"b-good":"b-warn"} num">${r.ratio.toFixed(2)}×</span></div>`
+        :(s.scn==="gene"?"<span class='bar-note'>特殊负载（见下）</span>":"—");
+      h+=`<tr><td>${escH(s.name)}</td><td style="text-align:left">${escH(s.domain||"")}</td><td class="num">${s.entities.toLocaleString()}</td><td class="num">${s.postings.toLocaleString()}</td><td class="num">${s.maxN?s.maxN.toLocaleString():"—"}</td><td>${cell}</td></tr>`;});
+    const tb=document.getElementById("tbl-multi");
+    tb.innerHTML=h+"</tbody>";
+    setLoading(tb,false);
+    ratios.sort((a,b)=>b.ratio-a.ratio);
+    if(ratios.length){
+      mkChart("ch-multi").setOption({
+        tooltip:{...TIP,trigger:"axis",axisPointer:{type:"shadow"}},
+        grid:{left:150,right:66,top:16,bottom:26},
+        xAxis:{type:"value",axisLabel:{color:"#8fa3bf"},
+          splitLine:{lineStyle:{color:"rgba(148,163,184,.09)"}}},
+        yAxis:{type:"category",data:ratios.map(r=>r.name),axisLabel:{color:"#e6edf7"},
+          axisLine:{show:false},axisTick:{show:false}},
+        series:[{type:"bar",data:ratios.map(r=>+r.ratio.toFixed(2)),
+          barMaxWidth:16,itemStyle:{borderRadius:[0,7,7,0],
+            color:p=>p.value>=1?grad("#34d399","#0d9488"):grad("#fbbf24","#d97706")},
+          label:{show:true,position:"right",color:"#8fa3bf",fontFamily:"Consolas",
+            formatter:p=>p.value.toFixed(2)+"×"},
+          markLine:{symbol:"none",silent:true,data:[{xAxis:1}],
+            lineStyle:{color:"rgba(148,163,184,.4)",type:"dashed"},label:{show:false}}}]},true);
+    }
+  }).catch(e=>{
+    multiLoaded=false;
+    setLoading(tb,false);
+    tb.innerHTML="<tbody><tr><td colspan='6' class='bar-note'>总览加载失败：请用 http://127.0.0.1:8080 打开本页（"+escH(String(e.message||e))+"）</td></tr></tbody>";
+  });
+  fetch("/api/gene/info").then(r=>r.json()).then(g=>{
+    if(!g||!g.seq_len){
+      document.getElementById("gene-kpis").innerHTML=
+        "<div class='bar-note'>尚未运行 sufarr 模式：sort_demo_app sufarr app/data/gene</div>";
+      return;
+    }
+    const box=document.getElementById("gene-kpis");
+    box.innerHTML=[
+      ["序列长度",g.seq_len,true],
+      ["倍增轮数",(g.rounds||[]).length,true],
+      ["排序合计",g.total_sort_ms?(g.total_sort_ms/1000).toFixed(1)+" s":"—",false],
+      ["BWT 游程率",g.bwt_ratio?+g.bwt_ratio.toFixed(3):"—",false],
+      ["暴力对拍",g.selftest?"✓ 通过":"✗ 失败",false]
+    ].map(([l,v,num])=>`<div class="kpi"><div class="num"${num?` data-v="${v}"`:""}>${num?"0":v}</div><div class="lab">${l}</div></div>`).join("");
+    mountCounters(box);
+    if(g.rounds&&g.rounds.length){
+      mkChart("ch-gene").setOption({
+        tooltip:{...TIP,trigger:"axis",axisPointer:{type:"shadow"},
+          formatter:p=>{
+            const r=g.rounds[p[0].dataIndex];
+            return `k=${r.k}<br>耗时 ${p[0].value} ms<br>策略 ${r.strategy}<br>distinct ${r.distinct}`;}},
+        grid:{left:64,right:20,top:16,bottom:40},
+        xAxis:{type:"category",data:g.rounds.map(r=>"r"+r.round+" k="+r.k),
+          axisLabel:{color:"#8fa3bf",fontSize:10,rotate:38},
+          axisLine:{lineStyle:{color:"rgba(148,163,184,.25)"}}},
+        yAxis:{type:"value",name:"ms",nameTextStyle:{color:"#8fa3bf"},
+          axisLabel:{color:"#8fa3bf"},splitLine:{lineStyle:{color:"rgba(148,163,184,.09)"}}},
+        series:[{type:"bar",data:g.rounds.map(r=>+r.ms.toFixed(1)),
+          barMaxWidth:18,itemStyle:{borderRadius:[7,7,0,0],color:grad("#38bdf8","#6366f1")}}]},true);
+    }
+  });
+  document.getElementById("gene-go").onclick=()=>{
+    const pat=document.getElementById("gene-q").value.trim().toUpperCase();
+    if(!pat)return;
+    fetch(`/api/gene/search?pat=${encodeURIComponent(pat)}`).then(r=>r.json()).then(j=>{
+      document.getElementById("gene-out").textContent=j.error?("错误: "+j.error)
+        :`找到 ${j.count.toLocaleString()} 处 · ${j.ms.toFixed(2)} ms · 前5位置: ${j.positions.slice(0,5).join(", ")}`;
+    });
+  };
+}
+
+kpis();topk();movieHeat();
+(function bootFromUrl(){
+  const q=new URLSearchParams(location.search);
+  const p=q.get("p"), scn=q.get("scn");
+  if(p) showPage(p);
+  if(scn){
+    const sel=document.getElementById("scn-sel");
+    if(sel) sel.value=scn;
+    setTimeout(()=>scnSwitch(scn), 120);
+  }
+})();
+
+/* ================= hero 头部实时数据 ================= */
+(async()=>{
+  try{
+    const st=await fetch("/api/stats").then(r=>r.json());
+    countUp(document.getElementById("hs-keys"),st.postings,900);
+    const csv=await fetch("/api/bench/data?name=real_bikesz").then(r=>r.text());
+    const rs=parseCSV(csv).filter(r=>+r.tmin_ms>=0);
+    if(rs.length){
+      const maxN=Math.max(...rs.map(r=>+r.n));
+      const sel=rs.filter(r=>+r.n===maxN);
+      const get=a=>{const x=sel.find(r=>r.algo===a);return x?+x.tmin_ms:null;};
+      const ad=get("adapt"),sd=get("stdsort");
+      document.getElementById("hs-ratio").textContent=(ad&&sd)?(sd/ad).toFixed(1)+"×":"—";
+    }
+  }catch(e){}
+})();
+</script>
+</body>
+</html>

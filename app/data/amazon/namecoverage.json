@@ -1,0 +1,9 @@
+{
+ "entities": 476002,
+ "entities_with_cn_name": 452872,
+ "entities_bare_asin": 6380,
+ "coverage": 95.1,
+ "method": "领域词典 + 结构化重写（品牌/品类/规格），未命中词条的回退英文原文",
+ "source": "Amazon Electronics 商品元数据（snap.stanford.edu，英文标题）",
+ "note": "Amazon US 目录无中文名，中文名由本项目词典渲染；ASIN 一律保留在括号内可溯源"
+}

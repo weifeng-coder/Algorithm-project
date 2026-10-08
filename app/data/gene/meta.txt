@@ -1,0 +1,14 @@
+scn=gene
+name=基因组后缀数组
+domain=计算生物学/数据压缩 —— 题目原文点名的排序关键子问题领域
+source=https://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/Escherichia_coli/reference/GCF_000005845.2_ASM584v2/GCF_000005845.2_ASM584v2_genomic.fna.gz
+downloaded=2026-09-28
+keyPack=倍增轮复合键 key = ((rank[i]<<32|rank[i+k])<<23)|i（sufarr 模式生成）
+attrBits=0
+subBits=23
+entityLabel=轮次
+subLabel=键域
+attrLabel=
+countLabel=比较/移动计数
+valLabel=游程数
+note=无实体台账场景：排序负载与统计由 sufarr 模式生成，UI 读 gene_stats.json
