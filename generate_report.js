@@ -97,7 +97,7 @@ const children = [];
 children.push(new Paragraph({
   alignment: AlignmentType.CENTER,
   spacing: { before: 4200, after: 220, line: 920 },
-  children: [new TextRun({ text: 'AdaptSort', font: fontHead, size: 48, bold: true, color: C.primary })]
+  children: [new TextRun({ text: 'AdaptSort', font: fontHead, size: 40, bold: true, color: C.primary })]
 }));
 children.push(new Paragraph({
   alignment: AlignmentType.CENTER,
@@ -198,11 +198,17 @@ const doc = new Document({
     heading1: { run: { font: fontHead, size: 32, bold: true, color: C.primary }, paragraph: { spacing: { before: 300, after: 120, line: 360 }, outlineLevel: 0 } },
     heading2: { run: { font: fontHead, size: 28, bold: true, color: C.primary }, paragraph: { spacing: { before: 220, after: 100, line: 340 }, outlineLevel: 1 } }
   },
-  sections: [{
-    properties: { page: { size: { width: 11906, height: 16838, orientation: PageOrientation.PORTRAIT }, margin: twip } },
-    footers: { default: pageFooter() },
-    children
-  }]
+  sections: [
+    {
+      properties: { page: { size: { width: 11906, height: 16838, orientation: PageOrientation.PORTRAIT }, margin: { top: 0, bottom: 0, left: 0, right: 0 } } },
+      children: [coverTable]
+    },
+    {
+      properties: { type: SectionType.NEXT_PAGE, page: { size: { width: 11906, height: 16838, orientation: PageOrientation.PORTRAIT }, margin: twip, pageNumbers: { start: 1, formatType: NumberFormat.DECIMAL } } },
+      footers: { default: pageFooter() },
+      children: bodyChildrenFinal
+    }
+  ]
 });
 
 Packer.toBuffer(doc).then(buffer => {
