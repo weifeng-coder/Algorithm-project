@@ -217,12 +217,33 @@ static void anim_merge(vector<int> a, Frames& F) {
     F.push(a, c, m, -1, -1);
 }
 
+/* 分配类排序的教学视图：按源元素身份追踪当前位置（重复值也不混淆）。
+ * 写入目标位时，把被占用的元素移到腾出的源位置；输出缓冲仍按算法
+ * 正常写入。这样每帧保留全部元素，同时展示逐个确定的目标位置。
+ * 这里的交换仅用于展示，不计入排序内核的移动次数。 */
+struct PlacementView {
+    vector<int> values, sourceAt, position;
+    explicit PlacementView(const vector<int>& a)
+        : values(a), sourceAt(a.size()), position(a.size()) {
+        for (int i = 0; i < (int)a.size(); ++i) sourceAt[i] = position[i] = i;
+    }
+    int place(int source, int dst) {
+        int from = position[source];
+        int displaced = sourceAt[dst];
+        swap(values[from], values[dst]);
+        swap(sourceAt[from], sourceAt[dst]);
+        position[source] = dst;
+        position[displaced] = from;
+        return from;
+    }
+};
+
 static void anim_radix(vector<int> a, Frames& F) {
     long long c = 0, m = 0; int n = (int)a.size();
     vector<int> tmp(n);
-    vector<int> view = a;
     F.push(a, c, m, -1, -1);   /* 初始帧：未排序原貌（否则首帧已是第一趟结果） */
     for (int pass = 0; pass < 4; pass++) {
+        PlacementView view(a);
         int cnt[256] = {0};
         for (int i = 0; i < n; i++) {
             unsigned key = (unsigned)a[i] >> (pass * 8);
@@ -235,11 +256,10 @@ static void anim_radix(vector<int> a, Frames& F) {
             if (pass == 3) key ^= 0x80;
             int dst = --cnt[key & 255];
             tmp[dst] = a[i]; m++;
-            view[dst] = a[i];
-            F.push(view, c, m, dst, -1);
+            int from = view.place(i, dst);
+            F.push(view.values, c, m, dst, from);
         }
         a = tmp;
-        view = a;
         F.push(a, c, m, pass, -1);
     }
     F.push(a, c, m, -1, -1);
@@ -252,21 +272,19 @@ static void anim_counting(vector<int> a, Frames& F) {
     int k = mx - mn + 1;
     vector<int> cnt(k, 0);
     for (int i = 0; i < n; i++) cnt[a[i] - mn]++;
-    /* 先推原序列，再按计数结果从左到右覆盖为有序输出。
-     * 旧实现从全 0 的 out 缓冲起步：除已写入的一格外高度全是 0，
-     * AdaptSort 在 n≥33 走计数排序时看起来像「只剩一根柱」。 */
+    /* 计数前缀和确定稳定输出中的源下标，再从左向右展示目标位。
+     * 不能直接覆盖原数组，否则中间帧会重复/丢失尚未处理的元素。 */
+    for (int v = 1; v < k; ++v) cnt[v] += cnt[v - 1];
+    vector<int> sources(n);
+    for (int i = n - 1; i >= 0; --i) sources[--cnt[a[i] - mn]] = i;
+    PlacementView view(a);
     F.push(a, c, m, -1, -1);
-    int idx = 0;
-    for (int v = 0; v < k; v++) {
-        while (cnt[v] > 0) {
-            a[idx] = v + mn;
-            m++;
-            cnt[v]--;
-            F.push(a, c, m, idx, -1);
-            idx++;
-        }
+    for (int idx = 0; idx < n; ++idx) {
+        int from = view.place(sources[idx], idx);
+        m++;
+        F.push(view.values, c, m, idx, from);
     }
-    F.push(a, c, m, -1, -1);
+    F.push(view.values, c, m, -1, -1);
 }
 
 static void anim_adapt(vector<int> a, Frames& F) {
