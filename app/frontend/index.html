@@ -182,13 +182,24 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:18px;opacity:
 .film-rk{position:absolute;top:8px;left:12px;font-family:var(--mono);font-size:12px;font-weight:700;
   background:rgba(7,11,20,.72);padding:1px 7px;border-radius:999px;color:#fff}
 .film-yr{position:absolute;bottom:8px;right:10px;font-family:var(--mono);font-size:11px;color:rgba(230,237,247,.8)}
+/* 补充片源角标：非欧美 / 2024–2025 新片，票数为 IMDb 换算口径，和纯 MovieLens 评分区分开 */
+.film-src{position:absolute;top:8px;right:10px;font-size:10px;font-weight:700;
+  background:rgba(251,191,36,.9);color:#1a1205;padding:1px 6px;border-radius:999px;
+  font-family:var(--mono)}
 .film-ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
   font-size:11px;color:rgba(230,237,247,.45);padding:16px;text-align:center;line-height:1.35}
-/* 封面缺图时的兜底：图片被 onerror 移除后露出这层首字母 + 渐变，不留空白块 */
-.film-fb{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+/* 封面缺图时的兜底：图片被 onerror 移除后露出这层首字母 + 渐变，不留空白块。
+   加一行「暂无海报」小字：让缺图看起来是「这张确实没有」，而不是「加载失败」。 */
+.film-fb{position:absolute;inset:0;display:flex;flex-direction:column;gap:6px;
+  align-items:center;justify-content:center;
   font-family:var(--mono);font-size:44px;font-weight:800;color:rgba(255,255,255,.22);
   text-shadow:0 2px 18px rgba(0,0,0,.5);pointer-events:none;z-index:0}
-.film-art img{position:relative;z-index:1;width:100%;height:100%;object-fit:cover;display:block}
+.film-fb i{font-style:normal;font-size:10px;font-weight:600;letter-spacing:.08em;
+  color:rgba(230,237,247,.34)}
+/* object-fit:contain 而非 cover：海报位是 2:3 竖版，但源图里约 12% 是横版
+   （剧集 Logo、横幅剧照、纪录片封面）。cover 会把横图裁得只剩中间一条，
+   反而看不清；contain 保留整图并让渐变底做letterbox，观感更稳。 */
+.film-art img{position:relative;z-index:1;width:100%;height:100%;object-fit:contain;display:block}
 .film-t{font-size:12.5px;font-weight:600;color:#fff;margin-top:7px;line-height:1.35;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.7em}
 .film-s{font-size:11px;color:var(--muted);margin-top:2px}
@@ -406,18 +417,21 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:18px;opacity:
   <div id="app-movie">
   <div class="kpis" id="app-kpis"></div>
   <div class="caveat">把评分还原成一张海报墙。换排序键：关注度出商业大片，好评度（且票数门槛）出老片与文艺片——它们只是同一个 int64 键里字段的先后顺序。缺海报的片子用首字母色块占位。
-  <br><b>关于近年影片：</b>本场景已升级到 GroupLens <b>MovieLens 32M</b>（3,200 万条评分，8.76 万部影片，收录至 <b>2023 年</b>，其中 2020 年后影片约 7,800 部）。不过「关注度」按<b>评分条数</b>排序，1990 年代的经典动辄十万票，新片几年内积累不到这个量级——所以总榜首仍是老片，这是票数结构的必然，不是新片被过滤。想看近年佳作可把<b>排序依据切到「评分优先（加权）」</b>并适度下调「最少评分」，或直接检索片名（如 Oppenheimer / Spider-Verse）。</div>
+  <br><b>关于年份：</b>底料是 GroupLens <b>MovieLens 32M</b>（3,200 万条真实评分，收录窗口止于 <b>2023 年</b>）。为覆盖更新年份，另按 IMDb 公开数据集补入 <b>2024–2025 新片</b>（2024 年 760 部、2025 年 669 部），票数由 IMDb 评价人数按两库重叠样本换算（中位比值 20.5:1），原始票数记录在 <code>app/data/movies_extra.tsv</code> 可复核。
+  <br><b>关于片源：</b>「关注度」按<b>评分条数</b>排序，而本库来自北美用户，非英语片票数天然低一到两个数量级——1990 年代好莱坞经典动辄十万票，华语/日韩佳作往往三五千票，所以总榜首都是老片。这不是新片或外语片被过滤，是<b>票数结构</b>的必然。要看它们，用上方的<b>地区</b>筛选（<b>华语 / 日韩 / 南亚 / 拉美</b> …，含库内 1.8 万部非欧美影片），或把<b>排序依据切到「评分优先（加权）」</b>并下调「最少评分」。</div>
   <div class="card">
     <h2>海报墙 · 多级键排序</h2>
-    <div class="note">候选 → 键编码 → 自实现排序 → Top-K。三种排序依据：<b>关注度</b>（count≪8|(63−avg×10)）、<b>好评度</b>（avg×10≪24|count）、<b>评分优先</b>（加权评分 w·avg+(1−w)·全局均分，w=count/(count+m)，m=全局票数中位数）——同一批影片、同一套排序内核，只换 int64 键的字段优先级。最低票数滑杆进一步避免「3 条 5.0 星」挤掉「三千条 4.4 星」。</div>
+    <div class="note">候选 → 键编码 → 自实现排序 → Top-K。三种排序依据：<b>关注度</b>（count≪8|(63−avg×10)）、<b>好评度</b>（avg×10≪24|count）、<b>评分优先</b>（加权评分 w·avg+(1−w)·全局均分，w=count/(count+m)，m=全局票数中位数）——同一批影片、同一套排序内核，只换 int64 键的字段优先级。最低票数滑杆进一步避免「3 条 5.0 星」挤掉「三千条 4.4 星」。K 上限 500：榜单越大越容易同时暴露「海报缓存是否覆盖该排序」——切排序键时缓存要跟着覆盖，否则只能退化到首字母色块。</div>
     <div class="row">
-      <label class="ck">K <input type="number" id="tp-k" value="12" min="5" max="50" class="nbox"></label>
+      <label class="ck">K <input type="number" id="tp-k" value="12" min="5" max="500" class="nbox"></label>
       <label class="ck">类型 <select id="tp-genre"></select></label>
+      <label class="ck">地区 <select id="tp-region"></select></label>
       <label class="ck">最少评分 <input type="number" id="tp-mv" value="1000" min="0" class="nbox"></label>
       <label class="ck">排序依据 <select id="tp-mode">
         <option value="pop">关注度优先</option><option value="rat">好评度优先</option>
         <option value="bayes">评分优先（加权）</option></select></label>
       <button class="btn" id="tp-go">生成榜单</button>
+      <span class="bar-note" id="tp-count"></span>
     </div>
     <div class="films" id="mv-wall" style="margin-top:14px"></div>
     <div id="ch-topk" class="chart-sm" style="margin-top:12px"></div>
@@ -1363,18 +1377,18 @@ function paintWall(rs){
   box.innerHTML=(rs||[]).map(m=>`
     <button type="button" class="film" style="--h:${hueOf(m.title)}" data-id="${m.id}" title="点击查看评分分布">
       <div class="film-art">
-        <span class="film-fb" aria-hidden="true">${escH(filmShort(m.title).slice(0,1).toUpperCase()||"?")}</span>
+        <span class="film-fb" aria-hidden="true">${escH(filmShort(m.title).slice(0,1).toUpperCase()||"?")}<i>暂无海报</i></span>
         <img alt="${escH(m.title)}" src="/assets/posters/${m.id}.jpg" loading="lazy"
           onerror="this.remove()">
         <span class="film-rk">#${m.rank}</span>
         <span class="film-yr">${m.year||""}</span>
+        ${m.id>=300001?`<span class="film-src" title="补充片源：票数按 IMDb 评价人数换算（见 movies_extra.tsv）">补</span>`:""}
       </div>
       <div class="film-t">${escH(m.title)}</div>
-      <div class="film-s"><b>★ ${m.mean.toFixed(2)}</b> · ${m.count.toLocaleString()} 票</div>
+      <div class="film-s"><b>★ ${m.mean.toFixed(2)}</b> · ${m.count.toLocaleString()} 票${(m.region||[]).length?` · ${m.region.join("、")}`:""}</div>
     </button>`).join("");
   box.querySelectorAll(".film").forEach(el=>{el.onclick=()=>filmHist(+el.dataset.id,true);});
 }
-
 /* ---------- 单片评分分布（moviehist.json，来自 postings_1e6 等距抽样） ---------- */
 let MH=null, fhPicked=false;   /* fhPicked：用户手动选过片后，不再自动跟随榜单第一名 */
 function filmHist(mid,byUser){
@@ -1384,7 +1398,11 @@ function filmHist(mid,byUser){
     const m=j.movies[String(mid)];
     if(!m){
       chip.style.display="none";
-      note.textContent="该影片不在评分抽样的 Top 1200 里（抽样来自 postings_1e6.dat）——点一部榜单上的影片即可。";
+      /* 补充影片（非欧美片源 + 2024/2025 新片）没有 MovieLens 评分记录，
+         自然不在抽样直方图里；它们的票数口径见 movies_extra.tsv。 */
+      note.textContent = mid>=300001
+        ? "该片属于补充片源（非欧美 / 2024–2025，票数按 IMDb 评价人数换算），没有 MovieLens 逐档评分直方图——点一部 MovieLens 收录的影片即可查看分布。"
+        : "该影片不在评分抽样的 Top 1200 里（抽样来自 postings_1e6.dat）——点一部榜单上的影片即可。";
       mkChart("ch-filmhist").clear();
       return;
     }
@@ -1497,11 +1515,13 @@ function movieHeat(){
 function kpis(){
   fetch("/api/stats").then(r=>r.json()).then(j=>{
     const box=document.getElementById("app-kpis");
+    const yh=j.yearHist||[];
+    const yrSpan=yh.length?`${yh[0][0]}–${yh[yh.length-1][0]}`:"—";
     box.innerHTML=[
       ["评分条数",j.postings,true],
       ["影片",j.movies,true],
       ["用户(估)",j.maxUser,true],
-      ["年份跨度","1901–2019",false]
+      ["年份跨度",yrSpan,false]
     ].map(([l,v,num])=>`<div class="kpi"><div class="num"${num?` data-v="${v}"`:""}>${num?"0":v}</div><div class="lab">${l}</div></div>`).join("");
     mountCounters(box);
     /* 数据画像 */
@@ -1529,15 +1549,28 @@ function kpis(){
       `<option value="(all)">全部类型</option>`+
       j.genres.map(g=>`<option>${g}</option>`).join("");
   });
+  /* 地区筛选：非欧美影片票数天然低于好莱坞经典，默认榜单压不出来；
+     地区下拉是让它们「可见」的手段（数据来自 Wikidata 制片国家字段）。 */
+  fetch("/api/regions").then(r=>r.json()).then(j=>{
+    const opts=(j.regions||[]).filter(x=>x.movies>0);
+    document.getElementById("tp-region").innerHTML=
+      `<option value="">全部地区</option>`+
+      opts.map(x=>`<option value="${x.name}">${x.name}（${x.movies} 部）</option>`).join("");
+  }).catch(()=>{
+    document.getElementById("tp-region").innerHTML=`<option value="">全部地区</option>`;
+  });
 }
 function topk(){
   const k=document.getElementById("tp-k").value,
         genre=document.getElementById("tp-genre").value,
+        region=document.getElementById("tp-region").value,
         mv=document.getElementById("tp-mv").value,
         mode=document.getElementById("tp-mode").value;
-  fetch(`/api/movies/topk?k=${k}&genre=${encodeURIComponent(genre)}&minvotes=${mv}&mode=${mode}`)
+  fetch(`/api/movies/topk?k=${k}&genre=${encodeURIComponent(genre)}&region=${encodeURIComponent(region)}&minvotes=${mv}&mode=${mode}`)
     .then(r=>r.json()).then(j=>{
       const rs=j.items;
+      document.getElementById("tp-count").textContent=
+        rs.length?`命中 ${rs.length} 部${region?`（地区：${region}）`:""}`:"该组合下无影片";
       mkChart("ch-topk").setOption({
         tooltip:{...TIP,trigger:"axis",axisPointer:{type:"shadow"}},
         grid:{left:220,right:70,top:10,bottom:26},
@@ -1551,8 +1584,8 @@ function topk(){
           barMaxWidth:15,itemStyle:{borderRadius:[0,7,7,0],color:grad("#818cf8","#38bdf8")},
           label:{show:true,position:"right",color:"#8fa3bf",fontFamily:"Consolas",
             formatter:p=>mode==="pop"?p.value.toLocaleString("en-US"):p.value.toFixed(1)}}]},true);
-      let h="<thead><tr><th>#</th><th>片名</th><th>年份</th><th>类型</th><th>评分人数</th><th>均分</th></tr></thead><tbody>";
-      rs.forEach((m,i)=>{h+=`<tr class="${i===0?"rank1":""}" data-id="${m.id}" style="cursor:pointer" title="点击查看评分分布"><td>${m.rank}</td><td>${m.title}</td><td>${m.year||"—"}</td><td>${m.genre}</td><td>${m.count.toLocaleString()}</td><td>${m.mean.toFixed(2)}</td></tr>`;});
+      let h="<thead><tr><th>#</th><th>片名</th><th>年份</th><th>类型</th><th>地区</th><th>评分人数</th><th>均分</th></tr></thead><tbody>";
+      rs.forEach((m,i)=>{h+=`<tr class="${i===0?"rank1":""}" data-id="${m.id}" style="cursor:pointer" title="点击查看评分分布"><td>${m.rank}</td><td>${m.title}</td><td>${m.year||"—"}</td><td>${m.genre}</td><td>${(m.region||[]).join("、")||"—"}</td><td>${m.count.toLocaleString()}</td><td>${m.mean.toFixed(2)}</td></tr>`;});
       const tt=document.getElementById("tbl-topk");
       tt.innerHTML=h+"</tbody>";
       tt.querySelectorAll("tr[data-id]").forEach(el=>{el.onclick=()=>filmHist(+el.dataset.id,true);});

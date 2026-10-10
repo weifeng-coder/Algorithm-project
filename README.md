@@ -164,6 +164,66 @@ rating 三元组 (movieId, userId, ratingIdx) 打包为单个 int64 键
 > `python -c "import app.pre._enrich_more as m; m.movie()"`（单片评分分布）与
 > `sort_demo_app matrix`（真实数据矩阵 → results_real.csv）。
 
+**数据拓宽与海报缓存**（解决三个已知边界，脚本都在 `app/pre/`）：
+
+MovieLens 32M 有两个天然边界：年份收录止于 2023；且因为它是北美用户评分库，
+非英语片票数比好莱坞经典低一到两个数量级（《In the Mood for Love》4 千票
+vs《Shawshank》10 万票），所以非欧美片永远排不进总榜。下面三步分别处理：
+
+```
+:: 1) 补年份与非欧美片源：IMDb 数据集 + Wikidata 原语言
+python app/pre/_fetch_movies_extra.py             # 生成 _build_tmp/movies_extra.json
+python app/pre/_build_region_map.py               # 生成 app/data/region_map.json（地区筛选的数据源）
+python app/pre/apply_movies_extra.py              # 并入 app/data/（另出 movies_extra.tsv，可 --revert）
+
+:: 2) 补海报（按「所有 地区 × 类型 × 排序依据 × 票数门槛 的 Top-K 并集」拉，多轮复查）
+python app/pre/_fetch_posters.py --k 500 --proxy http://127.0.0.1:7890
+python app/pre/_fetch_posters_i18n.py --proxy http://127.0.0.1:7890   # 冷门非英语片用原语言片名
+
+:: 3) 复查（这一步是必须的：错图比缺图更糟）
+python app/pre/audit_posters.py                   # 图片文件名 ↔ 片名 相似度审计
+python app/pre/audit_posters.py --delete          # 隔离可疑项，让带校验的流程重抓
+python app/pre/make_placeholder_posters.py        # 图源确实没有的：生成标题卡，保证不留空白
+python app/pre/verify_posters.py --k 50,100,200   # 真发 HTTP 请求逐张验证，CI 可用（非 0 退出码）
+```
+
+> **网络前提**：本机实测 `en.wikipedia.org` 直连会 30s 超时（iTunes/Grouplens 正常），
+> 拉海报必须带 `--proxy`（或设环境变量 `CINERANK_PROXY`）。不带代理时脚本会大量批次失败、
+> 海报数不增长——排查海报问题时先确认这一条。
+
+> **海报脚本的两个坑（已修，改动时别退回去）**：
+> 1. **落盘必须在最慢的一级之前**。多语言维基阶段要逐个试 18 个子域，最坏情况极慢；
+>    早期版本把下载放在它之后，导致它一卡住、前面几百个已解析成功的结果也全没写盘，
+>    表现为「跑几小时海报数一个不涨」。现已改为「解析到就先落盘」，并给该阶段加了
+>    `--lang-budget`（默认 600s）硬预算，保证整轮一定收敛。
+> 2. **逗号倒装要在去括号之后做**。MovieLens 把原名写在括号里
+>    （`Mirror, The (Zerkalo)`），若先做「X, The → The X」的倒装，正则要求字符串以 The 结尾
+>    而结尾是 `(Zerkalo)`，倒装永不发生——《The Mirror》《The Postman》《Children of Heaven》
+>    这一整类都查不到图。
+
+**海报可用性保证**：榜单**前 100 名在任何 K、任何排序依据、任何票数门槛、任何地区筛选下都有海报**。
+验证口径是「实际返回条数」而非固定 100——地区筛选后符合条件的影片常常不足 100 部
+（如「华语 + 最少评分 1000」只有 17 部），此时按返回条数计，一张不缺。
+
+验证过的组合（48 组全过）：地区∈{全部, 华语, 日韩, 南亚, 东南亚, 西亚·中亚, 拉美, 东欧·俄罗斯}
+× 排序∈{关注度, 好评度, 评分优先} × 最少评分∈{0, 1000}；另外 K∈{100,200,500} 亦抽验通过。
+
+实现上分三层兜底：真实海报（维基 / AniList / iTunes / 多语言维基）→ 图源确认无图时
+由 `make_placeholder_posters.py` 生成标题卡（风格与海报墙一致，卡面写明「暂无海报」，
+不会被误认成真实素材）→ 前端仍保留首字母色块作为最后防线。
+
+口径与可追溯性：
+* 补充影片的票数 = **IMDb 评价人数 ÷ 20.5**（两库重叠样本的中位比值，可复核），
+  均分沿用 IMDb；原始票数写进 `app/data/movies_extra.tsv`，界面用「补」角标区分。
+  它们**不进 postings.dat**——那份文件必须保持纯 MovieLens 真实评分。
+* 地区筛选（华语/日韩/南亚/拉美…）来自 Wikidata **P364 原语言**，并排除含英语者：
+  只用「制片国家」会把《Blade Runner》《Looper》这类有香港/日本制片方的合拍片误标，
+  只用「有中文别名」会把《Serenity》《2012》的配音语言当成原语言。
+* 海报抓取全程做**片名一致性校验**（`title_match` + 维基词条描述含 film/movie 判断）。
+  没有这道校验时实测抓到过：《Saw》→ 一把锯子的照片、《Manhattan》→ 帝国大厦照片、
+  《Kneecap》→ 膝盖解剖图。抓不到就老实留空，前端显示「暂无海报」占位。
+
+
 **五个运行模式**：
 
 | 命令 | 内容 | 对应评分点 |

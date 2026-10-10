@@ -834,13 +834,32 @@ static string apiSearch(const string& q, int limit) {
     return o.str();
 }
 
-static string apiTopK(int k, const string& genre, long long minVotes, const string& mode) {
+/* 行的地区位集 → JSON 数组（空数组 = 未标注，通常即欧美片） */
+static string regionJson(int mask) {
+    ostringstream o;
+    o << "[";
+    bool first = true;
+    for (size_t k = 0; k < g_store.regionNames.size(); k++) {
+        if (mask & (1 << k)) {
+            if (!first) o << ",";
+            first = false;
+            o << "\"" << jsonEscape(g_store.regionNames[k]) << "\"";
+        }
+    }
+    o << "]";
+    return o.str();
+}
+
+static string apiTopK(int k, const string& genre, long long minVotes, const string& mode,
+                      const string& region = "") {
     int genreId = -1;
     for (size_t i = 0; i < g_store.genreNames.size(); i++)
         if (g_store.genreNames[i] == genre) genreId = (int)i;
-    auto rows = g_store.rank_topk(k, genreId, minVotes, mode.c_str());
+    int regionId = region.empty() ? -1 : g_store.regionId(region);
+    auto rows = g_store.rank_topk(k, genreId, minVotes, mode.c_str(), regionId);
     ostringstream o;
     o << "{\"mode\":\"" << mode << "\",\"genre\":\"" << jsonEscape(genre)
+      << "\",\"region\":\"" << jsonEscape(region)
       << "\",\"minVotes\":" << minVotes << ",\"items\":[";
     for (size_t i = 0; i < rows.size(); i++) {
         const ml::MovieRow* m = rows[i];
@@ -849,9 +868,25 @@ static string apiTopK(int k, const string& genre, long long minVotes, const stri
           << ",\"title\":\"" << jsonEscape(m->title) << "\""
           << ",\"year\":" << m->year
           << ",\"genre\":\"" << jsonEscape(g_store.genreNames[m->genreId]) << "\""
+          << ",\"region\":" << regionJson(m->regionMask)
           << ",\"count\":" << m->count
           << ",\"mean\":" << m->mean() << "}";
     }
+    o << "]}";
+    return o.str();
+}
+
+/* 可选地区列表（供前端下拉）：列出库里有影片的每个地区及影片数 */
+static string apiRegions() {
+    std::vector<long long> cnt(g_store.regionNames.size(), 0);
+    for (const auto& m : g_store.movies)
+        for (size_t k = 0; k < g_store.regionNames.size(); k++)
+            if (m.regionMask & (1 << k)) cnt[k]++;
+    ostringstream o;
+    o << "{\"regions\":[";
+    for (size_t k = 0; k < g_store.regionNames.size(); k++)
+        o << (k ? "," : "") << "{\"name\":\"" << jsonEscape(g_store.regionNames[k])
+          << "\",\"movies\":" << cnt[k] << "}";
     o << "]}";
     return o.str();
 }
@@ -1163,8 +1198,9 @@ static bool handleClient(SOCKET c) {
         else ctype = "application/octet-stream";
     } else if (R.path == "/api/stats") body = apiStats();
     else if (R.path == "/api/genres") body = apiGenres();
+    else if (R.path == "/api/regions") body = apiRegions();
     else if (R.path == "/api/movies/search") body = apiSearch(R.q.count("q") ? R.q["q"] : "", R.q.count("limit") ? atoi(R.q["limit"].c_str()) : 10);
-    else if (R.path == "/api/movies/topk") body = apiTopK(R.q.count("k") ? atoi(R.q["k"].c_str()) : 20, R.q.count("genre") ? R.q["genre"] : "(all)", R.q.count("minvotes") ? atoll(R.q["minvotes"].c_str()) : 0, R.q.count("mode") ? R.q["mode"] : "pop");
+    else if (R.path == "/api/movies/topk") body = apiTopK(R.q.count("k") ? atoi(R.q["k"].c_str()) : 20, R.q.count("genre") ? R.q["genre"] : "(all)", R.q.count("minvotes") ? atoll(R.q["minvotes"].c_str()) : 0, R.q.count("mode") ? R.q["mode"] : "pop", R.q.count("region") ? R.q["region"] : "");
     else if (R.path == "/api/sort/steps") body = apiSortSteps(R.q.count("algo") ? R.q["algo"] : "bubble", R.q.count("n") ? atoi(R.q["n"].c_str()) : 32, R.q.count("dist") ? R.q["dist"] : "uniform", R.q.count("order") ? atoi(R.q["order"].c_str()) : 1);
     else if (R.path == "/api/sort/run") body = apiSortRun(R.q.count("algo") ? R.q["algo"] : "quick", R.q.count("n") ? atoi(R.q["n"].c_str()) : 100000, R.q.count("dist") ? R.q["dist"] : "uniform");
     else if (R.path == "/api/bench/data") { body = apiBenchData(R.q.count("name") ? R.q["name"] : ""); ctype = "text/csv; charset=utf-8"; }
