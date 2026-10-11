@@ -137,6 +137,26 @@ tbody tr:hover td{background:rgba(56,189,248,.06)}
 .rank1 td:first-child{color:var(--warn);font-weight:700}
 tbody tr:last-child td{border-bottom:none}
 
+/* ---------- 实验内容6 · 大规模基准表 ---------- */
+#b6 .b6-cap{margin:16px 0 8px;font-size:13px;color:var(--ink);font-weight:600}
+#b6 .b6-sub{margin-left:8px;font-size:12px;color:var(--muted);font-weight:400}
+#b6 .b6-div{height:1px;background:linear-gradient(90deg,var(--line2),transparent);margin:20px 0 4px}
+#b6 .b6-tbl{min-width:820px}
+#b6 .b6-tbl td{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:12.5px}
+#b6 .b6-tbl td:first-child{font-family:inherit;white-space:nowrap}
+#b6 .b6-tbl td:nth-child(2){white-space:nowrap}
+#b6 .b6-tbl thead th:nth-child(n+2){white-space:nowrap}
+#b6 .dim{opacity:.45}
+#b6 .best{color:var(--good);font-weight:700}
+#b6 tr.base td:first-child::after{content:"基线";display:inline-block;margin-left:7px;
+  padding:0 6px;font-size:10.5px;line-height:16px;border-radius:8px;vertical-align:1px;
+  color:var(--accent2);border:1px solid rgba(129,140,248,.4);font-family:inherit}
+#b6 .b6-sum{margin-top:18px;padding:10px 14px;border:1px solid rgba(56,189,248,.28);
+  background:rgba(56,189,248,.06);border-radius:10px;font-size:13px;color:var(--ink)}
+#b6 .b6-sum b{color:var(--accent)}
+#b6 .scroll-tbl{max-height:none}
+
+
 /* 徽章 + 比例条（加速比列） */
 .rb{display:inline-flex;align-items:center;gap:8px;justify-content:flex-end}
 .badge{display:inline-block;padding:1px 10px;border-radius:20px;font-size:12px;font-weight:700;font-family:var(--mono)}
@@ -385,7 +405,316 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:18px;opacity:
     <h2>真实数据矩阵明细</h2>
     <div class="scroll-tbl"><table id="tbl-real"></table></div>
   </div>
+
+<!-- REQ6:BENCH6:BEGIN -->
+<div class="card" id="b6">
+<h2>大规模性能基准 · 五类数据形态 × 五档数据量（实验内容 6）</h2>
+<div class="note">8 种自实现算法与 AdaptSort / std::sort（基线）在<b>正序、逆序、均匀、高斯、泊松</b>五类数据上、10⁴→3.2×10⁷ 五档数据量下的实测：比较次数、移动次数、计算时间三指标分离测量，QPC 计时取轮次最小值，固定种子可复现（10⁴~10⁶ 计数与全矩阵实验 90/90 逐一一致）；顶档 3.2×10⁷ = CineRank 的 MovieLens 全量评分排序负载。<span class="dim">Θ(n²) 三算法在 10⁵ 以上仅正序档实跑（O(n) 特例），其余记 —。</span></div>
+<div class="keylab" id="b6-chips">
+<span class="kl-chip on" data-d="uniform">均匀分布</span>
+<span class="kl-chip" data-d="gauss">高斯分布</span>
+<span class="kl-chip" data-d="poisson">泊松分布</span>
+<span class="kl-chip" data-d="asc">正序数据</span>
+<span class="kl-chip" data-d="desc">逆序数据</span>
+</div>
+<div id="b6-grps">
+<div class="b6-grp" data-d="uniform">
+<div class="b6-cap"><b>计算时间</b><span class="b6-sub">（ms，同列取重复轮最小值；<span class="best">绿色</span> = AdaptSort）</span></div>
+<div class="scroll-tbl"><table class="b6-tbl">
+<thead><tr><th>算法</th><th>平均复杂度</th><th>10⁴</th><th>10⁵</th><th>10⁶</th><th>10⁷</th><th>3.2×10⁷</th><th>增长倍率 t(3.2×10⁷)/t(10⁶)</th></tr></thead>
+<tbody>
+<tr><td>直接插入</td><td class="dim">O(n²)／正序 O(n)</td><td>16.64</td><td>1702.1</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td>—</td></tr>
+<tr><td>冒泡</td><td class="dim">O(n²)／正序 O(n)</td><td>257.7</td><td>27,059</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td>—</td></tr>
+<tr><td>选择</td><td class="dim">O(n²)（比较与数据无关）</td><td>130.6</td><td>14,407</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td>—</td></tr>
+<tr><td>希尔</td><td class="dim">O(n^1.3) 左右</td><td>0.8490</td><td>11.57</td><td>178.4</td><td>2247.3</td><td>9098.2</td><td>×51.0</td></tr>
+<tr><td>快速</td><td class="dim">O(n log n)（三路划分）</td><td>0.4876</td><td>7.15</td><td>79.97</td><td>869.3</td><td>2875.0</td><td>×35.9</td></tr>
+<tr><td>堆</td><td class="dim">O(n log n)</td><td>0.6949</td><td>10.17</td><td>129.6</td><td>2692.4</td><td>10,159</td><td>×78.4</td></tr>
+<tr><td>基数</td><td class="dim">O(n)（4 趟字节，仅整数键）</td><td>0.0816</td><td>0.8422</td><td>8.76</td><td>115.3</td><td>372.3</td><td>×42.5</td></tr>
+<tr><td>归并</td><td class="dim">O(n log n)（稳定）</td><td>0.5779</td><td>7.58</td><td>91.04</td><td>1115.1</td><td>4242.9</td><td>×46.6</td></tr>
+<tr class="base"><td>AdaptSort（基线）</td><td class="dim">自适应（特征采样→决策）</td><td class="best">0.0729</td><td class="best">0.5099</td><td class="best">8.13</td><td class="best">83.44</td><td class="best">292.1</td><td class="best">×35.9</td></tr>
+<tr class="base"><td>std::sort（基线）</td><td class="dim">O(n log n)（库基线）</td><td>0.3590</td><td>5.02</td><td>57.64</td><td>667.4</td><td>2299.5</td><td>×39.9</td></tr>
+</tbody></table></div>
+<div class="b6-cap"><b>比较次数</b><span class="b6-sub">（<span class="best">绿色</span> = AdaptSort）</span></div>
+<div class="scroll-tbl"><table class="b6-tbl">
+<thead><tr><th>算法</th><th>10⁴</th><th>10⁵</th><th>10⁶</th><th>10⁷</th><th>3.2×10⁷</th></tr></thead>
+<tbody>
+<tr><td>直接插入</td><td>24,770,907</td><td>2,506,564,653</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td></tr>
+<tr><td>冒泡</td><td>49,982,120</td><td>4,999,910,660</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td></tr>
+<tr><td>选择</td><td>49,995,000</td><td>4,999,950,000</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td></tr>
+<tr><td>希尔</td><td>267,437</td><td>4,586,090</td><td>67,357,285</td><td>1,096,634,719</td><td>5,009,274,674</td></tr>
+<tr><td>快速</td><td>161,969</td><td>2,205,291</td><td>24,831,696</td><td>249,286,903</td><td>815,808,518</td></tr>
+<tr><td>堆</td><td>235,455</td><td>3,019,239</td><td>36,793,625</td><td>434,645,406</td><td>1,497,403,011</td></tr>
+<tr><td>基数</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>归并</td><td>120,412</td><td>1,536,440</td><td>18,673,937</td><td>220,103,379</td><td>757,579,597</td></tr>
+<tr class="base"><td>AdaptSort（基线）</td><td class="best">40,260</td><td class="best">200,316</td><td class="best">2,000,316</td><td class="best">40,000,316</td><td class="best">128,000,316</td></tr>
+<tr class="base"><td>std::sort（基线）</td><td>158,636</td><td>2,000,880</td><td>24,139,601</td><td>261,094,681</td><td>875,803,966</td></tr>
+</tbody></table></div>
+<div class="b6-cap"><b>移动次数</b><span class="b6-sub">（<span class="best">绿色</span> = AdaptSort）</span></div>
+<div class="scroll-tbl"><table class="b6-tbl">
+<thead><tr><th>算法</th><th>10⁴</th><th>10⁵</th><th>10⁶</th><th>10⁷</th><th>3.2×10⁷</th></tr></thead>
+<tbody>
+<tr><td>直接插入</td><td>24,780,912</td><td>2,506,664,663</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td></tr>
+<tr><td>冒泡</td><td>74,282,742</td><td>7,519,393,995</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td></tr>
+<tr><td>选择</td><td>29,985</td><td>299,967</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td></tr>
+<tr><td>希尔</td><td>392,452</td><td>6,136,814</td><td>85,859,530</td><td>1,321,647,142</td><td>5,761,280,391</td></tr>
+<tr><td>快速</td><td>439,118</td><td>6,150,322</td><td>70,296,895</td><td>726,131,103</td><td>2,358,464,084</td></tr>
+<tr><td>堆</td><td>174,297</td><td>2,074,701</td><td>24,048,044</td><td>273,836,820</td><td>929,544,159</td></tr>
+<tr><td>基数</td><td>80,000</td><td>800,000</td><td>8,000,000</td><td>80,000,000</td><td>256,000,000</td></tr>
+<tr><td>归并</td><td>267,232</td><td>3,337,856</td><td>39,902,848</td><td>466,445,568</td><td>1,596,891,136</td></tr>
+<tr class="base"><td>AdaptSort（基线）</td><td class="best">40,000</td><td class="best">200,000</td><td class="best">2,000,000</td><td class="best">40,000,000</td><td class="best">128,000,000</td></tr>
+<tr class="base"><td>std::sort（基线）</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td></tr>
+</tbody></table></div>
+</div>
+<div class="b6-grp" data-d="gauss" style="display:none">
+<div class="b6-cap"><b>计算时间</b><span class="b6-sub">（ms，同列取重复轮最小值；<span class="best">绿色</span> = AdaptSort）</span></div>
+<div class="scroll-tbl"><table class="b6-tbl">
+<thead><tr><th>算法</th><th>平均复杂度</th><th>10⁴</th><th>10⁵</th><th>10⁶</th><th>10⁷</th><th>3.2×10⁷</th><th>增长倍率 t(3.2×10⁷)/t(10⁶)</th></tr></thead>
+<tbody>
+<tr><td>直接插入</td><td class="dim">O(n²)／正序 O(n)</td><td>29.39</td><td>1746.5</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td>—</td></tr>
+<tr><td>冒泡</td><td class="dim">O(n²)／正序 O(n)</td><td>274.4</td><td>27,667</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td>—</td></tr>
+<tr><td>选择</td><td class="dim">O(n²)（比较与数据无关）</td><td>132.2</td><td>16,325</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td>—</td></tr>
+<tr><td>希尔</td><td class="dim">O(n^1.3) 左右</td><td>0.8079</td><td>14.78</td><td>189.2</td><td>2425.4</td><td>11,152</td><td>×59.0</td></tr>
+<tr><td>快速</td><td class="dim">O(n log n)（三路划分）</td><td>0.4948</td><td>7.39</td><td>86.69</td><td>964.7</td><td>3030.0</td><td>×35.0</td></tr>
+<tr><td>堆</td><td class="dim">O(n log n)</td><td>0.7245</td><td>10.67</td><td>141.9</td><td>3188.6</td><td>12,073</td><td>×85.1</td></tr>
+<tr><td>基数</td><td class="dim">O(n)（4 趟字节，仅整数键）</td><td>0.0707</td><td>1.18</td><td>10.54</td><td>160.7</td><td>436.7</td><td>×41.4</td></tr>
+<tr><td>归并</td><td class="dim">O(n log n)（稳定）</td><td>0.5956</td><td>9.31</td><td>97.03</td><td>1298.9</td><td>4044.1</td><td>×41.7</td></tr>
+<tr class="base"><td>AdaptSort（基线）</td><td class="dim">自适应（特征采样→决策）</td><td class="best">0.0656</td><td class="best">0.7231</td><td class="best">7.63</td><td class="best">115.2</td><td class="best">300.7</td><td class="best">×39.4</td></tr>
+<tr class="base"><td>std::sort（基线）</td><td class="dim">O(n log n)（库基线）</td><td>0.3842</td><td>5.91</td><td>62.08</td><td>794.9</td><td>2341.0</td><td>×37.7</td></tr>
+</tbody></table></div>
+<div class="b6-cap"><b>比较次数</b><span class="b6-sub">（<span class="best">绿色</span> = AdaptSort）</span></div>
+<div class="scroll-tbl"><table class="b6-tbl">
+<thead><tr><th>算法</th><th>10⁴</th><th>10⁵</th><th>10⁶</th><th>10⁷</th><th>3.2×10⁷</th></tr></thead>
+<tbody>
+<tr><td>直接插入</td><td>24,972,990</td><td>2,501,480,727</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td></tr>
+<tr><td>冒泡</td><td>49,977,234</td><td>4,999,846,715</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td></tr>
+<tr><td>选择</td><td>49,995,000</td><td>4,999,950,000</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td></tr>
+<tr><td>希尔</td><td>263,022</td><td>4,383,211</td><td>69,810,819</td><td>1,016,591,773</td><td>4,846,093,575</td></tr>
+<tr><td>快速</td><td>162,071</td><td>2,068,636</td><td>24,695,973</td><td>259,400,936</td><td>824,121,778</td></tr>
+<tr><td>堆</td><td>235,226</td><td>3,018,501</td><td>36,774,742</td><td>434,353,554</td><td>1,496,315,323</td></tr>
+<tr><td>基数</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>归并</td><td>120,430</td><td>1,536,102</td><td>18,668,935</td><td>220,025,140</td><td>757,303,214</td></tr>
+<tr class="base"><td>AdaptSort（基线）</td><td class="best">40,260</td><td class="best">200,316</td><td class="best">2,000,316</td><td class="best">40,000,316</td><td class="best">128,000,316</td></tr>
+<tr class="base"><td>std::sort（基线）</td><td>162,319</td><td>2,039,757</td><td>24,085,060</td><td>261,279,900</td><td>875,802,324</td></tr>
+</tbody></table></div>
+<div class="b6-cap"><b>移动次数</b><span class="b6-sub">（<span class="best">绿色</span> = AdaptSort）</span></div>
+<div class="scroll-tbl"><table class="b6-tbl">
+<thead><tr><th>算法</th><th>10⁴</th><th>10⁵</th><th>10⁶</th><th>10⁷</th><th>3.2×10⁷</th></tr></thead>
+<tbody>
+<tr><td>直接插入</td><td>24,982,993</td><td>2,501,580,729</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td></tr>
+<tr><td>冒泡</td><td>74,888,985</td><td>7,504,142,193</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td></tr>
+<tr><td>选择</td><td>29,943</td><td>299,553</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td></tr>
+<tr><td>希尔</td><td>388,138</td><td>5,933,517</td><td>88,312,527</td><td>1,241,594,622</td><td>5,598,072,330</td></tr>
+<tr><td>快速</td><td>439,566</td><td>5,748,209</td><td>70,139,968</td><td>752,725,804</td><td>2,381,805,893</td></tr>
+<tr><td>堆</td><td>174,029</td><td>2,074,342</td><td>24,035,734</td><td>273,663,507</td><td>928,919,753</td></tr>
+<tr><td>基数</td><td>80,000</td><td>800,000</td><td>8,000,000</td><td>80,000,000</td><td>256,000,000</td></tr>
+<tr><td>归并</td><td>267,232</td><td>3,337,856</td><td>39,902,848</td><td>466,445,568</td><td>1,596,891,136</td></tr>
+<tr class="base"><td>AdaptSort（基线）</td><td class="best">40,000</td><td class="best">200,000</td><td class="best">2,000,000</td><td class="best">40,000,000</td><td class="best">128,000,000</td></tr>
+<tr class="base"><td>std::sort（基线）</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td></tr>
+</tbody></table></div>
+</div>
+<div class="b6-grp" data-d="poisson" style="display:none">
+<div class="b6-cap"><b>计算时间</b><span class="b6-sub">（ms，同列取重复轮最小值；<span class="best">绿色</span> = AdaptSort）</span></div>
+<div class="scroll-tbl"><table class="b6-tbl">
+<thead><tr><th>算法</th><th>平均复杂度</th><th>10⁴</th><th>10⁵</th><th>10⁶</th><th>10⁷</th><th>3.2×10⁷</th><th>增长倍率 t(3.2×10⁷)/t(10⁶)</th></tr></thead>
+<tbody>
+<tr><td>直接插入</td><td class="dim">O(n²)／正序 O(n)</td><td>19.30</td><td>2035.9</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td>—</td></tr>
+<tr><td>冒泡</td><td class="dim">O(n²)／正序 O(n)</td><td>285.4</td><td>30,520</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td>—</td></tr>
+<tr><td>选择</td><td class="dim">O(n²)（比较与数据无关）</td><td>150.6</td><td>16,319</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td>—</td></tr>
+<tr><td>希尔</td><td class="dim">O(n^1.3) 左右</td><td>0.4887</td><td>5.88</td><td>72.13</td><td>834.9</td><td>3402.9</td><td>×47.2</td></tr>
+<tr><td>快速</td><td class="dim">O(n log n)（三路划分）</td><td>0.1966</td><td>1.90</td><td>19.18</td><td>193.9</td><td>617.1</td><td>×32.2</td></tr>
+<tr><td>堆</td><td class="dim">O(n log n)</td><td>0.7393</td><td>7.75</td><td>84.10</td><td>995.2</td><td>3391.8</td><td>×40.3</td></tr>
+<tr><td>基数</td><td class="dim">O(n)（4 趟字节，仅整数键）</td><td>0.1111</td><td>1.12</td><td>12.84</td><td>138.9</td><td>453.9</td><td>×35.4</td></tr>
+<tr><td>归并</td><td class="dim">O(n log n)（稳定）</td><td>0.4990</td><td>4.94</td><td>56.78</td><td>620.9</td><td>2127.2</td><td>×37.5</td></tr>
+<tr class="base"><td>AdaptSort（基线）</td><td class="dim">自适应（特征采样→决策）</td><td class="best">0.0316</td><td class="best">0.2444</td><td class="best">3.23</td><td class="best">32.89</td><td class="best">105.3</td><td class="best">×32.6</td></tr>
+<tr class="base"><td>std::sort（基线）</td><td class="dim">O(n log n)（库基线）</td><td>0.2143</td><td>2.48</td><td>26.42</td><td>287.9</td><td>945.2</td><td>×35.8</td></tr>
+</tbody></table></div>
+<div class="b6-cap"><b>比较次数</b><span class="b6-sub">（<span class="best">绿色</span> = AdaptSort）</span></div>
+<div class="scroll-tbl"><table class="b6-tbl">
+<thead><tr><th>算法</th><th>10⁴</th><th>10⁵</th><th>10⁶</th><th>10⁷</th><th>3.2×10⁷</th></tr></thead>
+<tbody>
+<tr><td>直接插入</td><td>24,069,422</td><td>2,409,122,070</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td></tr>
+<tr><td>冒泡</td><td>49,980,804</td><td>4,999,764,864</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td></tr>
+<tr><td>选择</td><td>49,995,000</td><td>4,999,950,000</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td></tr>
+<tr><td>希尔</td><td>174,752</td><td>2,070,436</td><td>25,343,557</td><td>304,437,070</td><td>1,234,034,159</td></tr>
+<tr><td>快速</td><td>50,850</td><td>455,275</td><td>4,571,089</td><td>45,841,107</td><td>145,257,790</td></tr>
+<tr><td>堆</td><td>234,724</td><td>3,010,530</td><td>36,696,684</td><td>433,537,136</td><td>1,493,792,853</td></tr>
+<tr><td>基数</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>归并</td><td>120,488</td><td>1,536,966</td><td>18,674,979</td><td>220,168,541</td><td>757,604,158</td></tr>
+<tr class="base"><td>AdaptSort（基线）</td><td class="best">30,258</td><td class="best">300,314</td><td class="best">3,000,314</td><td class="best">30,000,314</td><td class="best">96,000,314</td></tr>
+<tr class="base"><td>std::sort（基线）</td><td>120,564</td><td>1,516,220</td><td>19,216,285</td><td>217,246,038</td><td>777,275,570</td></tr>
+</tbody></table></div>
+<div class="b6-cap"><b>移动次数</b><span class="b6-sub">（<span class="best">绿色</span> = AdaptSort）</span></div>
+<div class="scroll-tbl"><table class="b6-tbl">
+<thead><tr><th>算法</th><th>10⁴</th><th>10⁵</th><th>10⁶</th><th>10⁷</th><th>3.2×10⁷</th></tr></thead>
+<tbody>
+<tr><td>直接插入</td><td>24,079,431</td><td>2,409,222,074</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td></tr>
+<tr><td>冒泡</td><td>72,178,299</td><td>7,227,066,228</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td></tr>
+<tr><td>选择</td><td>29,952</td><td>299,961</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td></tr>
+<tr><td>希尔</td><td>299,526</td><td>3,618,348</td><td>43,819,800</td><td>529,192,191</td><td>1,985,234,561</td></tr>
+<tr><td>快速</td><td>122,818</td><td>1,066,152</td><td>10,713,646</td><td>107,523,856</td><td>339,773,926</td></tr>
+<tr><td>堆</td><td>173,362</td><td>2,064,187</td><td>23,940,278</td><td>272,691,375</td><td>925,850,021</td></tr>
+<tr><td>基数</td><td>80,000</td><td>800,000</td><td>8,000,000</td><td>80,000,000</td><td>256,000,000</td></tr>
+<tr><td>归并</td><td>267,232</td><td>3,337,856</td><td>39,902,848</td><td>466,445,568</td><td>1,596,891,136</td></tr>
+<tr class="base"><td>AdaptSort（基线）</td><td class="best">20,000</td><td class="best">200,000</td><td class="best">2,000,000</td><td class="best">20,000,000</td><td class="best">64,000,000</td></tr>
+<tr class="base"><td>std::sort（基线）</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td></tr>
+</tbody></table></div>
+</div>
+<div class="b6-grp" data-d="asc" style="display:none">
+<div class="b6-cap"><b>计算时间</b><span class="b6-sub">（ms，同列取重复轮最小值；<span class="best">绿色</span> = AdaptSort）</span></div>
+<div class="scroll-tbl"><table class="b6-tbl">
+<thead><tr><th>算法</th><th>平均复杂度</th><th>10⁴</th><th>10⁵</th><th>10⁶</th><th>10⁷</th><th>3.2×10⁷</th><th>增长倍率 t(3.2×10⁷)/t(10⁶)</th></tr></thead>
+<tbody>
+<tr><td>直接插入</td><td class="dim">O(n²)／正序 O(n)</td><td>0.0090</td><td>0.0747</td><td>0.7554</td><td>9.27</td><td>38.43</td><td>×50.9</td></tr>
+<tr><td>冒泡</td><td class="dim">O(n²)／正序 O(n)</td><td>0.0089</td><td>0.0805</td><td>1.45</td><td>8.50</td><td>49.32</td><td>×34.1</td></tr>
+<tr><td>选择</td><td class="dim">O(n²)（比较与数据无关）</td><td>144.6</td><td>14,696</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td>—</td></tr>
+<tr><td>希尔</td><td class="dim">O(n^1.3) 左右</td><td>0.1511</td><td>1.82</td><td>20.79</td><td>343.9</td><td>1387.5</td><td>×66.7</td></tr>
+<tr><td>快速</td><td class="dim">O(n log n)（三路划分）</td><td>0.2283</td><td>2.71</td><td>30.31</td><td>395.6</td><td>1394.0</td><td>×46.0</td></tr>
+<tr><td>堆</td><td class="dim">O(n log n)</td><td>0.5037</td><td>5.85</td><td>64.43</td><td>850.7</td><td>2969.9</td><td>×46.1</td></tr>
+<tr><td>基数</td><td class="dim">O(n)（4 趟字节，仅整数键）</td><td>0.0897</td><td>1.12</td><td>17.97</td><td>221.8</td><td>639.6</td><td>×35.6</td></tr>
+<tr><td>归并</td><td class="dim">O(n log n)（稳定）</td><td>0.1648</td><td>1.66</td><td>24.09</td><td>362.1</td><td>1027.1</td><td>×42.6</td></tr>
+<tr class="base"><td>AdaptSort（基线）</td><td class="dim">自适应（特征采样→决策）</td><td class="best">0.0040</td><td class="best">0.0309</td><td class="best">0.3014</td><td class="best">3.65</td><td class="best">13.55</td><td class="best">×45.0</td></tr>
+<tr class="base"><td>std::sort（基线）</td><td class="dim">O(n log n)（库基线）</td><td>0.0806</td><td>0.9121</td><td>11.17</td><td>180.1</td><td>529.8</td><td>×47.4</td></tr>
+</tbody></table></div>
+<div class="b6-cap"><b>比较次数</b><span class="b6-sub">（<span class="best">绿色</span> = AdaptSort）</span></div>
+<div class="scroll-tbl"><table class="b6-tbl">
+<thead><tr><th>算法</th><th>10⁴</th><th>10⁵</th><th>10⁶</th><th>10⁷</th><th>3.2×10⁷</th></tr></thead>
+<tbody>
+<tr><td>直接插入</td><td>9,999</td><td>99,999</td><td>999,999</td><td>9,999,999</td><td>31,999,999</td></tr>
+<tr><td>冒泡</td><td>9,999</td><td>99,999</td><td>999,999</td><td>9,999,999</td><td>31,999,999</td></tr>
+<tr><td>选择</td><td>49,995,000</td><td>4,999,950,000</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td></tr>
+<tr><td>希尔</td><td>120,005</td><td>1,500,006</td><td>18,000,007</td><td>220,000,008</td><td>736,000,007</td></tr>
+<tr><td>快速</td><td>170,712</td><td>2,135,716</td><td>25,516,078</td><td>298,579,688</td><td>1,032,217,763</td></tr>
+<tr><td>堆</td><td>244,460</td><td>3,112,517</td><td>37,692,069</td><td>445,162,673</td><td>1,528,792,783</td></tr>
+<tr><td>基数</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>归并</td><td>69,008</td><td>853,904</td><td>10,066,432</td><td>118,788,160</td><td>402,125,824</td></tr>
+<tr class="base"><td>AdaptSort（基线）</td><td class="best">10,197</td><td class="best">100,253</td><td class="best">1,000,253</td><td class="best">10,000,253</td><td class="best">32,000,253</td></tr>
+<tr class="base"><td>std::sort（基线）</td><td>166,691</td><td>2,113,369</td><td>25,604,781</td><td>316,531,837</td><td>1,059,351,607</td></tr>
+</tbody></table></div>
+<div class="b6-cap"><b>移动次数</b><span class="b6-sub">（<span class="best">绿色</span> = AdaptSort）</span></div>
+<div class="scroll-tbl"><table class="b6-tbl">
+<thead><tr><th>算法</th><th>10⁴</th><th>10⁵</th><th>10⁶</th><th>10⁷</th><th>3.2×10⁷</th></tr></thead>
+<tbody>
+<tr><td>直接插入</td><td>19,998</td><td>199,998</td><td>1,999,998</td><td>19,999,998</td><td>63,999,998</td></tr>
+<tr><td>冒泡</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>选择</td><td>0</td><td>0</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td></tr>
+<tr><td>希尔</td><td>240,010</td><td>3,000,012</td><td>36,000,014</td><td>440,000,016</td><td>1,472,000,014</td></tr>
+<tr><td>快速</td><td>455,678</td><td>5,923,920</td><td>72,171,898</td><td>854,572,431</td><td>2,968,230,567</td></tr>
+<tr><td>堆</td><td>181,952</td><td>2,150,850</td><td>24,787,788</td><td>281,881,704</td><td>955,592,862</td></tr>
+<tr><td>基数</td><td>80,000</td><td>800,000</td><td>8,000,000</td><td>80,000,000</td><td>256,000,000</td></tr>
+<tr><td>归并</td><td>267,232</td><td>3,337,856</td><td>39,902,848</td><td>466,445,568</td><td>1,596,891,136</td></tr>
+<tr class="base"><td>AdaptSort（基线）</td><td class="best">0</td><td class="best">0</td><td class="best">0</td><td class="best">0</td><td class="best">0</td></tr>
+<tr class="base"><td>std::sort（基线）</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td></tr>
+</tbody></table></div>
+</div>
+<div class="b6-grp" data-d="desc" style="display:none">
+<div class="b6-cap"><b>计算时间</b><span class="b6-sub">（ms，同列取重复轮最小值；<span class="best">绿色</span> = AdaptSort）</span></div>
+<div class="scroll-tbl"><table class="b6-tbl">
+<thead><tr><th>算法</th><th>平均复杂度</th><th>10⁴</th><th>10⁵</th><th>10⁶</th><th>10⁷</th><th>3.2×10⁷</th><th>增长倍率 t(3.2×10⁷)/t(10⁶)</th></tr></thead>
+<tbody>
+<tr><td>直接插入</td><td class="dim">O(n²)／正序 O(n)</td><td>32.97</td><td>3790.3</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td>—</td></tr>
+<tr><td>冒泡</td><td class="dim">O(n²)／正序 O(n)</td><td>371.4</td><td>38,533</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td>—</td></tr>
+<tr><td>选择</td><td class="dim">O(n²)（比较与数据无关）</td><td>138.2</td><td>16,332</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td>—</td></tr>
+<tr><td>希尔</td><td class="dim">O(n^1.3) 左右</td><td>0.1924</td><td>3.96</td><td>34.69</td><td>404.4</td><td>1818.5</td><td>×52.4</td></tr>
+<tr><td>快速</td><td class="dim">O(n log n)（三路划分）</td><td>0.2209</td><td>4.08</td><td>31.25</td><td>575.9</td><td>1656.0</td><td>×53.0</td></tr>
+<tr><td>堆</td><td class="dim">O(n log n)</td><td>0.5155</td><td>7.51</td><td>71.35</td><td>1165.4</td><td>3694.1</td><td>×51.8</td></tr>
+<tr><td>基数</td><td class="dim">O(n)（4 趟字节，仅整数键）</td><td>0.0971</td><td>1.26</td><td>18.83</td><td>209.7</td><td>716.4</td><td>×38.0</td></tr>
+<tr><td>归并</td><td class="dim">O(n log n)（稳定）</td><td>0.1522</td><td>2.04</td><td>25.02</td><td>300.6</td><td>1158.7</td><td>×46.3</td></tr>
+<tr class="base"><td>AdaptSort（基线）</td><td class="dim">自适应（特征采样→决策）</td><td class="best">0.0062</td><td class="best">0.0684</td><td class="best">0.6082</td><td class="best">9.67</td><td class="best">34.16</td><td class="best">×56.2</td></tr>
+<tr class="base"><td>std::sort（基线）</td><td class="dim">O(n log n)（库基线）</td><td>0.0685</td><td>0.8957</td><td>9.40</td><td>130.2</td><td>490.1</td><td>×52.1</td></tr>
+</tbody></table></div>
+<div class="b6-cap"><b>比较次数</b><span class="b6-sub">（<span class="best">绿色</span> = AdaptSort）</span></div>
+<div class="scroll-tbl"><table class="b6-tbl">
+<thead><tr><th>算法</th><th>10⁴</th><th>10⁵</th><th>10⁶</th><th>10⁷</th><th>3.2×10⁷</th></tr></thead>
+<tbody>
+<tr><td>直接插入</td><td>49,995,000</td><td>4,999,950,000</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td></tr>
+<tr><td>冒泡</td><td>49,995,000</td><td>4,999,950,000</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td></tr>
+<tr><td>选择</td><td>49,995,000</td><td>4,999,950,000</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td></tr>
+<tr><td>希尔</td><td>172,578</td><td>2,244,585</td><td>26,357,530</td><td>317,626,219</td><td>1,083,440,154</td></tr>
+<tr><td>快速</td><td>163,766</td><td>2,126,048</td><td>25,707,934</td><td>303,211,421</td><td>1,003,371,661</td></tr>
+<tr><td>堆</td><td>226,682</td><td>2,926,640</td><td>36,001,436</td><td>426,919,609</td><td>1,471,091,632</td></tr>
+<tr><td>基数</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>归并</td><td>64,608</td><td>815,024</td><td>9,884,992</td><td>114,434,624</td><td>396,319,744</td></tr>
+<tr class="base"><td>AdaptSort（基线）</td><td class="best">10,197</td><td class="best">100,253</td><td class="best">1,000,253</td><td class="best">10,000,253</td><td class="best">32,000,253</td></tr>
+<tr class="base"><td>std::sort（基线）</td><td>122,058</td><td>1,516,394</td><td>18,131,082</td><td>222,097,162</td><td>740,194,314</td></tr>
+</tbody></table></div>
+<div class="b6-cap"><b>移动次数</b><span class="b6-sub">（<span class="best">绿色</span> = AdaptSort）</span></div>
+<div class="scroll-tbl"><table class="b6-tbl">
+<thead><tr><th>算法</th><th>10⁴</th><th>10⁵</th><th>10⁶</th><th>10⁷</th><th>3.2×10⁷</th></tr></thead>
+<tbody>
+<tr><td>直接插入</td><td>50,014,998</td><td>5,000,149,998</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td></tr>
+<tr><td>冒泡</td><td>149,985,000</td><td>14,999,850,000</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td></tr>
+<tr><td>选择</td><td>15,000</td><td>150,000</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td></tr>
+<tr><td>希尔</td><td>302,570</td><td>3,844,572</td><td>45,357,518</td><td>547,626,192</td><td>1,851,440,142</td></tr>
+<tr><td>快速</td><td>433,674</td><td>5,854,273</td><td>72,485,635</td><td>867,414,217</td><td>2,877,412,641</td></tr>
+<tr><td>堆</td><td>166,692</td><td>1,997,430</td><td>23,333,404</td><td>266,912,424</td><td>906,289,956</td></tr>
+<tr><td>基数</td><td>80,000</td><td>800,000</td><td>8,000,000</td><td>80,000,000</td><td>256,000,000</td></tr>
+<tr><td>归并</td><td>267,232</td><td>3,337,856</td><td>39,902,848</td><td>466,445,568</td><td>1,596,891,136</td></tr>
+<tr class="base"><td>AdaptSort（基线）</td><td class="best">15,000</td><td class="best">150,000</td><td class="best">1,500,000</td><td class="best">15,000,000</td><td class="best">48,000,000</td></tr>
+<tr class="base"><td>std::sort（基线）</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td></tr>
+</tbody></table></div>
+</div>
+</div>
+<div class="b6-div"></div>
+<div class="b6-cap"><b>规模倍增实测 vs 理论</b><span class="b6-sub">（均匀分布；Θ(n²) 三算法以 10⁴→10⁵ 验证平方律；<span class="best">绿色</span> = AdaptSort）</span></div>
+<div class="scroll-tbl"><table class="b6-tbl">
+<thead><tr><th>算法</th><th>规模跨度</th><th>理论时间倍率</th><th>实测时间倍率</th><th>实测比较倍率</th></tr></thead>
+<tbody>
+<tr><td>直接插入</td><td>10⁴→10⁵（×10）</td><td class="dim">×100（n²）</td><td>×102.3</td><td>×101.2</td></tr>
+<tr><td>冒泡</td><td>10⁴→10⁵（×10）</td><td class="dim">×100（n²）</td><td>×105.0</td><td>×100.0</td></tr>
+<tr><td>选择</td><td>10⁴→10⁵（×10）</td><td class="dim">×100（n²）</td><td>×110.4</td><td>×100.0</td></tr>
+<tr><td>希尔</td><td>10⁶→3.2×10⁷（×32）</td><td class="dim">×90（n^1.3 经验律）</td><td>×51.0</td><td>×74.4</td></tr>
+<tr><td>快速</td><td>10⁶→3.2×10⁷（×32）</td><td class="dim">×40（n log n）</td><td>×35.9</td><td>×32.9</td></tr>
+<tr><td>堆</td><td>10⁶→3.2×10⁷（×32）</td><td class="dim">×40（n log n）</td><td>×78.4</td><td>×40.7</td></tr>
+<tr><td>基数</td><td>10⁶→3.2×10⁷（×32）</td><td class="dim">×32（O(n)）</td><td>×42.5</td><td>—</td></tr>
+<tr><td>归并</td><td>10⁶→3.2×10⁷（×32）</td><td class="dim">×40（n log n）</td><td>×46.6</td><td>×40.6</td></tr>
+<tr class="base"><td>AdaptSort（基线）</td><td>10⁶→3.2×10⁷（×32）</td><td class="dim">≤×40（上界 n log n）</td><td class="best">×35.9</td><td class="best">×64.0</td></tr>
+<tr class="base"><td>std::sort（基线）</td><td>10⁶→3.2×10⁷（×32）</td><td class="dim">×40（n log n）</td><td>×39.9</td><td>×36.3</td></tr>
+</tbody></table></div>
+<div class="b6-cap"><b>同一规模 n=10⁶ 下五分布的计算时间对比</b><span class="b6-sub">（ms；<span class="best">绿色</span> = AdaptSort）</span></div>
+<div class="scroll-tbl"><table class="b6-tbl">
+<thead><tr><th>算法</th><th>均匀分布</th><th>高斯分布</th><th>泊松分布</th><th>正序数据</th><th>逆序数据</th></tr></thead>
+<tbody>
+<tr><td>直接插入</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td>0.7554</td><td class="dim">—</td></tr>
+<tr><td>冒泡</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td>1.45</td><td class="dim">—</td></tr>
+<tr><td>选择</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td></tr>
+<tr><td>希尔</td><td>178.4</td><td>189.2</td><td>72.13</td><td>20.79</td><td>34.69</td></tr>
+<tr><td>快速</td><td>79.97</td><td>86.69</td><td>19.18</td><td>30.31</td><td>31.25</td></tr>
+<tr><td>堆</td><td>129.6</td><td>141.9</td><td>84.10</td><td>64.43</td><td>71.35</td></tr>
+<tr><td>基数</td><td>8.76</td><td>10.54</td><td>12.84</td><td>17.97</td><td>18.83</td></tr>
+<tr><td>归并</td><td>91.04</td><td>97.03</td><td>56.78</td><td>24.09</td><td>25.02</td></tr>
+<tr class="base"><td>AdaptSort（基线）</td><td class="best">8.13</td><td class="best">7.63</td><td class="best">3.23</td><td class="best">0.3014</td><td class="best">0.6082</td></tr>
+<tr class="base"><td>std::sort（基线）</td><td>57.64</td><td>62.08</td><td>26.42</td><td>11.17</td><td>9.40</td></tr>
+</tbody></table></div>
+<div class="b6-cap"><b>同一规模 n=3.2×10⁷ 下五分布的计算时间对比</b><span class="b6-sub">（ms；<span class="best">绿色</span> = AdaptSort）</span></div>
+<div class="scroll-tbl"><table class="b6-tbl">
+<thead><tr><th>算法</th><th>均匀分布</th><th>高斯分布</th><th>泊松分布</th><th>正序数据</th><th>逆序数据</th></tr></thead>
+<tbody>
+<tr><td>直接插入</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td>38.43</td><td class="dim">—</td></tr>
+<tr><td>冒泡</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td>49.32</td><td class="dim">—</td></tr>
+<tr><td>选择</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td></tr>
+<tr><td>希尔</td><td>9098.2</td><td>11,152</td><td>3402.9</td><td>1387.5</td><td>1818.5</td></tr>
+<tr><td>快速</td><td>2875.0</td><td>3030.0</td><td>617.1</td><td>1394.0</td><td>1656.0</td></tr>
+<tr><td>堆</td><td>10,159</td><td>12,073</td><td>3391.8</td><td>2969.9</td><td>3694.1</td></tr>
+<tr><td>基数</td><td>372.3</td><td>436.7</td><td>453.9</td><td>639.6</td><td>716.4</td></tr>
+<tr><td>归并</td><td>4242.9</td><td>4044.1</td><td>2127.2</td><td>1027.1</td><td>1158.7</td></tr>
+<tr class="base"><td>AdaptSort（基线）</td><td class="best">292.1</td><td class="best">300.7</td><td class="best">105.3</td><td class="best">13.55</td><td class="best">34.16</td></tr>
+<tr class="base"><td>std::sort（基线）</td><td>2299.5</td><td>2341.0</td><td>945.2</td><td>529.8</td><td>490.1</td></tr>
+</tbody></table></div>
+<div class="b6-cap"><b>AdaptSort 策略选择</b><span class="b6-sub">（特征采样 → 决策函数 → 执行策略）</span></div>
+<div class="scroll-tbl"><table class="b6-tbl">
+<thead><tr><th>分布</th><th>n=10⁵</th><th>n=10⁶</th><th>n=3.2×10⁷</th></tr></thead>
+<tbody>
+<tr><td>均匀分布</td><td>S5 基数排序</td><td>S5 基数排序</td><td>S5 基数排序(8位)</td></tr>
+<tr><td>高斯分布</td><td>S5 基数排序</td><td>S5 基数排序</td><td>S5 基数排序(8位)</td></tr>
+<tr><td>泊松分布</td><td>S5 基数排序(8位)</td><td>S5 基数排序(8位)</td><td>S5 基数排序(8位)</td></tr>
+<tr><td>正序数据</td><td>S2 已升序直通</td><td>S2 已升序直通</td><td>S2 已升序直通</td></tr>
+<tr><td>逆序数据</td><td>S3 降序反转</td><td>S3 降序反转</td><td>S3 降序反转</td></tr>
+</tbody></table></div>
+<div class="b6-sum"><b>总结</b>　数据量 ×32（10⁶→3.2×10⁷）时 n log n 组时间增长 ×36~×47、贴合理论 ×40，堆排/希尔因访存模式超出至 ×78/×51；泊松的高重复键使三路快排比较骤降 82%；正序输入让插入/冒泡在 3.2×10⁷ 档仍只需 38/49ms（同规模随机数据外推 29 分钟~7.7 小时）——数据形态与规模共同决定选型，O(n²) 在大数据量下出局，AdaptSort 五分布全部第一。</div>
+</div>
+<!-- REQ6:BENCH6:END -->
 </section>
+
 
 <!-- ================= 应用（多场景） ================= -->
 <section class="page" id="p-app">
@@ -3108,6 +3437,19 @@ kpis();topk();movieHeat();
       document.getElementById("hs-ratio").textContent=(ad&&sd)?(sd/ad).toFixed(1)+"×":"—";
     }
   }catch(e){}
+})();
+
+/* ===== 实验内容6 大规模基准：分布切换 ===== */
+(function(){
+  const chips=document.querySelectorAll("#b6-chips .kl-chip");
+  if(!chips.length) return;
+  chips.forEach(ch=>ch.onclick=()=>{
+    chips.forEach(c=>c.classList.toggle("on",c===ch));
+    const d=ch.dataset.d;
+    document.querySelectorAll("#b6-grps .b6-grp").forEach(g=>{
+      g.style.display=(g.dataset.d===d)?"":"none";
+    });
+  });
 })();
 </script>
 </body>
