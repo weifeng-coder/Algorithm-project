@@ -185,6 +185,19 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:18px;opacity:
 .about code{background:var(--card2);padding:1px 6px;border-radius:5px;font-size:12px;font-family:var(--mono)}
 .about li{margin-left:20px;font-size:13px;color:var(--ink);margin-top:4px}
 
+/* ---------- JSON 排序工坊（局部样式） ---------- */
+.jsort-drop{border:1px dashed rgba(56,189,248,.55);border-radius:12px;padding:18px;text-align:center;background:rgba(56,189,248,.045);transition:border-color .15s,background .15s}
+.jsort-drop.is-over{border-color:var(--good);background:rgba(52,211,153,.08)}
+.jsort-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center}
+.jsort-actions input[type=file]{display:none}.jsort-samples{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:10px}
+.jsort-sample{font-size:12px;padding:5px 9px}.jsort-meta{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;color:var(--muted);font-size:12px}
+.jsort-fields{overflow:auto}.jsort-fields table{min-width:760px}.jsort-fields tr.is-disabled{opacity:.48}.jsort-fields .jsort-field-name{font-family:var(--mono);color:#fff;text-align:left}
+.jsort-fields .jsort-examples{max-width:260px;white-space:normal;word-break:break-word;text-align:left;color:var(--muted)}
+.jsort-controls{display:flex;flex-wrap:wrap;gap:8px;align-items:end}.jsort-controls label{display:flex;flex-direction:column;gap:4px;color:var(--muted);font-size:12px}.jsort-controls select{min-width:130px}
+#jsort-download{display:inline-flex;align-items:center;background:var(--card2);color:var(--ink);border:1px solid var(--line2);border-radius:9px;padding:7px 16px;font-size:13px;text-decoration:none}#jsort-download[hidden]{display:none}#jsort-download:hover{border-color:var(--accent)}#jsort-download:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.jsort-report{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}.jsort-report .kpi{min-width:0}.jsort-report .num{font-size:18px;overflow-wrap:anywhere}.jsort-report .jsort-strategy{grid-column:1/-1}.jsort-error{color:var(--warn)}.jsort-preview{display:grid;grid-template-columns:1fr 1fr;gap:12px}.jsort-preview pre{margin:0;max-height:280px;overflow:auto;white-space:pre-wrap;word-break:break-word;background:rgba(2,6,23,.35);border:1px solid var(--line);border-radius:8px;padding:10px;font:12px var(--mono);color:var(--ink)}
+@media(max-width:720px){.jsort-preview{grid-template-columns:1fr}}
+
 /* ---------- 场景故事板 ---------- */
 .caveat{font-size:12.5px;color:var(--muted);border-left:3px solid var(--line2);
   padding:8px 12px;margin:0 0 14px;background:rgba(148,163,184,.05);border-radius:0 10px 10px 0}
@@ -312,8 +325,7 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:18px;opacity:
   <button data-p="lab" class="active">算法实验室</button>
   <button data-p="bench">性能基准</button>
   <button data-p="app">应用</button>
-  <button data-p="multi">六场景总览</button>
-  <button data-p="about">关于</button>
+  <button data-p="multi">JSON 排序工坊</button>
 </nav>
 
 <!-- ================= 算法实验室 ================= -->
@@ -330,6 +342,8 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:18px;opacity:
           <option value="merge">归并</option><option value="radix">基数</option>
           <option value="adapt" selected>AdaptSort(普适)</option>
         </select></label>
+      <label class="ck">排序方向
+        <select id="lab-order"><option value="1">升序</option><option value="-1">降序</option></select></label>
       <label class="ck">数据分布
         <select id="lab-dist">
           <option value="uniform">均匀随机</option><option value="near">近有序</option>
@@ -350,7 +364,7 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:18px;opacity:
   <div class="bento">
   <div class="card">
     <h2>现场单格实测（跟随上方配置 · 真实计时/计数）</h2>
-    <div class="note">可视化播放结束后，自动使用上方当前的算法、数据分布和规模进行真实测量。后端预热 + 5 轮取最小，再另跑一轮计数。</div>
+    <div class="note">可视化播放结束后，自动使用上方当前的算法、排序方向、数据分布和规模进行真实测量。后端预热 + 5 轮取最小，再另跑一轮计数。</div>
     <span class="bar-note" id="run-eta" style="display:none">等待可视化完成</span>
     <button class="btn ghost" id="run-stop" hidden>取消等待</button>
     <div class="run-metrics" aria-live="polite">
@@ -713,6 +727,10 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:18px;opacity:
 <div class="b6-sum"><b>总结</b>　数据量 ×32（10⁶→3.2×10⁷）时 n log n 组时间增长 ×36~×47、贴合理论 ×40，堆排/希尔因访存模式超出至 ×78/×51；泊松的高重复键使三路快排比较骤降 82%；正序输入让插入/冒泡在 3.2×10⁷ 档仍只需 38/49ms（同规模随机数据外推 29 分钟~7.7 小时）——数据形态与规模共同决定选型，O(n²) 在大数据量下出局，AdaptSort 五分布全部第一。</div>
 </div>
 <!-- REQ6:BENCH6:END -->
+<!-- 旧六场景总览内容迁移至性能基准页尾，ID 与图表逻辑保持不变 -->
+<div class="card"><h2>六场景真实数据矩阵</h2><div class="scroll-tbl"><table id="tbl-multi"></table></div></div>
+<div class="card"><h2>真实数据上的语言库基线 vs AdaptSort（各场景最大档）</h2><div class="note">柱高 = t(std::sort)/t(AdaptSort)，&gt;1 表示 AdaptSort 快于标准库；数据来自各场景 results_real_&lt;scn&gt;.csv。</div><div id="ch-multi" class="chart2"></div></div>
+<div class="card"><h2>场景 F · 基因组后缀数组（倍增法，E. coli K-12）</h2><div class="note">每轮对 (rank[i], rank[i+k]) 复合键全量排序。实际 12 轮提前终止；本数据 12 轮策略全部是 S5 基数排序。</div><div class="kpis" id="gene-kpis"></div><div id="ch-gene" class="chart2"></div><div class="row" style="margin-top:10px"><input type="text" id="gene-q" class="q" placeholder="子串搜索演示：输入 A/C/G/T 片段"><button class="btn" id="gene-go">搜索</button><span class="bar-note" id="gene-out">—</span></div></div>
 </section>
 
 
@@ -1101,53 +1119,29 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:18px;opacity:
   </div>
 </section>
 
-<!-- ================= 六场景总览 ================= -->
+<!-- ================= JSON 排序工坊 ================= -->
 <section class="page" id="p-multi">
   <div class="card">
-    <h2>一套排序框架 × 六个真实领域</h2>
-    <div class="note">题目原文："在许多看似无关的领域中，排序是一个重要的子问题"——六个场景共用同一套自实现排序内核、同一套多级键编码与同一份数据契约，每个场景的数据都来自真实数据集。</div>
-    <div class="scroll-tbl"><table id="tbl-multi"></table></div>
-  </div>
-  <div class="bento">
-  <div class="card">
-    <h2>真实数据上的语言库基线 vs AdaptSort（各场景最大档）</h2>
-    <div class="note">柱高 = t(std::sort)/t(AdaptSort)，&gt;1 表示 AdaptSort 快于标准库；数据来自各场景 results_real_&lt;scn&gt;.csv。</div>
-    <div id="ch-multi" class="chart2"></div>
-  </div>
-  <div class="card">
-    <h2>场景 F · 基因组后缀数组（倍增法，E. coli K-12）</h2>
-    <div class="note">每轮对 (rank[i], rank[i+k]) 复合键全量排序。实际 12 轮提前终止（全后缀已区分；理论上界 23 轮）。本数据 12 轮策略全部是「S5 基数排序+S5 基数排序」，并不随轮次变化。</div>
-    <div class="kpis" id="gene-kpis"></div>
-    <div id="ch-gene" class="chart2"></div>
-    <div class="row" style="margin-top:10px">
-      <input type="text" id="gene-q" class="q" placeholder="子串搜索演示：输入 A/C/G/T 片段（如 ACGTACGTACGT）">
-      <button class="btn" id="gene-go">搜索</button>
-      <span class="bar-note" id="gene-out">—</span>
+    <h2>JSON 排序工坊 <span class="chip">C++ 内核现场排序</span></h2>
+    <div class="note">上传任意包含记录数组的 JSON，自动识别字段并在 AdaptSort 内核中完成排序；输出仅改变数组元素次序。支持拖拽、选择文件和六份真实场景示例（UTF-8，最大 32MB）。</div>
+    <div id="jsort-drop" class="jsort-drop" tabindex="0">
+      <div class="jsort-actions"><button type="button" class="btn" id="jsort-pick">选择 JSON 文件</button><input id="jsort-file" type="file" accept="application/json,.json"><span class="bar-note" id="jsort-file-name">也可将文件拖到这里</span></div>
+      <div id="jsort-samples" class="jsort-samples"></div>
     </div>
+    <div id="jsort-status" class="bar-note" aria-live="polite" style="margin-top:10px">等待上传</div>
   </div>
-  </div><!-- /bento -->
+  <div class="card" id="jsort-fields-card" hidden>
+    <h2>字段清单</h2><div id="jsort-array-choice" style="margin-bottom:10px"></div>
+    <div class="jsort-fields"><table id="jsort-fields-table"><thead><tr><th>字段</th><th>类型</th><th>覆盖</th><th>样例</th><th title="上传时按原始值升序预览；执行排序后按所选口径和方向重新计算。">游程数</th><th>排序</th></tr></thead><tbody></tbody></table></div>
+  </div>
+  <div class="card" id="jsort-run-card" hidden>
+    <h2>排序设置与策略报告</h2>
+    <div class="jsort-controls"><label>字段<select id="jsort-field"></select></label><label>顺序<select id="jsort-order"><option value="asc">升序</option><option value="desc" selected>降序</option></select></label><label>null 位置<select id="jsort-nulls"><option value="last" selected>末尾</option><option value="first">开头</option></select></label><label>数字字符串<select id="jsort-interpret"><option value="numeric" selected>按数值</option><option value="string">按字符串</option></select></label><button type="button" class="btn" id="jsort-run">执行排序</button><label>下载格式<select id="jsort-pretty"><option value="0">紧凑 JSON</option><option value="1">换行缩进 JSON</option></select></label><a class="btn ghost" id="jsort-download" hidden>下载排序结果</a></div>
+    <div class="note" id="jsort-field-help" style="margin-top:10px">数字字符串默认按数值解读；例如 “10” 大于 “2”。按字符串时采用字典序，编号或前导零可选此口径。null 与字段缺失按所选位置排列。</div><div id="jsort-upload-meta" class="jsort-meta"></div><div id="jsort-report" class="jsort-report" style="margin-top:14px"></div><div id="jsort-why" class="note" style="margin-top:10px"></div>
+  </div>
+  <div class="card" id="jsort-preview-card" hidden><h2>前后预览</h2><div class="jsort-preview"><div><div class="panel-h">排序前</div><pre id="jsort-before"></pre></div><div><div class="panel-h">排序后</div><pre id="jsort-head"></pre></div></div></div>
 </section>
 
-<!-- ================= 关于 ================= -->
-<section class="page" id="p-about">
-  <div class="card about">
-    <h2>应用需求分析（对应评分点 9）</h2>
-    <p>题目原文："在许多看似无关的领域中，排序是一个重要的子问题"。本系统用<b>同一套自实现排序内核</b>（8 种算法 + AdaptSort）覆盖六个真实数据领域，每个场景共用一份数据契约（postings 键 + 实体台账 + 元数据）与同一套多级键编码方法：</p>
-    <li><b>电影（MovieLens 32M）</b>：3.2×10⁷ 条 (movieId, userId, ratingIdx) 打包为 int64 键排序建倒排索引——排序是索引构建的真正瓶颈；</li>
-    <li><b>电商（Amazon Electronics 782 万评论）</b>：商品关注度/好评度双模式榜单，ASIN 稠密化=键域变换；</li>
-    <li><b>城市骑行（Citi Bike 2019 全年 1279 万次）</b>：站点台账序=真实版"块状近序"，AdaptSort run-merge 路径的现实原型；</li>
-    <li><b>搜索（Stanford Web 图 510 万边）</b>：CSR 建图的排序瓶颈 + PageRank 分值经 IEEE-754 保序映射后直接复用整数排序内核；</li>
-    <li><b>航班（US DOT 2019）</b>：长尾延误分桶=计数排序的现实用例；</li>
-    <li><b>基因组（E. coli K-12 4.64 Mb）</b>：倍增后缀数组每轮对 (rank[i], rank[i+k]) 复合键全量排序——实际 12 轮提前终止（全后缀已区分）。本数据每轮策略均为 S5 基数排序，并不随轮次变化。</li>
-    <h2 style="margin-top:14px">系统架构</h2>
-    <p>C++ 单二进制（排序内核 common/ + AdaptSort + 应用层 app/）── WinSock2 手写 HTTP 服务 ── 浏览器前端（本页面，ECharts 本地化）。数据由 <code>app/pre/pre_&lt;scn&gt;.py</code> 流式预处理：原始数据 → records.jsonl.gz（JSON 交付形态）→ int64 键编码（postings.dat）；排序核心全部为 C/C++ 自实现。</p>
-    <h2 style="margin-top:14px">扩充功能（评分点 10）</h2>
-    <li>外部排序（BSBI）：内存 1/10 限流 → 块内 AdaptSort → k 路堆归并，统计 I/O 块数（<code>sort_demo_app extsort app/data/&lt;scn&gt;</code>）；</li>
-    <li>Top-K 选择对比：堆 O(n log k) vs 快速选择 O(n) vs 全排序 O(n log n)，任意场景可跑（<code>sort_demo_app topk app/data/&lt;scn&gt;</code>）；</li>
-    <li>多场景扩展框架：新增场景只需一个预处理脚本 + 键位参数（meta.txt），排序内核与 UI 零改动；</li>
-    <li>基因组子串搜索：O(m log n) 后缀数组二分（六场景总览页演示）。</li>
-  </div>
-</section>
 
 <footer>CineRank · 算法设计综合实验 题目二 · 排序内核与统计模块均为课程自实现 · 数据集 GroupLens MovieLens</footer>
 </div>
@@ -1159,6 +1153,7 @@ var pendingCharts={};
 
 /* ================= 导航 ================= */
 function showPage(pid){
+  if(pid==="about") pid="lab";
   const btn=[...document.querySelectorAll("nav button")].find(x=>x.dataset.p===pid);
   if(!btn) return;
   document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));
@@ -1175,8 +1170,8 @@ function showPage(pid){
     else if(CUR_SCN==="gene") geneBoot();
   }
   if(pid==="lab") setTimeout(labResize, 40);
-  if(pid==="bench") benchOnShow();
-  if(pid==="multi") multiOnShow();
+  if(pid==="bench"){ benchOnShow(); summaryOnShow(); }
+  if(pid==="multi") jsortExampleButtons();
   setTimeout(()=>{
     Object.keys(pendingCharts).forEach(flushChart);        /* 切页后补建暂存的图表 */
     resizeVisibleCharts();
@@ -1298,7 +1293,7 @@ function drawTween(fi,ci,t){
       const v=v0+(v1-v0)*t;
       const h=hOf(v);
       let col=barColor(v,maxV);
-      if(lab.sweep>=0&&i1-1<=lab.sweep)col="#34d399";
+      if(lab.sweep>=0&&((+document.getElementById("lab-order").value===-1&&i0>=n-1-lab.sweep)||(+document.getElementById("lab-order").value!==-1&&i1-1<=lab.sweep)))col="#34d399";
       ctx.fillStyle=col;
       ctx.fillRect(b,v<0?zeroY:zeroY-h,1,h);
     }
@@ -1316,7 +1311,7 @@ function drawTween(fi,ci,t){
     const y=v<0?zeroY:zeroY-h;             /* 负值从 0 轴向下生长 */
     let col=barColor(v,maxV),glow=false;
     if(mt&&(i===mt[2]||i===mt[3])){col="#f97316";glow=true;}   /* 最近触达 */
-    if(lab.sweep>=0&&i<=lab.sweep){col="#34d399";glow=true;}   /* 有序前缀扫光 */
+    if(lab.sweep>=0&&((+document.getElementById("lab-order").value===-1&&i>=n-1-lab.sweep)||(+document.getElementById("lab-order").value!==-1&&i<=lab.sweep))){col="#34d399";glow=true;}   /* 有序前缀扫光 */
     ctx.save();
     if(glow){ctx.shadowColor=col;ctx.shadowBlur=14;}
     ctx.fillStyle=col;
@@ -1367,10 +1362,11 @@ function labLoad(){
   clearRunMetrics("正在根据上方配置准备可视化...");
   const algo=document.getElementById("lab-algo").value,
         dist=document.getElementById("lab-dist").value,
+        order=+document.getElementById("lab-order").value,
         n=Math.max(N_MIN,Math.min(N_MAX,Math.round(+document.getElementById("lab-n-num").value)||32));
   const loadSeq=++lab.loadSeq;
   document.getElementById("lab-progress").textContent="正在准备可视化...";
-  fetch(`/api/sort/steps?algo=${algo}&n=${n}&dist=${dist}&order=1`)
+  fetch(`/api/sort/steps?algo=${algo}&n=${n}&dist=${dist}&order=${order}`)
     .then(r=>r.json()).then(j=>{
       if(loadSeq!==lab.loadSeq) return;
       if(j.error) throw new Error(j.error);
@@ -1432,6 +1428,7 @@ document.getElementById("lab-n-num").oninput=e=>{
 document.getElementById("lab-n-num").onchange=labScheduleLoad;
 document.getElementById("lab-n").onchange=labScheduleLoad;
 document.getElementById("lab-algo").onchange=labScheduleLoad;
+document.getElementById("lab-order").onchange=labScheduleLoad;
 document.getElementById("lab-dist").onchange=labScheduleLoad;
 function fmtWait(ms){
   if(ms<800) return "不到 1 秒";
@@ -1484,6 +1481,8 @@ function labConfig(){
   return {
     algo:algoEl.value,
     algoLabel:runLabel("lab-algo"),
+    order:+document.getElementById("lab-order").value,
+    orderLabel:runLabel("lab-order"),
     dist:LAB_DIST_RUN[distEl.value]||"uniform",
     distLabel:runLabel("lab-dist"),
     n
@@ -1521,7 +1520,7 @@ function runMeasurement(autoRun=true){
   tick();
   runJob.timer=setInterval(tick,400);
   const opts=runJob.ctl?{signal:runJob.ctl.signal}:{};
-  fetch(`/api/sort/run?algo=${c.algo}&n=${c.n}&dist=${c.dist}`,opts).then(r=>r.json()).then(j=>{
+  fetch(`/api/sort/run?algo=${c.algo}&n=${c.n}&dist=${c.dist}&order=${c.order}`,opts).then(r=>r.json()).then(j=>{
     if(seq!==runJob.seq) return;
     if(j.error){
       document.getElementById("run-out").textContent="错误: "+j.error;
@@ -1529,7 +1528,7 @@ function runMeasurement(autoRun=true){
       return;
     }
     setRunMetrics(j.cmp,j.mv,j.min_ms);
-    const detail=`${autoRun?"自动实测完成":"现场实测完成"} · ${c.algoLabel} · n=${Number(j.n).toLocaleString("en-US")} · ${c.distLabel} · 正确=${j.ok?"✓":"✗"} · 中位数 ${j.med_ms.toFixed(3)} ms · 标准差 ${j.std_ms.toFixed(3)} ms · 附加空间 ${Number(j.aux).toLocaleString("en-US")} B`;
+    const detail=`${autoRun?"自动实测完成":"现场实测完成"} · ${c.algoLabel} · ${c.orderLabel} · n=${Number(j.n).toLocaleString("en-US")} · ${c.distLabel} · 正确=${j.ok?"✓":"✗"} · 中位数 ${j.med_ms.toFixed(3)} ms · 标准差 ${j.std_ms.toFixed(3)} ms · 附加空间 ${Number(j.aux).toLocaleString("en-US")} B`;
     document.getElementById("run-out").textContent=detail;
     if(autoRun) document.getElementById("lab-progress").textContent="现场实测完成：结果已更新到下方三项指标";
   }).catch(e=>{
@@ -3297,9 +3296,64 @@ function geneSearch(){
   }).catch(e=>{ out.textContent="请求失败: "+(e.message||e); });
 }
 
-/* ================= 六场景总览 ================= */
+/* ================= JSON 排序工坊 ================= */
+const jsort={sid:null,fileName:"data.json",fields:[],busy:false,busyDepth:0,arrayPath:""};
+const $j=id=>document.getElementById(id);
+function jsortText(v){return v==null?"—":typeof v==="string"?v:JSON.stringify(v);}
+function jsortSet(id,v){const n=$j(id);if(n)n.textContent=String(v==null?"":v);}
+function jsortStatus(v,bad=false){const n=$j("jsort-status");if(n){n.textContent=v;n.style.color=bad?"var(--warn)":"";}}
+function jsortSetBusy(on){
+  const was=jsort.busy;
+  jsort.busyDepth=Math.max(0,jsort.busyDepth+(on?1:-1));
+  jsort.busy=jsort.busyDepth>0;
+  if(was===jsort.busy)return;
+  $j("p-multi").setAttribute("aria-busy",String(jsort.busy));
+  $j("p-multi").querySelectorAll("button,select,input").forEach(n=>{
+    if(jsort.busy){n.dataset.jsortDisabled=String(n.disabled);n.disabled=true;}
+    else if(n.dataset.jsortDisabled!=null){n.disabled=n.dataset.jsortDisabled==="true";delete n.dataset.jsortDisabled;}
+  });
+  if(jsort.busy)jsortStatus("处理中，请稍候…");
+}
+function jsortCanSort(f){return f.sortable!==false&&f.sortable!==0&&!/^(object|array|unknown|empty)$/.test(f.ftype||f.type||"");}
+function jsortFieldHelp(){const f=jsort.fields.find(f=>(f.path||f.name||"")===$j("jsort-field").value);const type=f&&(f.ftype||f.type);$j("jsort-interpret").disabled=jsort.busy||type!=="numeric-string";jsortSet("jsort-field-help",type==="numeric-string"?"数字字符串：按数值时 10 > 2；按字符串时采用字典序，10 排在 2 前。编号与前导零可选择按字符串。":type==="mixed"?"混合类型字段：服务器按类型稳定分桶；请结合结果和警告核对排序口径。":"字符串采用字典序；ISO 8601 日期可按字符串排序，Unix 时间戳按数值排序。null 与缺失字段按所选位置排列。");}
+function jsortDownloadLink(){const a=$j("jsort-download");if(jsort.sid)a.href="/api/jsort/download?sid="+encodeURIComponent(jsort.sid)+"&pretty="+$j("jsort-pretty").value;}
+function jsortExampleButtons(){
+  const box=$j("jsort-samples");if(!box||box.childNodes.length)return;
+  [["amazon","电商"],["bikecn","北京骑行"],["bikesz","深圳骑行"],["flight","航班"],["gene","基因组"],["web","网页图"]].forEach(([scn,label])=>{
+    const b=document.createElement("button");b.type="button";b.className="btn ghost jsort-sample";b.textContent=label;b.onclick=()=>jsortLoadExample(scn);box.appendChild(b);
+  });
+}
+async function jsortLoadExample(scn){
+  if(jsort.busy)return;jsortSetBusy(true);jsortStatus("正在载入 "+scn+" 示例…");
+  try{const r=await fetch(`/api/scn/extra?scn=${encodeURIComponent(scn)}&file=records_sample.json`);if(!r.ok)throw new Error("示例数据请求失败（"+r.status+"）");const blob=await r.blob();await jsortUpload(new File([blob],scn+"-records_sample.json",{type:"application/json"}));}
+  catch(e){jsortStatus("错误："+(e.message||e),true);}finally{jsortSetBusy(false);jsortFieldHelp();}
+}
+async function jsortUpload(file,arrayPath){
+  if(!file)return;jsort.lastFile=file;if(file.size>32*1024*1024){jsortStatus("文件超过 32MB 限制",true);return;}
+  jsort.sid=null;$j("jsort-download").hidden=true;$j("jsort-preview-card").hidden=true;jsortSetBusy(true);jsortSet("jsort-file-name",file.name+" · "+file.size.toLocaleString()+" bytes");
+  try{let url="/api/jsort/upload?name="+encodeURIComponent(file.name);if(arrayPath!==undefined)url+="&arrayPath="+encodeURIComponent(arrayPath);const r=await fetch(url,{method:"POST",body:file});const j=await r.json().catch(()=>({error:"服务器返回不是 JSON"}));if(!r.ok||j.error)throw new Error(j.error||("上传失败（"+r.status+"）"));jsort.sid=j.sid;jsort.fileName=file.name;jsort.arrayPath=j.arrayPath||arrayPath||"";jsort.fields=Array.isArray(j.fields)?j.fields:[];jsortRenderUpload(j);jsortStatus("已解析 "+(j.n==null?"":j.n.toLocaleString())+" 条记录 · "+(j.bytes||file.size).toLocaleString()+" bytes");}
+  catch(e){jsortStatus("错误："+(e.message||e),true);$j("jsort-fields-card").hidden=true;$j("jsort-run-card").hidden=true;}
+  finally{jsortSetBusy(false);jsortFieldHelp();}
+}
+function jsortRenderUpload(j){
+  const choice=$j("jsort-array-choice");choice.replaceChildren();
+  const candidates=Array.isArray(j.candidates)?j.candidates:[];
+  if(candidates.length){const lab=document.createElement("label");lab.className="ck";lab.textContent="记录数组（可切换） ";const sel=document.createElement("select");sel.id="jsort-candidate";if(!jsort.sid){const o=document.createElement("option");o.value="";o.textContent="请选择记录数组";o.disabled=true;o.selected=true;sel.appendChild(o);}candidates.forEach(c=>{const o=document.createElement("option");const path=typeof c==="string"?c:c.path||c.name||"";o.value=path;o.textContent=(path||"根数组")+(c.n!=null?" · "+c.n+" 条":"");if(path===jsort.arrayPath&&jsort.sid)o.selected=true;sel.appendChild(o);});sel.onchange=()=>jsortUpload(jsort.lastFile,sel.value);lab.appendChild(sel);choice.appendChild(lab);}
+  const tb=$j("jsort-fields-table").querySelector("tbody");tb.replaceChildren();const fieldSel=$j("jsort-field");fieldSel.replaceChildren();
+  jsort.fields.forEach(f=>{const path=f.path||f.name||"";const tr=document.createElement("tr");if(!jsortCanSort(f))tr.className="is-disabled";[path,(f.ftype||f.type||"—")+(f.hasNull?" · 含 null/缺失":""),f.coverage==null?"—":(typeof f.coverage==="number"&&f.coverage<=1?(f.coverage*100).toFixed(1)+"%":f.coverage+"%"),Array.isArray(f.samples)?f.samples.map(jsortText).join(" · "):jsortText(f.samples),f.runs==null?"—":f.runs.toLocaleString()].forEach((v,i)=>{const td=document.createElement("td");td.textContent=String(v);if(i===0)td.className="jsort-field-name";if(i===3)td.className="jsort-examples";tr.appendChild(td);});const td=document.createElement("td");const b=document.createElement("button");b.type="button";b.className="btn ghost";b.textContent=!jsortCanSort(f)?"不可排序":"选择";b.disabled=!jsortCanSort(f);b.title=jsortCanSort(f)?"选择此字段":"复合结构或无有效值，不支持单键排序";b.onclick=()=>{fieldSel.value=path;jsortFieldHelp();$j("jsort-run-card").hidden=false;};td.appendChild(b);tr.appendChild(td);tb.appendChild(tr);if(!(!jsortCanSort(f))){const o=document.createElement("option");o.value=path;o.textContent=path+" · "+(f.ftype||f.type||"字段");fieldSel.appendChild(o);}});
+  $j("jsort-fields-card").hidden=false;$j("jsort-run-card").hidden=!jsort.sid||fieldSel.options.length===0;
+  jsortSet("jsort-upload-meta","数组路径："+(jsort.arrayPath||"（根数组）")+" · 解析："+(j.msParse==null?"—":j.msParse+" ms")+(Array.isArray(j.warnings)&&j.warnings.length?" · 警告："+j.warnings.map(jsortText).join("；"):""));jsortSet("jsort-why","");jsortSet("jsort-before",Array.isArray(j.head)?j.head.map(jsortText).join("\n"):"");jsortSet("jsort-head","等待执行排序");jsort.before=j.head||[];$j("jsort-preview-card").hidden=!Array.isArray(j.head);jsortFieldHelp();$j("jsort-download").hidden=true;$j("jsort-report").replaceChildren();
+}
+async function jsortRun(){if(!jsort.sid||!$j("jsort-field").value||jsort.busy)return;$j("jsort-download").hidden=true;jsortSetBusy(true);try{const body={sid:jsort.sid,field:$j("jsort-field").value,order:$j("jsort-order").value,nulls:$j("jsort-nulls").value};const selected=jsort.fields.find(f=>(f.path||f.name||"")===body.field);if(selected&&(selected.ftype||selected.type)==="numeric-string")body.interpret=$j("jsort-interpret").value;const r=await fetch("/api/jsort/run",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});const j=await r.json().catch(()=>({error:"服务器返回不是 JSON"}));if(!r.ok||j.error)throw new Error(j.error||("排序失败（"+r.status+"）"));jsortRenderRun(j);if(j.verify_ok!==false&&j.stable_ok!==false)jsortStatus("排序完成 · "+(j.n==null?"":j.n.toLocaleString())+" 条记录");}catch(e){jsortStatus("错误："+(e.message||e),true);}finally{jsortSetBusy(false);jsortFieldHelp();}}
+function jsortRenderRun(j){const box=$j("jsort-report");box.replaceChildren();const vals=[["策略",j.strategy||j.algo||"—"],["比较",j.cmp],["移动",j.mv],["内核登记附加空间（bytes）",j.aux_peak],["准备耗时（ms）",j.ms_prepare==null?j.ms_parse:j.ms_prepare],["排序耗时（ms）",j.ms_sort],["校验耗时（ms）",j.ms_verify],["vs 库基线",j.vs_stdsort??j.vs_stable_sort??j.vs_std_stable_sort],["校验",j.verify_ok===true?"通过":j.verify_ok===false?"失败":"未返回"],["稳定性",j.stable_ok===true?"通过":j.stable_ok===false?"失败":"未返回"]];vals.forEach(([k,v])=>{const d=document.createElement("div");d.className="kpi"+(k==="策略"?" jsort-strategy":"");const n=document.createElement("div");n.className="num";n.textContent=typeof v==="number"&&Number.isFinite(v)&&/耗时/.test(k)?v.toFixed(3):typeof v==="number"&&Number.isFinite(v)&&k==="vs 库基线"?v.toFixed(2)+"×":jsortText(v);const l=document.createElement("div");l.className="lab";l.textContent=k;d.append(n,l);box.appendChild(d);});
+  const before=Array.isArray(j.before)?j.before:j.before==null?jsort.before:[j.before];const head=Array.isArray(j.head)?j.head:j.head==null?[]:[j.head];$j("jsort-before").textContent=before.map(jsortText).join("\n");$j("jsort-head").textContent=head.map(jsortText).join("\n");$j("jsort-preview-card").hidden=false;const a=$j("jsort-download");a.hidden=false;a.href="/api/jsort/download?sid="+encodeURIComponent(jsort.sid)+"&pretty=0";jsortDownloadLink();a.removeAttribute("download");const failed=j.verify_ok===false||j.stable_ok===false;if(failed){a.hidden=true;jsortStatus("排序校验或稳定性校验失败，请勿使用结果",true);}jsortSet("jsort-why",(j.why||"")+(j.disorder?" · 输入有序度："+jsortText(j.disorder):"")+(Array.isArray(j.warnings)?" · "+j.warnings.map(jsortText).join("；"):"")+" · 统计口径：排序耗时含分桶、行号恢复及字符串精排，为预热后三轮均值；库基线仅按原值比较行号，倍数大于 1 表示本次流水线更快。附加空间只计内核登记堆空间或精排缓冲，不含解析树、键、队列及索引。");
+}
+function jsortBind(){jsortExampleButtons();const drop=$j("jsort-drop"),input=$j("jsort-file");$j("jsort-pick").onclick=()=>input.click();input.onchange=()=>{jsort.lastFile=input.files&&input.files[0];jsortUpload(jsort.lastFile);};["dragenter","dragover"].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.add("is-over");}));["dragleave","drop"].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.remove("is-over");}));drop.addEventListener("drop",e=>{jsort.lastFile=e.dataTransfer.files&&e.dataTransfer.files[0];jsortUpload(jsort.lastFile);});$j("jsort-run").onclick=jsortRun;$j("jsort-field").onchange=jsortFieldHelp;$j("jsort-pretty").onchange=jsortDownloadLink;drop.addEventListener("keydown",e=>{if(e.target===drop&&(e.key==="Enter"||e.key===" ")){e.preventDefault();input.click();}});}
+jsortBind();
+
+/* ================= 六场景总览（迁移后的惰性性能基准内容） ================= */
 let multiLoaded=false;
-function multiOnShow(){
+function summaryOnShow(){
   if(multiLoaded)return; multiLoaded=true;
   const tb=document.getElementById("tbl-multi");
   setLoading(tb,true);
