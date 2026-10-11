@@ -1,0 +1,5 @@
+PageRank(web-Google)
+n=875713 E=5105039
+iters=30 residual=7.328e-05
+map_top100_ok=1
+score.dat=875713 keys

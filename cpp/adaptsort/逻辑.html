@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AdaptSort 决策流程图</title>
+<style>
+  :root{
+    --bg:#0f1115;
+    --card:#171a21;
+    --border:#2a2f3a;
+    --text:#e6e9ef;
+    --muted:#9aa4b2;
+    --accent:#6ea8fe;
+    --accent2:#7ee787;
+    --warn:#ffd166;
+    --danger:#ff7b72;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    padding:32px 20px 64px;
+    background:linear-gradient(180deg,#0b0d12 0%,#0f1115 100%);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    line-height:1.7;
+  }
+  .wrap{max-width:1200px;margin:0 auto;}
+  h1{
+    font-size:28px;
+    margin:0 0 8px;
+    letter-spacing:.5px;
+  }
+  h1 span{color:var(--accent);}
+  .sub{color:var(--muted);margin:0 0 28px;font-size:14px;}
+  h2{
+    font-size:20px;
+    margin:36px 0 12px;
+    padding-left:10px;
+    border-left:4px solid var(--accent);
+  }
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:20px;
+    margin:16px 0 28px;
+    overflow-x:auto;
+  }
+  .mermaid{display:flex;justify-content:center;}
+  table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:14px;
+    margin-top:8px;
+  }
+  th,td{
+    border:1px solid var(--border);
+    padding:10px 12px;
+    text-align:left;
+    vertical-align:top;
+  }
+  th{background:#1e232d;color:var(--accent);font-weight:600;}
+  tr:nth-child(even) td{background:#141821;}
+  code{
+    background:#1e232d;
+    padding:2px 6px;
+    border-radius:5px;
+    font-family:"JetBrains Mono","Fira Code",Consolas,monospace;
+    font-size:13px;
+    color:var(--accent2);
+  }
+  .legend{
+    display:flex;flex-wrap:wrap;gap:14px;
+    margin:10px 0 0;
+    font-size:13px;color:var(--muted);
+  }
+  .legend b{color:var(--text);}
+  .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle;}
+  .d1{background:#6ea8fe;}
+  .d2{background:#7ee787;}
+  .d3{background:#ffd166;}
+  .d4{background:#ff7b72;}
+  .note{
+    background:#141821;
+    border-left:3px solid var(--warn);
+    padding:12px 16px;
+    border-radius:8px;
+    color:var(--muted);
+    font-size:13px;
+    margin-top:14px;
+  }
+  footer{
+    margin-top:40px;
+    color:#6b7280;
+    font-size:12px;
+    text-align:center;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>AdaptSort <span>决策流程图</span></h1>
+  <p class="sub">基于 <code>adaptsort.h</code> 实际控制流整理 · 四层结构：类型层 → 特征层 → 决策层 → 策略层</p>
+
+  <div class="legend">
+    <span><i class="dot d1"></i><b>输入/阶段</b></span>
+    <span><i class="dot d2"></i><b>策略执行</b></span>
+    <span><i class="dot d3"></i><b>判断节点</b></span>
+    <span><i class="dot d4"></i><b>回退/兜底</b></span>
+  </div>
+
+  <!-- ================= 总图 ================= -->
+  <h2>一、总体决策流程图</h2>
+  <div class="card">
+    <pre class="mermaid">
+flowchart TD
+    A([adapt_sort a, n]) --> B{n < 2?}
+    B -- 是 --> B1[S1 直接返回<br/>SmallBinaryInsert]
+    B -- 否 --> C{n <= 32?}
+    C -- 是 --> C1[S1 二分插入排序<br/>SmallBinaryInsert]
+    C -- 否 --> D[阶段A probe_order<br/>O sqrt n 采样顺序结构]
+
+    D --> E{采样一致且<br/>全量确认已升序?}
+    E -- 是 --> E1[S2 AlreadyAscending<br/>直接返回]
+    E -- 否 --> F{采样一致且<br/>全量确认已降序?}
+    F -- 是 --> F1[S3 ReverseToAscending<br/>反转数组后返回]
+    F -- 否 --> G{n <= 512 且<br/>inv_rate <= 0.05?}
+    G -- 是 --> G1[S1b SmallInsert<br/>直接插入排序]
+    G -- 否 --> H{类型 T 是整数?}
+
+    H -- 否 --> I[通用键比较类分支]
+    H -- 是 --> J[整数键分支]
+
+    %% 通用键分支
+    I --> I1{n > 512?}
+    I1 -- 是 --> I2[probe_dup 测重复率]
+    I1 -- 否 --> I3[不测重复率]
+    I2 --> I4{dup_rate >= 0.20?}
+    I3 --> I4
+    I4 -- 是 --> I5[S6 Quick3Way 三路快排]
+    I4 -- 否 --> I6{inv_rate <= 0.05?}
+    I6 -- 是 --> I7[S7 MergeSorted 边界检测归并]
+    I6 -- 否 --> I8[S8 IntroSort 内省快排]
+
+    %% 整数键分支
+    J --> J1[probe_range 测采样值域]
+    J1 --> J2{n <= 512 且<br/>sample_range+1 <= 2n?}
+    J2 -- 是 --> J3[全量扫描真实 min/max]
+    J3 --> J4{真实 k <= 8n?}
+    J4 -- 是 --> J5[S4 CountingSort 计数排序]
+    J4 -- 否 --> J6[S8 IntroSort 内省快排]
+
+    J2 -- 否 --> K[cm.prepare 准备成本模型]
+    K --> L[计算 k_est / e_count_est / scan_cost<br/>判断是否值得全量扫描值域]
+    L --> M{scan_worth?}
+    M -- 是 --> M1[全量扫描 min/max<br/>exact = true]
+    M -- 否 --> M2[用采样值域<br/>exact = false]
+    M1 --> N[计算 k, bits, passes]
+    M2 --> N
+
+    N --> O[预测比较类成本 e_cmp]
+    O --> P[预测计数成本 e_count]
+    P --> Q[预测基数成本<br/>e_radix16 / e_radix8 取较小者]
+    Q --> R{值域类是否进入竞争?<br/>e_count*MARGIN <= e_cmp<br/>或 e_radix*RMARGIN <= e_cmp}
+
+    R -- 否 --> S[落入比较类]
+    R -- 是 --> T{计数 vs 基数<br/>e_count*CMARGIN <= e_radix<br/>且 e_count*MARGIN <= e_cmp?}
+    T -- 是 --> T1[S4 CountingSort 计数排序]
+    T -- 否 --> T2[S5 RadixLSD<br/>按 radix_db 选 8/16 位]
+
+    S --> S1{n > 512?}
+    S1 -- 是 --> S2[probe_dup 测重复率]
+    S1 -- 否 --> S3[不测重复率]
+    S2 --> S4{dup_rate >= 0.20?}
+    S3 --> S4
+    S4 -- 是 --> S5[S6 Quick3Way 三路快排]
+    S4 -- 否 --> S6{inv_rate <= 0.05?}
+    S6 -- 是 --> S7[S7 MergeSorted 边界检测归并]
+    S6 -- 否 --> S8[S8 IntroSort 内省快排]
+
+    classDef input fill:#1e2a44,stroke:#6ea8fe,color:#e6e9ef;
+    classDef strat fill:#16301f,stroke:#7ee787,color:#e6e9ef;
+    classDef judge fill:#332b12,stroke:#ffd166,color:#e6e9ef;
+    classDef fallback fill:#33191a,stroke:#ff7b72,color:#e6e9ef;
+
+    class A,D,J,I,K,L input;
+    class B1,C1,E1,F1,G1,I5,I7,I8,J5,J6,T1,T2,S5,S7,S8 strat;
+    class B,C,E,F,G,H,I1,I4,I6,J2,J4,M,R,T,S1,S4,S6 judge;
+    class B1,J6,I8 fallback;
+    </pre>
+  </div>
+
+  <!-- ================= 简化图 ================= -->
+  <h2>二、简化主干图</h2>
+  <div class="card">
+    <pre class="mermaid">
+flowchart LR
+    A([输入 n]) --> B{n <= 32?}
+    B -- 是 --> B1[S1 二分插入]
+    B -- 否 --> C[采样顺序结构]
+    C --> D{已升序?}
+    D -- 是 --> D1[S2 直通]
+    D -- 否 --> E{已降序?}
+    E -- 是 --> E1[S3 反转]
+    E -- 否 --> F{n <= 512 且近似有序?}
+    F -- 是 --> F1[S1b 插入排序]
+    F -- 否 --> G{整数键?}
+    G -- 否 --> H[比较类选择]
+    G -- 是 --> I[值域类 vs 比较类竞争]
+    H --> H1{高重复?}
+    H1 -- 是 --> H2[S6 三路快排]
+    H1 -- 否 --> H3{近似有序?}
+    H3 -- 是 --> H4[S7 归并]
+    H3 -- 否 --> H5[S8 内省快排]
+    I --> I1{计数/基数明显更优?}
+    I1 -- 是 --> I2[S4 计数 / S5 基数]
+    I1 -- 否 --> H
+
+    classDef input fill:#1e2a44,stroke:#6ea8fe,color:#e6e9ef;
+    classDef strat fill:#16301f,stroke:#7ee787,color:#e6e9ef;
+    classDef judge fill:#332b12,stroke:#ffd166,color:#e6e9ef;
+    class A,C,I input;
+    class B1,D1,E1,F1,H2,H4,H5,I2 strat;
+    class B,D,E,F,G,H1,H3,I1 judge;
+    </pre>
+  </div>
+
+  <!-- ================= 分层图 ================= -->
+  <h2>三、四层结构分解</h2>
+
+  <h3 style="color:var(--accent);font-size:16px;margin:18px 0 8px;">1. 类型层</h3>
+  <div class="card">
+    <pre class="mermaid">
+flowchart TD
+    A([输入类型 T]) --> B{std::is_integral_v T?}
+    B -- 是 --> C[整数键分支<br/>可用计数/基数]
+    B -- 否 --> D[通用键分支<br/>只能比较类]
+
+    classDef input fill:#1e2a44,stroke:#6ea8fe,color:#e6e9ef;
+    classDef strat fill:#16301f,stroke:#7ee787,color:#e6e9ef;
+    classDef judge fill:#332b12,stroke:#ffd166,color:#e6e9ef;
+    class A input;
+    class C,D strat;
+    class B judge;
+    </pre>
+  </div>
+
+  <h3 style="color:var(--accent);font-size:16px;margin:18px 0 8px;">2. 特征层</h3>
+  <div class="card">
+    <pre class="mermaid">
+flowchart TD
+    A[probe_order<br/>O sqrt n 采样] --> A1[asc_sample / desc_sample]
+    A --> A2[inv_rate 逆序率]
+    A --> A3[asc_prefix 非降前缀占比]
+    A1 --> B{整数键?}
+    B -- 是 --> C[probe_range<br/>采样 min/max]
+    C --> D{需要测重复率?}
+    D -- 是 --> E[probe_dup<br/>采样重复率]
+    D -- 否 --> F[跳过]
+    B -- 否 --> D
+
+    classDef input fill:#1e2a44,stroke:#6ea8fe,color:#e6e9ef;
+    classDef strat fill:#16301f,stroke:#7ee787,color:#e6e9ef;
+    classDef judge fill:#332b12,stroke:#ffd166,color:#e6e9ef;
+    class A,A1,A2,A3,C input;
+    class E,F strat;
+    class B,D judge;
+    </pre>
+  </div>
+
+  <h3 style="color:var(--accent);font-size:16px;margin:18px 0 8px;">3. 决策层</h3>
+  <div class="card">
+    <pre class="mermaid">
+flowchart TD
+    A([特征向量]) --> B[短路规则]
+    B --> B1[极小规模 → 插入]
+    B --> B2[已升序 → 直通]
+    B --> B3[已降序 → 反转]
+    B --> B4[小规模近似有序 → 插入]
+    B --> B5[小规模窄值域 → 计数]
+    B --> C[成本模型预测]
+    C --> C1[计数成本 est_count]
+    C --> C2[基数成本 est_radix]
+    C --> C3[比较类成本 est_cmp / est_msort]
+    C1 --> D{竞争与裕度}
+    C2 --> D
+    C3 --> D
+    D --> D1[值域类胜出 → 计数/基数]
+    D --> D2[比较类胜出 → 三路/归并/内省]
+
+    classDef input fill:#1e2a44,stroke:#6ea8fe,color:#e6e9ef;
+    classDef strat fill:#16301f,stroke:#7ee787,color:#e6e9ef;
+    classDef judge fill:#332b12,stroke:#ffd166,color:#e6e9ef;
+    class A,C,C1,C2,C3 input;
+    class B1,B2,B3,B4,B5,D1,D2 strat;
+    class B,D judge;
+    </pre>
+  </div>
+
+  <h3 style="color:var(--accent);font-size:16px;margin:18px 0 8px;">4. 策略层</h3>
+  <div class="card">
+    <pre class="mermaid">
+flowchart LR
+    A([策略集合]) --> A1[S1 二分插入]
+    A --> A2[S1b 插入]
+    A --> A3[S2 已升序]
+    A --> A4[S3 降序反转]
+    A --> A5[S4 计数]
+    A --> A6[S5 基数]
+    A --> A7[S6 三路快排]
+    A --> A8[S7 边界检测归并]
+    A --> A9[S8 内省快排]
+
+    classDef input fill:#1e2a44,stroke:#6ea8fe,color:#e6e9ef;
+    classDef strat fill:#16301f,stroke:#7ee787,color:#e6e9ef;
+    class A input;
+    class A1,A2,A3,A4,A5,A6,A7,A8,A9 strat;
+    </pre>
+  </div>
+
+  <!-- ================= 总图报告版 ================= -->
+  <h2>四、报告/PPT 用总图</h2>
+  <div class="card">
+    <pre class="mermaid">
+flowchart TB
+    Start([AdaptSort]) --> R1{n <= 32?}
+    R1 -- 是 --> S1[S1 二分插入]
+    R1 -- 否 --> P[O sqrt n 采样]
+
+    P --> R2{已升序?}
+    R2 -- 是 --> S2[S2 直通]
+    R2 -- 否 --> R3{已降序?}
+    R3 -- 是 --> S3[S3 反转]
+    R3 -- 否 --> R4{n <= 512 且 inv_rate <= 0.05?}
+    R4 -- 是 --> S1b[S1b 插入]
+    R4 -- 否 --> R5{整数键?}
+
+    R5 -- 否 --> CMP[比较类决策]
+    R5 -- 是 --> VAL[值域类 vs 比较类<br/>成本模型竞争]
+
+    VAL -- 值域类胜 --> S4S5[S4 计数 / S5 基数]
+    VAL -- 比较类胜 --> CMP
+
+    CMP --> R6{dup_rate >= 0.20?}
+    R6 -- 是 --> S6[S6 三路快排]
+    R6 -- 否 --> R7{inv_rate <= 0.05?}
+    R7 -- 是 --> S7[S7 边界检测归并]
+    R7 -- 否 --> S8[S8 内省快排]
+
+    classDef input fill:#1e2a44,stroke:#6ea8fe,color:#e6e9ef;
+    classDef strat fill:#16301f,stroke:#7ee787,color:#e6e9ef;
+    classDef judge fill:#332b12,stroke:#ffd166,color:#e6e9ef;
+    class Start,P,VAL,CMP input;
+    class S1,S2,S3,S1b,S4S5,S6,S7,S8 strat;
+    class R1,R2,R3,R4,R5,R6,R7 judge;
+    </pre>
+  </div>
+
+  <!-- ================= 判断表 ================= -->
+  <h2>五、关键判断节点速查表</h2>
+  <div class="card">
+    <table>
+      <thead>
+        <tr><th>节点</th><th>条件</th><th>走向</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>极小规模</td><td><code>n &lt;= 32</code></td><td>S1 二分插入</td></tr>
+        <tr><td>已升序</td><td>采样一致 + 全量确认</td><td>S2 直通</td></tr>
+        <tr><td>已降序</td><td>采样一致 + 全量确认</td><td>S3 反转</td></tr>
+        <tr><td>小规模近似有序</td><td><code>n &lt;= 512 &amp;&amp; inv_rate &lt;= 0.05</code></td><td>S1b 插入</td></tr>
+        <tr><td>小规模窄值域</td><td><code>n &lt;= 512 &amp;&amp; sample_range+1 &lt;= 2n</code></td><td>扫描后计数或内省</td></tr>
+        <tr><td>整数键</td><td><code>is_integral_v&lt;T&gt;</code></td><td>进入值域类竞争</td></tr>
+        <tr><td>非整数键</td><td>否则</td><td>只能比较类</td></tr>
+        <tr><td>值域类胜出</td><td><code>e_count*MARGIN &lt;= e_cmp</code> 或 <code>e_radix*RMARGIN &lt;= e_cmp</code></td><td>S4 或 S5</td></tr>
+        <tr><td>计数胜基数</td><td><code>e_count*CMARGIN &lt;= e_radix</code> 且计数总体裕度过关</td><td>S4 计数</td></tr>
+        <tr><td>否则</td><td>—</td><td>S5 基数</td></tr>
+        <tr><td>比较类高重复</td><td><code>dup_rate &gt;= 0.20</code></td><td>S6 三路快排</td></tr>
+        <tr><td>比较类近似有序</td><td><code>inv_rate &lt;= 0.05</code></td><td>S7 归并</td></tr>
+        <tr><td>其他</td><td>—</td><td>S8 内省快排</td></tr>
+      </tbody>
+    </table>
+    <div class="note">
+      说明：<code>MARGIN = 1.30</code> 为计数排序进入比较类的裕度；<code>RMARGIN = 1.10</code> 为基数排序裕度；<code>CMARGIN = 1.15</code> 为计数相对基数的不对称裕度。所有成本预测均由 <code>CostModel</code> 在启动时按本机实测标定。
+    </div>
+  </div>
+
+  <footer>
+    AdaptSort 决策流程图 · 基于 adaptsort.h 整理 · Mermaid 渲染
+  </footer>
+
+</div>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'dark',
+    securityLevel: 'loose',
+    fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif',
+    flowchart: {
+      curve: 'basis',
+      padding: 14,
+      nodeSpacing: 34,
+      rankSpacing: 48,
+      useMaxWidth: true
+    },
+    themeVariables: {
+      darkMode: true,
+      background: '#171a21',
+      primaryColor: '#1e2a44',
+      primaryBorderColor: '#6ea8fe',
+      primaryTextColor: '#e6e9ef',
+      lineColor: '#6b7280',
+      secondaryColor: '#16301f',
+      tertiaryColor: '#332b12',
+      fontSize: '14px'
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+{
+ "scn": "bikesz",
+ "name": "城市骑行调度 · 深圳（国内）",
+ "domain": "城市出行/调度 —— 深圳市政府数据开放平台 共享单车企业每日订单表（2021）",
+ "source": "https://opendata.sz.gov.cn/data/dataSet/toDataDetails/29200_00403627",
+ "downloaded": "2026-10-02",
+ "keyPack": "key = gridDense<<21 | minuteOfYear（32 位）",
+ "attrBits": 0,
+ "subBits": 21,
+ "entityLabel": "起点网格(~500m)",
+ "subLabel": "年内心分钟",
+ "attrLabel": "",
+ "countLabel": "骑行量",
+ "valLabel": "—",
+ "rankModes": {
+  "pop": "热度（骑行量↓）"
+ },
+ "months_covered": [
+  7
+ ],
+ "days_note": "2021-07-01 ~ 2021-07-07（数据分布不均的存档抽样，非全量 2.44 亿）"
+}

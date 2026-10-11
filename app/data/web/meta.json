@@ -1,0 +1,23 @@
+{
+ "scn": "web",
+ "name": "网页重要性排序（搜索排序 · PageRank）",
+ "domain": "搜索引擎 —— 题目原文：搜索结果按重要性从高到低显示",
+ "source": "https://snap.stanford.edu/data/web-Google.txt.gz",
+ "downloaded": "2026-09-28",
+ "keyPack": "key = srcDense<<20 | dstDense（40 位）",
+ "attrBits": 0,
+ "subBits": 20,
+ "entityLabel": "网页",
+ "subLabel": "外链",
+ "attrLabel": "",
+ "countLabel": "外链数",
+ "valLabel": "被链接数（入度）",
+ "rankModes": {
+  "pop": "外链数（出度↓）",
+  "val": "被链接数（入度↓）"
+ },
+ "extra": [
+  "pagerank",
+  "score.dat"
+ ]
+}

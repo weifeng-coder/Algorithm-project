@@ -1,0 +1,17 @@
+后缀数组(倍增法, E.coli K-12)
+n=4641653
+对拍=OK
+总排序耗时=1697 ms
+BWT 游程=3277408 (ratio=0.7061)
+round 1,k=1,ms=95,strategy=S5 基数排序+S5 基数排序,distinct=18
+round 2,k=2,ms=91,strategy=S5 基数排序+S5 基数排序,distinct=260
+round 3,k=4,ms=94,strategy=S5 基数排序+S5 基数排序,distinct=65368
+round 4,k=8,ms=143,strategy=S5 基数排序+S5 基数排序,distinct=4544559
+round 5,k=16,ms=156,strategy=S5 基数排序+S5 基数排序,distinct=4571503
+round 6,k=32,ms=158,strategy=S5 基数排序+S5 基数排序,distinct=4582324
+round 7,k=64,ms=158,strategy=S5 基数排序+S5 基数排序,distinct=4592121
+round 8,k=128,ms=160,strategy=S5 基数排序+S5 基数排序,distinct=4602326
+round 9,k=256,ms=160,strategy=S5 基数排序+S5 基数排序,distinct=4614640
+round 10,k=512,ms=158,strategy=S5 基数排序+S5 基数排序,distinct=4631828
+round 11,k=1024,ms=164,strategy=S5 基数排序+S5 基数排序,distinct=4640885
+round 12,k=2048,ms=160,strategy=S5 基数排序+S5 基数排序,distinct=4641653

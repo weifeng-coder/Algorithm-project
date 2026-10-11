@@ -1,0 +1,24 @@
+{
+ "scn": "flight",
+ "name": "航班准点调度",
+ "domain": "航空调度/组合优化邻接 —— 长尾分布的现实数据源",
+ "source": "https://transtats.bts.gov/PREZIP/On_Time_Reporting_Carrier_On_Time_Performance_1987_present_2019_{M}.zip",
+ "downloaded": "2026-09-28",
+ "keyPack": "key = originDense<<25 | minuteOfYear<<4 | delayIdx（34 位）",
+ "attrBits": 4,
+ "subBits": 21,
+ "entityLabel": "机场",
+ "subLabel": "年内心分钟",
+ "attrLabel": "延误档",
+ "countLabel": "航班量",
+ "valLabel": "—",
+ "meanScale": 1.0,
+ "meanOffset": 0.0,
+ "rankModes": {
+  "pop": "航班量（起降架次↓）",
+  "rat": "平均延误档（延误大→小）"
+ },
+ "extra": [
+  "ledger"
+ ]
+}

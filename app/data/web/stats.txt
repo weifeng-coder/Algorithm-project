@@ -1,0 +1,7 @@
+dataset = Stanford web-Google（https://snap.stanford.edu/data/web-Google.txt.gz）
+nodes = 875713  edges = 5105039
+node id 压缩: 稀疏原始id → 稠密id (<2^20)，字典条目 875713
+max out-degree = 456 (node 89860)
+max in-degree  = 6326 (node Node #537039)
+postings.dat = 5105039 keys / 38.9 MB
+键打包: srcDense<<20 | dstDense —— 排序后线性分段即 CSR 行索引

@@ -1,0 +1,1802 @@
+[
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SBP",
+  "Dest": "SFO",
+  "DepTime": "1353",
+  "DepDelay": "-7.00",
+  "ArrDelay": "-26.00",
+  "Distance": "190.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "IAH",
+  "Dest": "XNA",
+  "DepTime": "0930",
+  "DepDelay": "-5.00",
+  "ArrDelay": "1.00",
+  "Distance": "438.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SGF",
+  "Dest": "IAH",
+  "DepTime": "0637",
+  "DepDelay": "-6.00",
+  "ArrDelay": "-17.00",
+  "Distance": "513.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "ISN",
+  "Dest": "DEN",
+  "DepTime": "1314",
+  "DepDelay": "-21.00",
+  "ArrDelay": "-29.00",
+  "Distance": "576.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "MKE",
+  "Dest": "DEN",
+  "DepTime": "0826",
+  "DepDelay": "-10.00",
+  "ArrDelay": "-31.00",
+  "Distance": "896.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SEA",
+  "Dest": "SFO",
+  "DepTime": "1600",
+  "DepDelay": "-10.00",
+  "ArrDelay": "-12.00",
+  "Distance": "679.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "BOI",
+  "DepTime": "1614",
+  "DepDelay": "-1.00",
+  "ArrDelay": "3.00",
+  "Distance": "522.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "BZN",
+  "Dest": "DEN",
+  "DepTime": "1053",
+  "DepDelay": "8.00",
+  "ArrDelay": "-14.00",
+  "Distance": "524.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SBP",
+  "Dest": "SFO",
+  "DepTime": "0624",
+  "DepDelay": "-13.00",
+  "ArrDelay": "-2.00",
+  "Distance": "190.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "DEN",
+  "Dest": "DFW",
+  "DepTime": "0759",
+  "DepDelay": "-4.00",
+  "ArrDelay": "1.00",
+  "Distance": "641.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SLC",
+  "Dest": "DEN",
+  "DepTime": "1541",
+  "DepDelay": "5.00",
+  "ArrDelay": "-4.00",
+  "Distance": "391.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "ORD",
+  "Dest": "RIC",
+  "DepTime": "0708",
+  "DepDelay": "23.00",
+  "ArrDelay": "26.00",
+  "Distance": "642.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "DEN",
+  "Dest": "COS",
+  "DepTime": "1900",
+  "DepDelay": "-5.00",
+  "ArrDelay": "-20.00",
+  "Distance": "73.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "MLI",
+  "Dest": "DEN",
+  "DepTime": "1639",
+  "DepDelay": "-12.00",
+  "ArrDelay": "-18.00",
+  "Distance": "752.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "ASE",
+  "DepTime": "1039",
+  "DepDelay": "-11.00",
+  "ArrDelay": "-40.00",
+  "Distance": "848.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "LAX",
+  "Dest": "SAN",
+  "DepTime": "0612",
+  "DepDelay": "-10.00",
+  "ArrDelay": "-19.00",
+  "Distance": "109.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SBP",
+  "Dest": "DEN",
+  "DepTime": "0519",
+  "DepDelay": "-6.00",
+  "ArrDelay": "-1.00",
+  "Distance": "931.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SLC",
+  "Dest": "ORD",
+  "DepTime": "0815",
+  "DepDelay": "-5.00",
+  "ArrDelay": "-14.00",
+  "Distance": "1250.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "DEN",
+  "Dest": "TUS",
+  "DepTime": "1526",
+  "DepDelay": "-9.00",
+  "ArrDelay": "-21.00",
+  "Distance": "639.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "MAF",
+  "Dest": "DEN",
+  "DepTime": "1309",
+  "DepDelay": "-9.00",
+  "ArrDelay": "-11.00",
+  "Distance": "563.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "ORD",
+  "Dest": "SYR",
+  "DepTime": "1804",
+  "DepDelay": "4.00",
+  "ArrDelay": "6.00",
+  "Distance": "607.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "LAX",
+  "Dest": "HDN",
+  "DepTime": "1235",
+  "DepDelay": "-6.00",
+  "ArrDelay": "-33.00",
+  "Distance": "763.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "DFW",
+  "DepTime": "0833",
+  "DepDelay": "3.00",
+  "ArrDelay": "10.00",
+  "Distance": "1464.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "LAX",
+  "Dest": "COS",
+  "DepTime": "0801",
+  "DepDelay": "-9.00",
+  "ArrDelay": "-17.00",
+  "Distance": "833.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "OKC",
+  "Dest": "DEN",
+  "DepTime": "",
+  "DepDelay": "",
+  "ArrDelay": "",
+  "Distance": "495.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "OTH",
+  "DepTime": "1133",
+  "DepDelay": "3.00",
+  "ArrDelay": "-5.00",
+  "Distance": "412.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "OKC",
+  "Dest": "ORD",
+  "DepTime": "1821",
+  "DepDelay": "0.00",
+  "ArrDelay": "-13.00",
+  "Distance": "693.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "SNA",
+  "DepTime": "1425",
+  "DepDelay": "-5.00",
+  "ArrDelay": "-9.00",
+  "Distance": "372.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "DEN",
+  "Dest": "BOI",
+  "DepTime": "1520",
+  "DepDelay": "-5.00",
+  "ArrDelay": "-13.00",
+  "Distance": "649.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "PSC",
+  "DepTime": "1257",
+  "DepDelay": "2.00",
+  "ArrDelay": "-6.00",
+  "Distance": "620.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "ORD",
+  "Dest": "BOI",
+  "DepTime": "1938",
+  "DepDelay": "8.00",
+  "ArrDelay": "-9.00",
+  "Distance": "1437.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "IAH",
+  "Dest": "SGF",
+  "DepTime": "2003",
+  "DepDelay": "-2.00",
+  "ArrDelay": "8.00",
+  "Distance": "513.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "MCI",
+  "Dest": "SFO",
+  "DepTime": "0650",
+  "DepDelay": "-5.00",
+  "ArrDelay": "-41.00",
+  "Distance": "1499.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "MCI",
+  "DepTime": "1857",
+  "DepDelay": "-11.00",
+  "ArrDelay": "-16.00",
+  "Distance": "1499.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "FAT",
+  "DepTime": "1905",
+  "DepDelay": "-7.00",
+  "ArrDelay": "-7.00",
+  "Distance": "158.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "PDX",
+  "Dest": "SFO",
+  "DepTime": "1040",
+  "DepDelay": "0.00",
+  "ArrDelay": "-5.00",
+  "Distance": "550.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "ORD",
+  "Dest": "SBN",
+  "DepTime": "1956",
+  "DepDelay": "-4.00",
+  "ArrDelay": "-5.00",
+  "Distance": "84.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "FAT",
+  "Dest": "DEN",
+  "DepTime": "0533",
+  "DepDelay": "-7.00",
+  "ArrDelay": "-5.00",
+  "Distance": "844.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "ACV",
+  "Dest": "SFO",
+  "DepTime": "1756",
+  "DepDelay": "-14.00",
+  "ArrDelay": "-13.00",
+  "Distance": "250.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "RDM",
+  "DepTime": "2240",
+  "DepDelay": "-5.00",
+  "ArrDelay": "-32.00",
+  "Distance": "462.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "SBP",
+  "DepTime": "1534",
+  "DepDelay": "-3.00",
+  "ArrDelay": "-12.00",
+  "Distance": "190.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "MFR",
+  "DepTime": "2012",
+  "DepDelay": "-3.00",
+  "ArrDelay": "6.00",
+  "Distance": "329.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "LAX",
+  "Dest": "SLC",
+  "DepTime": "2056",
+  "DepDelay": "-5.00",
+  "ArrDelay": "-8.00",
+  "Distance": "590.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "DEN",
+  "Dest": "MFR",
+  "DepTime": "1438",
+  "DepDelay": "-11.00",
+  "ArrDelay": "-21.00",
+  "Distance": "964.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "ASE",
+  "DepTime": "1650",
+  "DepDelay": "-5.00",
+  "ArrDelay": "-20.00",
+  "Distance": "848.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "MSP",
+  "DepTime": "2255",
+  "DepDelay": "10.00",
+  "ArrDelay": "-9.00",
+  "Distance": "1589.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "STS",
+  "DepTime": "2055",
+  "DepDelay": "-5.00",
+  "ArrDelay": "-25.00",
+  "Distance": "66.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "BZN",
+  "DepTime": "0746",
+  "DepDelay": "-6.00",
+  "ArrDelay": "-17.00",
+  "Distance": "807.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "COS",
+  "Dest": "DEN",
+  "DepTime": "1604",
+  "DepDelay": "-6.00",
+  "ArrDelay": "-9.00",
+  "Distance": "73.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "DEN",
+  "Dest": "SBA",
+  "DepTime": "1132",
+  "DepDelay": "-3.00",
+  "ArrDelay": "-4.00",
+  "Distance": "916.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "SBP",
+  "DepTime": "2252",
+  "DepDelay": "-4.00",
+  "ArrDelay": "20.00",
+  "Distance": "190.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "LAX",
+  "Dest": "SBP",
+  "DepTime": "0802",
+  "DepDelay": "-8.00",
+  "ArrDelay": "-1.00",
+  "Distance": "156.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "DCA",
+  "Dest": "ORD",
+  "DepTime": "1837",
+  "DepDelay": "-8.00",
+  "ArrDelay": "-17.00",
+  "Distance": "612.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "RDM",
+  "Dest": "SFO",
+  "DepTime": "1813",
+  "DepDelay": "-12.00",
+  "ArrDelay": "-4.00",
+  "Distance": "462.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "DEN",
+  "Dest": "EUG",
+  "DepTime": "1132",
+  "DepDelay": "12.00",
+  "ArrDelay": "-8.00",
+  "Distance": "996.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "LAX",
+  "Dest": "SUN",
+  "DepTime": "1220",
+  "DepDelay": "-4.00",
+  "ArrDelay": "-36.00",
+  "Distance": "696.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "FAT",
+  "Dest": "SFO",
+  "DepTime": "0854",
+  "DepDelay": "9.00",
+  "ArrDelay": "27.00",
+  "Distance": "158.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "MRY",
+  "Dest": "LAX",
+  "DepTime": "1631",
+  "DepDelay": "-9.00",
+  "ArrDelay": "-8.00",
+  "Distance": "266.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "LAX",
+  "Dest": "SAN",
+  "DepTime": "1913",
+  "DepDelay": "-3.00",
+  "ArrDelay": "-13.00",
+  "Distance": "109.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "DEN",
+  "Dest": "ASE",
+  "DepTime": "1337",
+  "DepDelay": "62.00",
+  "ArrDelay": "60.00",
+  "Distance": "125.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "LAX",
+  "Dest": "BZN",
+  "DepTime": "0759",
+  "DepDelay": "12.00",
+  "ArrDelay": "-3.00",
+  "Distance": "902.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "SNA",
+  "DepTime": "1811",
+  "DepDelay": "1.00",
+  "ArrDelay": "-6.00",
+  "Distance": "372.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "OMA",
+  "Dest": "ORD",
+  "DepTime": "0656",
+  "DepDelay": "-4.00",
+  "ArrDelay": "-2.00",
+  "Distance": "416.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "RDD",
+  "DepTime": "1239",
+  "DepDelay": "-5.00",
+  "ArrDelay": "-22.00",
+  "Distance": "199.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "RNO",
+  "DepTime": "1459",
+  "DepDelay": "-6.00",
+  "ArrDelay": "-24.00",
+  "Distance": "192.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "DEN",
+  "Dest": "ASE",
+  "DepTime": "0905",
+  "DepDelay": "760.00",
+  "ArrDelay": "794.00",
+  "Distance": "125.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "DEN",
+  "Dest": "OKC",
+  "DepTime": "1730",
+  "DepDelay": "-4.00",
+  "ArrDelay": "-11.00",
+  "Distance": "495.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SBA",
+  "Dest": "LAX",
+  "DepTime": "1021",
+  "DepDelay": "4.00",
+  "ArrDelay": "-9.00",
+  "Distance": "89.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "DFW",
+  "Dest": "LAX",
+  "DepTime": "0615",
+  "DepDelay": "-5.00",
+  "ArrDelay": "-36.00",
+  "Distance": "1235.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SBP",
+  "Dest": "LAX",
+  "DepTime": "1623",
+  "DepDelay": "-10.00",
+  "ArrDelay": "-14.00",
+  "Distance": "156.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "STS",
+  "Dest": "SFO",
+  "DepTime": "0556",
+  "DepDelay": "-4.00",
+  "ArrDelay": "-4.00",
+  "Distance": "66.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "DFW",
+  "Dest": "LAX",
+  "DepTime": "1453",
+  "DepDelay": "-2.00",
+  "ArrDelay": "-24.00",
+  "Distance": "1235.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "SEA",
+  "DepTime": "1305",
+  "DepDelay": "-5.00",
+  "ArrDelay": "-22.00",
+  "Distance": "679.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "IAH",
+  "Dest": "BHM",
+  "DepTime": "1429",
+  "DepDelay": "-2.00",
+  "ArrDelay": "10.00",
+  "Distance": "562.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "XNA",
+  "Dest": "IAH",
+  "DepTime": "1147",
+  "DepDelay": "-8.00",
+  "ArrDelay": "-7.00",
+  "Distance": "438.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "BOI",
+  "Dest": "ORD",
+  "DepTime": "1224",
+  "DepDelay": "-6.00",
+  "ArrDelay": "-23.00",
+  "Distance": "1437.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "BOI",
+  "Dest": "SFO",
+  "DepTime": "2005",
+  "DepDelay": "35.00",
+  "ArrDelay": "38.00",
+  "Distance": "522.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "LAX",
+  "Dest": "SBA",
+  "DepTime": "2238",
+  "DepDelay": "-3.00",
+  "ArrDelay": "-11.00",
+  "Distance": "89.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "SMF",
+  "DepTime": "1901",
+  "DepDelay": "-6.00",
+  "ArrDelay": "-17.00",
+  "Distance": "86.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "LAX",
+  "Dest": "SBP",
+  "DepTime": "1451",
+  "DepDelay": "-8.00",
+  "ArrDelay": "-23.00",
+  "Distance": "156.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "DEN",
+  "Dest": "COS",
+  "DepTime": "2154",
+  "DepDelay": "-11.00",
+  "ArrDelay": "-30.00",
+  "Distance": "73.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "DEN",
+  "Dest": "SAT",
+  "DepTime": "1741",
+  "DepDelay": "-5.00",
+  "ArrDelay": "-13.00",
+  "Distance": "794.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "MFR",
+  "Dest": "DEN",
+  "DepTime": "1717",
+  "DepDelay": "-13.00",
+  "ArrDelay": "-16.00",
+  "Distance": "964.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "RDD",
+  "DepTime": "1557",
+  "DepDelay": "-8.00",
+  "ArrDelay": "-22.00",
+  "Distance": "199.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "RDM",
+  "Dest": "SFO",
+  "DepTime": "2006",
+  "DepDelay": "-8.00",
+  "ArrDelay": "0.00",
+  "Distance": "462.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "LAX",
+  "Dest": "SAT",
+  "DepTime": "1929",
+  "DepDelay": "-6.00",
+  "ArrDelay": "-38.00",
+  "Distance": "1211.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SBP",
+  "Dest": "SFO",
+  "DepTime": "1704",
+  "DepDelay": "-11.00",
+  "ArrDelay": "-25.00",
+  "Distance": "190.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SUN",
+  "Dest": "LAX",
+  "DepTime": "1619",
+  "DepDelay": "-11.00",
+  "ArrDelay": "-34.00",
+  "Distance": "696.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "ATL",
+  "Dest": "ORD",
+  "DepTime": "1704",
+  "DepDelay": "-6.00",
+  "ArrDelay": "11.00",
+  "Distance": "606.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "DEN",
+  "Dest": "MMH",
+  "DepTime": "1105",
+  "DepDelay": "-10.00",
+  "ArrDelay": "-21.00",
+  "Distance": "780.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "ORD",
+  "Dest": "ASE",
+  "DepTime": "1941",
+  "DepDelay": "-9.00",
+  "ArrDelay": "-15.00",
+  "Distance": "1013.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "FAT",
+  "Dest": "LAX",
+  "DepTime": "0552",
+  "DepDelay": "-8.00",
+  "ArrDelay": "-12.00",
+  "Distance": "209.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "FAT",
+  "Dest": "LAX",
+  "DepTime": "0902",
+  "DepDelay": "-3.00",
+  "ArrDelay": "-1.00",
+  "Distance": "209.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SBA",
+  "Dest": "SFO",
+  "DepTime": "1354",
+  "DepDelay": "-6.00",
+  "ArrDelay": "-11.00",
+  "Distance": "262.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SLC",
+  "Dest": "SFO",
+  "DepTime": "1750",
+  "DepDelay": "-5.00",
+  "ArrDelay": "-5.00",
+  "Distance": "599.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "MTJ",
+  "Dest": "DEN",
+  "DepTime": "0918",
+  "DepDelay": "-12.00",
+  "ArrDelay": "-13.00",
+  "Distance": "196.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "RDD",
+  "DepTime": "2042",
+  "DepDelay": "-8.00",
+  "ArrDelay": "-10.00",
+  "Distance": "199.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "IAH",
+  "Dest": "BNA",
+  "DepTime": "1948",
+  "DepDelay": "5.00",
+  "ArrDelay": "8.00",
+  "Distance": "657.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "BOI",
+  "DepTime": "2046",
+  "DepDelay": "-6.00",
+  "ArrDelay": "-14.00",
+  "Distance": "522.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "DEN",
+  "Dest": "BFL",
+  "DepTime": "1112",
+  "DepDelay": "-3.00",
+  "ArrDelay": "-24.00",
+  "Distance": "845.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "LAX",
+  "Dest": "ACV",
+  "DepTime": "0804",
+  "DepDelay": "-10.00",
+  "ArrDelay": "-8.00",
+  "Distance": "577.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "ORD",
+  "Dest": "ASE",
+  "DepTime": "1011",
+  "DepDelay": "135.00",
+  "ArrDelay": "156.00",
+  "Distance": "1013.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "PSP",
+  "Dest": "DEN",
+  "DepTime": "1736",
+  "DepDelay": "-12.00",
+  "ArrDelay": "-11.00",
+  "Distance": "776.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "ORD",
+  "Dest": "GRB",
+  "DepTime": "1736",
+  "DepDelay": "3.00",
+  "ArrDelay": "-15.00",
+  "Distance": "173.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "DEN",
+  "Dest": "SHV",
+  "DepTime": "1238",
+  "DepDelay": "-2.00",
+  "ArrDelay": "9.00",
+  "Distance": "792.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "MSN",
+  "Dest": "SFO",
+  "DepTime": "1523",
+  "DepDelay": "3.00",
+  "ArrDelay": "-9.00",
+  "Distance": "1772.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "RDM",
+  "DepTime": "1559",
+  "DepDelay": "-6.00",
+  "ArrDelay": "-25.00",
+  "Distance": "462.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "LAX",
+  "Dest": "FAT",
+  "DepTime": "0711",
+  "DepDelay": "-9.00",
+  "ArrDelay": "-13.00",
+  "Distance": "209.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "TUS",
+  "Dest": "SFO",
+  "DepTime": "1818",
+  "DepDelay": "-7.00",
+  "ArrDelay": "-26.00",
+  "Distance": "751.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "LAX",
+  "Dest": "RNO",
+  "DepTime": "1652",
+  "DepDelay": "-8.00",
+  "ArrDelay": "-28.00",
+  "Distance": "391.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "RAP",
+  "Dest": "DEN",
+  "DepTime": "1331",
+  "DepDelay": "84.00",
+  "ArrDelay": "76.00",
+  "Distance": "300.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "STL",
+  "DepTime": "1702",
+  "DepDelay": "-8.00",
+  "ArrDelay": "-17.00",
+  "Distance": "1735.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "MAF",
+  "Dest": "DEN",
+  "DepTime": "1850",
+  "DepDelay": "85.00",
+  "ArrDelay": "90.00",
+  "Distance": "563.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "RNO",
+  "Dest": "LAX",
+  "DepTime": "1644",
+  "DepDelay": "-11.00",
+  "ArrDelay": "-15.00",
+  "Distance": "391.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SAN",
+  "Dest": "LAX",
+  "DepTime": "0813",
+  "DepDelay": "-5.00",
+  "ArrDelay": "-21.00",
+  "Distance": "109.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SBP",
+  "Dest": "DEN",
+  "DepTime": "1300",
+  "DepDelay": "-10.00",
+  "ArrDelay": "-33.00",
+  "Distance": "931.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "RIC",
+  "Dest": "ORD",
+  "DepTime": "1045",
+  "DepDelay": "15.00",
+  "ArrDelay": "1.00",
+  "Distance": "642.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "MMH",
+  "Dest": "DEN",
+  "DepTime": "1301",
+  "DepDelay": "-11.00",
+  "ArrDelay": "1.00",
+  "Distance": "780.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "RDM",
+  "DepTime": "1746",
+  "DepDelay": "-10.00",
+  "ArrDelay": "-22.00",
+  "Distance": "462.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "CHS",
+  "Dest": "ORD",
+  "DepTime": "1653",
+  "DepDelay": "-7.00",
+  "ArrDelay": "-11.00",
+  "Distance": "760.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "TUS",
+  "DepTime": "0907",
+  "DepDelay": "22.00",
+  "ArrDelay": "7.00",
+  "Distance": "751.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SLC",
+  "Dest": "SFO",
+  "DepTime": "0613",
+  "DepDelay": "-7.00",
+  "ArrDelay": "-10.00",
+  "Distance": "599.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "ASE",
+  "Dest": "IAH",
+  "DepTime": "1515",
+  "DepDelay": "-9.00",
+  "ArrDelay": "-19.00",
+  "Distance": "913.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "ORD",
+  "Dest": "DCA",
+  "DepTime": "0755",
+  "DepDelay": "-5.00",
+  "ArrDelay": "-2.00",
+  "Distance": "612.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "MFR",
+  "Dest": "SFO",
+  "DepTime": "1812",
+  "DepDelay": "2.00",
+  "ArrDelay": "-5.00",
+  "Distance": "329.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "ORD",
+  "Dest": "LIT",
+  "DepTime": "1005",
+  "DepDelay": "-5.00",
+  "ArrDelay": "-12.00",
+  "Distance": "552.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "ORD",
+  "Dest": "BOI",
+  "DepTime": "1004",
+  "DepDelay": "-1.00",
+  "ArrDelay": "-11.00",
+  "Distance": "1437.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "DEN",
+  "Dest": "COS",
+  "DepTime": "1440",
+  "DepDelay": "-2.00",
+  "ArrDelay": "-14.00",
+  "Distance": "73.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "ORD",
+  "Dest": "DCA",
+  "DepTime": "1055",
+  "DepDelay": "55.00",
+  "ArrDelay": "52.00",
+  "Distance": "612.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "ABQ",
+  "Dest": "LAX",
+  "DepTime": "1236",
+  "DepDelay": "5.00",
+  "ArrDelay": "-4.00",
+  "Distance": "677.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "ASE",
+  "Dest": "ORD",
+  "DepTime": "1715",
+  "DepDelay": "34.00",
+  "ArrDelay": "17.00",
+  "Distance": "1013.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "ABQ",
+  "DepTime": "1602",
+  "DepDelay": "-8.00",
+  "ArrDelay": "-27.00",
+  "Distance": "896.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "ASE",
+  "Dest": "ORD",
+  "DepTime": "0754",
+  "DepDelay": "-6.00",
+  "ArrDelay": "1.00",
+  "Distance": "1013.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "DEN",
+  "Dest": "MAF",
+  "DepTime": "0952",
+  "DepDelay": "-3.00",
+  "ArrDelay": "-6.00",
+  "Distance": "563.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "DEN",
+  "Dest": "AUS",
+  "DepTime": "1430",
+  "DepDelay": "-6.00",
+  "ArrDelay": "-10.00",
+  "Distance": "775.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "ASE",
+  "Dest": "SFO",
+  "DepTime": "1507",
+  "DepDelay": "47.00",
+  "ArrDelay": "30.00",
+  "Distance": "848.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "ASE",
+  "Dest": "SFO",
+  "DepTime": "1910",
+  "DepDelay": "-10.00",
+  "ArrDelay": "-11.00",
+  "Distance": "848.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "FAT",
+  "DepTime": "2237",
+  "DepDelay": "2.00",
+  "ArrDelay": "9.00",
+  "Distance": "158.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "DEN",
+  "Dest": "EGE",
+  "DepTime": "1504",
+  "DepDelay": "-6.00",
+  "ArrDelay": "-16.00",
+  "Distance": "120.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "LAX",
+  "Dest": "SAN",
+  "DepTime": "2225",
+  "DepDelay": "-10.00",
+  "ArrDelay": "-15.00",
+  "Distance": "109.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "FAT",
+  "Dest": "DEN",
+  "DepTime": "1057",
+  "DepDelay": "12.00",
+  "ArrDelay": "-2.00",
+  "Distance": "844.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "ORD",
+  "Dest": "ASE",
+  "DepTime": "1224",
+  "DepDelay": "106.00",
+  "ArrDelay": "71.00",
+  "Distance": "1013.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "STL",
+  "Dest": "ORD",
+  "DepTime": "1849",
+  "DepDelay": "-6.00",
+  "ArrDelay": "-10.00",
+  "Distance": "258.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "FSD",
+  "Dest": "DEN",
+  "DepTime": "1720",
+  "DepDelay": "0.00",
+  "ArrDelay": "-11.00",
+  "Distance": "483.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "MRY",
+  "DepTime": "2225",
+  "DepDelay": "-5.00",
+  "ArrDelay": "-15.00",
+  "Distance": "77.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "LAX",
+  "Dest": "BOI",
+  "DepTime": "0714",
+  "DepDelay": "-6.00",
+  "ArrDelay": "-13.00",
+  "Distance": "674.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "GJT",
+  "Dest": "DEN",
+  "DepTime": "0916",
+  "DepDelay": "-9.00",
+  "ArrDelay": "-15.00",
+  "Distance": "212.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "EGE",
+  "Dest": "DEN",
+  "DepTime": "1254",
+  "DepDelay": "-1.00",
+  "ArrDelay": "1.00",
+  "Distance": "120.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "ORD",
+  "Dest": "DTW",
+  "DepTime": "1800",
+  "DepDelay": "-5.00",
+  "ArrDelay": "-4.00",
+  "Distance": "235.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "BHM",
+  "Dest": "IAH",
+  "DepTime": "1653",
+  "DepDelay": "3.00",
+  "ArrDelay": "14.00",
+  "Distance": "562.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "IAH",
+  "Dest": "SHV",
+  "DepTime": "2131",
+  "DepDelay": "1.00",
+  "ArrDelay": "14.00",
+  "Distance": "192.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "TUS",
+  "Dest": "DEN",
+  "DepTime": "0637",
+  "DepDelay": "-3.00",
+  "ArrDelay": "54.00",
+  "Distance": "639.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "DEN",
+  "Dest": "MTJ",
+  "DepTime": "0743",
+  "DepDelay": "-8.00",
+  "ArrDelay": "-12.00",
+  "Distance": "196.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SBN",
+  "Dest": "ORD",
+  "DepTime": "1157",
+  "DepDelay": "20.00",
+  "ArrDelay": "-7.00",
+  "Distance": "84.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "DEN",
+  "Dest": "COS",
+  "DepTime": "1802",
+  "DepDelay": "-6.00",
+  "ArrDelay": "-14.00",
+  "Distance": "73.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "DEN",
+  "Dest": "FAT",
+  "DepTime": "1507",
+  "DepDelay": "-8.00",
+  "ArrDelay": "-16.00",
+  "Distance": "844.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "EUG",
+  "Dest": "DEN",
+  "DepTime": "1306",
+  "DepDelay": "-4.00",
+  "ArrDelay": "-16.00",
+  "Distance": "996.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "SBP",
+  "DepTime": "1859",
+  "DepDelay": "-11.00",
+  "ArrDelay": "-5.00",
+  "Distance": "190.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "DEN",
+  "Dest": "RNO",
+  "DepTime": "1540",
+  "DepDelay": "-5.00",
+  "ArrDelay": "-7.00",
+  "Distance": "804.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "DEN",
+  "Dest": "PDX",
+  "DepTime": "1513",
+  "DepDelay": "-2.00",
+  "ArrDelay": "1.00",
+  "Distance": "991.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "EUG",
+  "Dest": "SFO",
+  "DepTime": "1820",
+  "DepDelay": "-10.00",
+  "ArrDelay": "-14.00",
+  "Distance": "451.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SNA",
+  "Dest": "SFO",
+  "DepTime": "2019",
+  "DepDelay": "-6.00",
+  "ArrDelay": "2.00",
+  "Distance": "372.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "DEN",
+  "Dest": "ASE",
+  "DepTime": "1736",
+  "DepDelay": "-9.00",
+  "ArrDelay": "-22.00",
+  "Distance": "125.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "ORD",
+  "Dest": "ASE",
+  "DepTime": "1534",
+  "DepDelay": "-1.00",
+  "ArrDelay": "-4.00",
+  "Distance": "1013.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "FAT",
+  "Dest": "SFO",
+  "DepTime": "0943",
+  "DepDelay": "-2.00",
+  "ArrDelay": "24.00",
+  "Distance": "158.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "SBA",
+  "DepTime": "2239",
+  "DepDelay": "-1.00",
+  "ArrDelay": "2.00",
+  "Distance": "262.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "RDM",
+  "DepTime": "0757",
+  "DepDelay": "-8.00",
+  "ArrDelay": "-17.00",
+  "Distance": "462.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "MRY",
+  "Dest": "DEN",
+  "DepTime": "1255",
+  "DepDelay": "-10.00",
+  "ArrDelay": "-27.00",
+  "Distance": "959.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "IAH",
+  "Dest": "ASE",
+  "DepTime": "1926",
+  "DepDelay": "81.00",
+  "ArrDelay": "66.00",
+  "Distance": "913.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "EGE",
+  "Dest": "DEN",
+  "DepTime": "1635",
+  "DepDelay": "-4.00",
+  "ArrDelay": "-10.00",
+  "Distance": "120.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "DEN",
+  "Dest": "PSP",
+  "DepTime": "1911",
+  "DepDelay": "6.00",
+  "ArrDelay": "-1.00",
+  "Distance": "776.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "ORD",
+  "Dest": "PIT",
+  "DepTime": "1405",
+  "DepDelay": "-6.00",
+  "ArrDelay": "-1.00",
+  "Distance": "413.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "AUS",
+  "Dest": "LAX",
+  "DepTime": "1830",
+  "DepDelay": "-5.00",
+  "ArrDelay": "0.00",
+  "Distance": "1242.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "LAX",
+  "Dest": "RNO",
+  "DepTime": "2044",
+  "DepDelay": "-11.00",
+  "ArrDelay": "-36.00",
+  "Distance": "391.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SNA",
+  "Dest": "SFO",
+  "DepTime": "1631",
+  "DepDelay": "-9.00",
+  "ArrDelay": "-19.00",
+  "Distance": "372.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "LAX",
+  "Dest": "ASE",
+  "DepTime": "1041",
+  "DepDelay": "56.00",
+  "ArrDelay": "49.00",
+  "Distance": "737.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "LAX",
+  "Dest": "SLC",
+  "DepTime": "0810",
+  "DepDelay": "-5.00",
+  "ArrDelay": "-1.00",
+  "Distance": "590.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "LAX",
+  "Dest": "ABQ",
+  "DepTime": "0904",
+  "DepDelay": "4.00",
+  "ArrDelay": "11.00",
+  "Distance": "677.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "PDX",
+  "Dest": "DEN",
+  "DepTime": "1746",
+  "DepDelay": "-4.00",
+  "ArrDelay": "-4.00",
+  "Distance": "991.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "EUG",
+  "DepTime": "1101",
+  "DepDelay": "21.00",
+  "ArrDelay": "5.00",
+  "Distance": "451.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "JAC",
+  "DepTime": "1037",
+  "DepDelay": "-9.00",
+  "ArrDelay": "-5.00",
+  "Distance": "737.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "ELP",
+  "Dest": "IAH",
+  "DepTime": "1213",
+  "DepDelay": "-7.00",
+  "ArrDelay": "-11.00",
+  "Distance": "667.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "IAH",
+  "Dest": "JAN",
+  "DepTime": "1621",
+  "DepDelay": "1.00",
+  "ArrDelay": "6.00",
+  "Distance": "351.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "MMH",
+  "DepTime": "0904",
+  "DepDelay": "-8.00",
+  "ArrDelay": "4.00",
+  "Distance": "193.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "BNA",
+  "Dest": "ORD",
+  "DepTime": "0858",
+  "DepDelay": "98.00",
+  "ArrDelay": "74.00",
+  "Distance": "409.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "DEN",
+  "Dest": "EGE",
+  "DepTime": "1118",
+  "DepDelay": "-3.00",
+  "ArrDelay": "-6.00",
+  "Distance": "120.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "RNO",
+  "Dest": "LAX",
+  "DepTime": "0622",
+  "DepDelay": "-8.00",
+  "ArrDelay": "21.00",
+  "Distance": "391.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "LAX",
+  "Dest": "BOI",
+  "DepTime": "1708",
+  "DepDelay": "-11.00",
+  "ArrDelay": "-36.00",
+  "Distance": "674.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "ACV",
+  "DepTime": "1921",
+  "DepDelay": "-9.00",
+  "ArrDelay": "-33.00",
+  "Distance": "250.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SLC",
+  "Dest": "DEN",
+  "DepTime": "0918",
+  "DepDelay": "28.00",
+  "ArrDelay": "30.00",
+  "Distance": "391.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "MSN",
+  "DepTime": "0842",
+  "DepDelay": "7.00",
+  "ArrDelay": "6.00",
+  "Distance": "1772.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SLC",
+  "Dest": "DEN",
+  "DepTime": "1158",
+  "DepDelay": "2.00",
+  "ArrDelay": "-4.00",
+  "Distance": "391.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "DEN",
+  "Dest": "BNA",
+  "DepTime": "1905",
+  "DepDelay": "75.00",
+  "ArrDelay": "70.00",
+  "Distance": "1014.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "DRO",
+  "Dest": "DEN",
+  "DepTime": "0934",
+  "DepDelay": "-6.00",
+  "ArrDelay": "-1.00",
+  "Distance": "250.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "EGE",
+  "Dest": "DEN",
+  "DepTime": "0726",
+  "DepDelay": "-4.00",
+  "ArrDelay": "-10.00",
+  "Distance": "120.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "SFO",
+  "Dest": "BUR",
+  "DepTime": "0714",
+  "DepDelay": "-6.00",
+  "ArrDelay": "-15.00",
+  "Distance": "326.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "TUS",
+  "Dest": "DEN",
+  "DepTime": "0800",
+  "DepDelay": "-15.00",
+  "ArrDelay": "37.00",
+  "Distance": "639.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "MRY",
+  "Dest": "DEN",
+  "DepTime": "0752",
+  "DepDelay": "-8.00",
+  "ArrDelay": "-8.00",
+  "Distance": "959.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "DEN",
+  "Dest": "OKC",
+  "DepTime": "1522",
+  "DepDelay": "10.00",
+  "ArrDelay": "8.00",
+  "Distance": "495.00"
+ },
+ {
+  "FlightDate": "2019-01-04",
+  "Origin": "MCI",
+  "Dest": "DEN",
+  "DepTime": "0604",
+  "DepDelay": "-6.00",
+  "ArrDelay": "-8.00",
+  "Distance": "533.00"
+ }
+]

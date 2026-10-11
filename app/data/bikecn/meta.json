@@ -1,0 +1,22 @@
+{
+ "scn": "bikecn",
+ "name": "城市骑行调度 · 北京（国内）",
+ "domain": "城市出行/调度 —— 国内真实骑行数据（2017 摩拜杯算法挑战赛，北京城区）",
+ "source": "https://github.com/only-changer/Mobike-Cup（摩拜杯 2017 训练数据公开镜像）",
+ "downloaded": "2026-10-02",
+ "keyPack": "key = gridDense<<21 | minuteOfYear（32 位）",
+ "attrBits": 0,
+ "subBits": 21,
+ "entityLabel": "起点网格(~500m)",
+ "subLabel": "年内心分钟",
+ "attrLabel": "",
+ "countLabel": "骑行量",
+ "valLabel": "—",
+ "rankModes": {
+  "pop": "热度（骑行量↓）"
+ },
+ "months_covered": [
+  5
+ ],
+ "days_note": "2017-05-10 ~ 05-24（data7=05-17 镜像缺失，0 字节）"
+}
