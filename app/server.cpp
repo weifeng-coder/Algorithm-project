@@ -45,6 +45,8 @@
 #include "webgraph.h"
 #include "sufarray.h"
 #include "adaptsort.h"
+#include "json_in.h"
+#include "jsort.h"
 
 using namespace std;
 using namespace sb;
@@ -87,11 +89,16 @@ struct Frames {
     }
 };
 
-typedef void (*AnimFn)(vector<int> a, Frames& F);
+typedef void (*AnimFn)(vector<int> a, Frames& F, int order);
 
-static void anim_bubble(vector<int> a, Frames& F) {
+static int animCmp(int x, int y, int order) {
+    int c = (x > y) - (x < y);
+    return order == -1 ? -c : c;
+}
+
+static void anim_bubble(vector<int> a, Frames& F, int order) {
     long long c = 0, m = 0; int n = (int)a.size();
-    auto cmp = [&](int x, int y) { c++; return (x > y) - (x < y); };
+    auto cmp = [&](int x, int y) { c++; return animCmp(x, y, order); };
     for (int i = 0; i < n - 1; i++) {
         bool sw = false;
         for (int j = 0; j < n - 1 - i; j++) {
@@ -102,9 +109,9 @@ static void anim_bubble(vector<int> a, Frames& F) {
     F.push(a, c, m, -1, -1);
 }
 
-static void anim_insertion(vector<int> a, Frames& F) {
+static void anim_insertion(vector<int> a, Frames& F, int order) {
     long long c = 0, m = 0; int n = (int)a.size();
-    auto cmp = [&](int x, int y) { c++; return (x > y) - (x < y); };
+    auto cmp = [&](int x, int y) { c++; return animCmp(x, y, order); };
     for (int i = 1; i < n; i++) {
         int key = a[i]; m++;
         int j = i - 1;
@@ -114,9 +121,9 @@ static void anim_insertion(vector<int> a, Frames& F) {
     F.push(a, c, m, -1, -1);
 }
 
-static void anim_selection(vector<int> a, Frames& F) {
+static void anim_selection(vector<int> a, Frames& F, int order) {
     long long c = 0, m = 0; int n = (int)a.size();
-    auto cmp = [&](int x, int y) { c++; return (x > y) - (x < y); };
+    auto cmp = [&](int x, int y) { c++; return animCmp(x, y, order); };
     for (int i = 0; i < n - 1; i++) {
         int sel = i;
         for (int j = i + 1; j < n; j++) if (cmp(a[j], a[sel]) < 0) sel = j;
@@ -125,9 +132,9 @@ static void anim_selection(vector<int> a, Frames& F) {
     F.push(a, c, m, -1, -1);
 }
 
-static void anim_shell(vector<int> a, Frames& F) {
+static void anim_shell(vector<int> a, Frames& F, int order) {
     long long c = 0, m = 0; int n = (int)a.size();
-    auto cmp = [&](int x, int y) { c++; return (x > y) - (x < y); };
+    auto cmp = [&](int x, int y) { c++; return animCmp(x, y, order); };
     for (int gap = n / 2; gap > 0; gap /= 2)
         for (int i = gap; i < n; i++) {
             int key = a[i]; m++;
@@ -138,8 +145,8 @@ static void anim_shell(vector<int> a, Frames& F) {
     F.push(a, c, m, -1, -1);
 }
 
-static void anim_quick_rec(vector<int>& a, int l, int r, long long& c, long long& m, Frames& F) {
-    auto cmp = [&](int x, int y) { c++; return (x > y) - (x < y); };
+static void anim_quick_rec(vector<int>& a, int l, int r, long long& c, long long& m, Frames& F, int order) {
+    auto cmp = [&](int x, int y) { c++; return animCmp(x, y, order); };
     if (l >= r) return;
     int pivot = a[(l + r) / 2];   /* 确定性枢轴（动画版取中点） */
     int i = l, j = r;
@@ -151,18 +158,18 @@ static void anim_quick_rec(vector<int>& a, int l, int r, long long& c, long long
             i++; j--;
         }
     }
-    anim_quick_rec(a, l, j, c, m, F);
-    anim_quick_rec(a, i, r, c, m, F);
+    anim_quick_rec(a, l, j, c, m, F, order);
+    anim_quick_rec(a, i, r, c, m, F, order);
 }
-static void anim_quick(vector<int> a, Frames& F) {
+static void anim_quick(vector<int> a, Frames& F, int order) {
     long long c = 0, m = 0;
-    anim_quick_rec(a, 0, (int)a.size() - 1, c, m, F);
+    anim_quick_rec(a, 0, (int)a.size() - 1, c, m, F, order);
     F.push(a, c, m, -1, -1);
 }
 
-static void anim_heap(vector<int> a, Frames& F) {
+static void anim_heap(vector<int> a, Frames& F, int order) {
     long long c = 0, m = 0; int n = (int)a.size();
-    auto cmp = [&](int x, int y) { c++; return (x > y) - (x < y); };
+    auto cmp = [&](int x, int y) { c++; return animCmp(x, y, order); };
     auto sift = [&](int start, int end) {
         int i = start, j = 2 * i + 1;
         int tmp = a[i]; m++;
@@ -179,12 +186,12 @@ static void anim_heap(vector<int> a, Frames& F) {
     F.push(a, c, m, -1, -1);
 }
 
-static void anim_merge_rec(vector<int>& a, vector<int>& t, int l, int r, long long& c, long long& m, Frames& F) {
-    auto cmp = [&](int x, int y) { c++; return (x > y) - (x < y); };
+static void anim_merge_rec(vector<int>& a, vector<int>& t, int l, int r, long long& c, long long& m, Frames& F, int order) {
+    auto cmp = [&](int x, int y) { c++; return animCmp(x, y, order); };
     if (l >= r) return;
     int mid = l + (r - l) / 2;
-    anim_merge_rec(a, t, l, mid, c, m, F);
-    anim_merge_rec(a, t, mid + 1, r, c, m, F);
+    anim_merge_rec(a, t, l, mid, c, m, F, order);
+    anim_merge_rec(a, t, mid + 1, r, c, m, F, order);
     /* 动画帧会把已归并前缀写回 a；保留本区间源快照，避免覆盖
      * 尚未读取的元素后继续从 a 读取，造成中间帧丢值。 */
     vector<int> src(a.begin() + l, a.begin() + r + 1);
@@ -210,10 +217,10 @@ static void anim_merge_rec(vector<int>& a, vector<int>& t, int l, int r, long lo
     while (i <= mid) { t[k++] = src[i++ - l]; m++; for (int p = l; p < k; p++) a[p] = t[p]; emit(i - 1, -1); }
     while (j <= r)   { t[k++] = src[j++ - l]; m++; for (int p = l; p < k; p++) a[p] = t[p]; emit(-1, j - 1); }
 }
-static void anim_merge(vector<int> a, Frames& F) {
+static void anim_merge(vector<int> a, Frames& F, int order) {
     long long c = 0, m = 0;
     vector<int> t(a.size());
-    anim_merge_rec(a, t, 0, (int)a.size() - 1, c, m, F);
+    anim_merge_rec(a, t, 0, (int)a.size() - 1, c, m, F, order);
     F.push(a, c, m, -1, -1);
 }
 
@@ -238,7 +245,7 @@ struct PlacementView {
     }
 };
 
-static void anim_radix(vector<int> a, Frames& F) {
+static void anim_radix(vector<int> a, Frames& F, int order) {
     long long c = 0, m = 0; int n = (int)a.size();
     vector<int> tmp(n);
     F.push(a, c, m, -1, -1);   /* 初始帧：未排序原貌（否则首帧已是第一趟结果） */
@@ -248,12 +255,14 @@ static void anim_radix(vector<int> a, Frames& F) {
         for (int i = 0; i < n; i++) {
             unsigned key = (unsigned)a[i] >> (pass * 8);
             if (pass == 3) key ^= 0x80;  /* signed int: negatives precede positives */
+            if (order == -1) key = ~key;
             cnt[key & 255]++;
         }
         for (int k = 1; k < 256; k++) cnt[k] += cnt[k - 1];
         for (int i = n - 1; i >= 0; i--) {
             unsigned key = (unsigned)a[i] >> (pass * 8);
             if (pass == 3) key ^= 0x80;
+            if (order == -1) key = ~key;
             int dst = --cnt[key & 255];
             tmp[dst] = a[i]; m++;
             int from = view.place(i, dst);
@@ -265,18 +274,18 @@ static void anim_radix(vector<int> a, Frames& F) {
     F.push(a, c, m, -1, -1);
 }
 
-static void anim_counting(vector<int> a, Frames& F) {
+static void anim_counting(vector<int> a, Frames& F, int order) {
     long long c = 0, m = 0; int n = (int)a.size();
     if (n <= 0) { F.push(a, 0, 0, -1, -1); return; }
     int mn = *min_element(a.begin(), a.end()), mx = *max_element(a.begin(), a.end());
     int k = mx - mn + 1;
     vector<int> cnt(k, 0);
-    for (int i = 0; i < n; i++) cnt[a[i] - mn]++;
+    for (int i = 0; i < n; i++) cnt[order == -1 ? mx - a[i] : a[i] - mn]++;
     /* 计数前缀和确定稳定输出中的源下标，再从左向右展示目标位。
      * 不能直接覆盖原数组，否则中间帧会重复/丢失尚未处理的元素。 */
     for (int v = 1; v < k; ++v) cnt[v] += cnt[v - 1];
     vector<int> sources(n);
-    for (int i = n - 1; i >= 0; --i) sources[--cnt[a[i] - mn]] = i;
+    for (int i = n - 1; i >= 0; --i) sources[--cnt[order == -1 ? mx - a[i] : a[i] - mn]] = i;
     PlacementView view(a);
     F.push(a, c, m, -1, -1);
     for (int idx = 0; idx < n; ++idx) {
@@ -287,26 +296,28 @@ static void anim_counting(vector<int> a, Frames& F) {
     F.push(view.values, c, m, -1, -1);
 }
 
-static void anim_adapt(vector<int> a, Frames& F) {
+static void anim_adapt(vector<int> a, Frames& F, int order) {
     /* 先用真 AdaptSort 决策（不计帧），再回放对应策略的动画。
      * 注意 a 会 adapt_sort 原地排好 —— 必须保留一份原始序列给策略动画。 */
     vector<int> orig = a;
     adapt_sort(a.data(), (int)a.size());
+    if (order == -1) reverse(a.begin(), a.end());
     Strat st = last_strategy();
     F.strategy = strat_name(st);
     switch (st) {
         case Strat::AlreadyAscending: F.push(orig, 0, 0, -1, -1); F.push(a, 0, 0, -1, -1); return;  /* 直通 */
         case Strat::ReverseToAscending: {
+            if (order == -1) { F.push(orig, 0, 0, -1, -1); return; }
             long long c = 0, m = 0; int n = (int)orig.size();
             for (int i = 0, j = n - 1; i < j; i++, j--) { swap(orig[i], orig[j]); m += 3; F.push(orig, c, m, i, j); }
             F.push(orig, c, m, -1, -1); return;
         }
-        case Strat::CountingSort:      anim_counting(orig, F); return;
-        case Strat::RadixLSD:          anim_radix(orig, F); return;
+        case Strat::CountingSort:      anim_counting(orig, F, order); return;
+        case Strat::RadixLSD:          anim_radix(orig, F, order); return;
         case Strat::Quick3Way:
-        case Strat::IntroSort:         anim_quick(orig, F); return;
-        case Strat::MergeSorted:       anim_merge(orig, F); return;
-        default:                       anim_insertion(orig, F); return;
+        case Strat::IntroSort:         anim_quick(orig, F, order); return;
+        case Strat::MergeSorted:       anim_merge(orig, F, order); return;
+        default:                       anim_insertion(orig, F, order); return;
     }
 }
 
@@ -1006,6 +1017,7 @@ static string apiScnTopk(const string& scn, int k, const string& cat,
 }
 
 static string apiSortSteps(const string& algo, int n, const string& dist, int order) {
+    order = order == -1 ? -1 : 1;
     if (n < 2) n = 2;
     if (n > 10000) n = 10000;
     vector<int> a(n);
@@ -1037,7 +1049,7 @@ static string apiSortSteps(const string& algo, int n, const string& dist, int or
     AnimFn fn = animOf(algo);
     Frames F;
     F.budget = max(200, min(720, 1600000 / max(n, 1)));   /* 大 n 抽帧，控制 JSON 体积 */
-    if (fn) fn(a, F);
+    if (fn) fn(a, F, order);
     ostringstream o;
     o << "{\"algo\":\"" << algo << "\",\"strategy\":\"" << jsonEscape(F.strategy)
       << "\",\"n\":" << n << ",\"order\":" << order << ",\"frames\":[";
@@ -1070,7 +1082,8 @@ static void adaptWrapInt(int* a, int n, int order, SortStats* st) {
     }
 }
 
-static string apiSortRun(const string& algo, int n, const string& dist) {
+static string apiSortRun(const string& algo, int n, const string& dist, int order) {
+    order = order == -1 ? -1 : 1;
     struct A { const char* id; SortFunc fn; };
     A algos[] = {
         {"insertion", insertionSort}, {"bubble", bubbleSort}, {"selection", selectSort},
@@ -1088,12 +1101,12 @@ static string apiSortRun(const string& algo, int n, const string& dist) {
     else if (dist == "asc") d = DIST_SORTED_ASC;
     else if (dist == "desc") d = DIST_SORTED_DESC;
     unsigned seed = 1000003u * (unsigned)n + 97u;
-    BenchTime bt = bench_time(fn, n, 1, d, seed);
+    BenchTime bt = bench_time(fn, n, order, d, seed);
     SortStats st;
-    int ok = bench_count(fn, n, 1, d, seed, algo.c_str(), &st, nullptr);
+    int ok = bench_count(fn, n, order, d, seed, algo.c_str(), &st, nullptr);
     ostringstream o;
     o << "{\"algo\":\"" << algo << "\",\"n\":" << n << ",\"dist\":\"" << dist
-      << "\",\"min_ms\":" << bt.min_ms << ",\"med_ms\":" << bt.med_ms
+      << "\",\"order\":" << order << ",\"min_ms\":" << bt.min_ms << ",\"med_ms\":" << bt.med_ms
       << ",\"std_ms\":" << bt.std_ms << ",\"cmp\":" << st.compares
       << ",\"mv\":" << st.moves << ",\"aux\":" << st.aux_peak
       << ",\"ok\":" << ok << "}";
@@ -1132,125 +1145,122 @@ static void urlDecode(const string& in, string& out) {
 }
 
 struct Request {
+    string method;
     string path;
     map<string, string> q;
+    string body;
 };
 
-static bool handleClient(SOCKET c) {
-    string req;
-    char buf[4096];
-    int r;
-    while ((r = recv(c, buf, sizeof(buf) - 1, 0)) > 0) {
-        req.append(buf, r);
-        if (req.find("\r\n\r\n") != string::npos) break;
-        if (req.size() > 65536) break;
+static bool sendAll(SOCKET c, const string& data) {
+    size_t off = 0;
+    while (off < data.size()) {
+        int n = send(c, data.data() + off, (int)min<size_t>(65536, data.size() - off), 0);
+        if (n <= 0) return false;
+        off += (size_t)n;
     }
-    size_t sp1 = req.find(' ');
-    size_t sp2 = req.find(' ', sp1 + 1);
+    return true;
+}
+
+static bool handleClient(SOCKET c) {
+    const size_t MAX_HTTP_BODY = 32u * 1024u * 1024u;
+    string req;
+    char buf[8192];
+    size_t hdrEnd = string::npos;
+    while (hdrEnd == string::npos) {
+        int r = recv(c, buf, sizeof(buf), 0);
+        if (r <= 0) return false;
+        req.append(buf, r);
+        hdrEnd = req.find("\r\n\r\n");
+        if (req.size() > 65536 && hdrEnd == string::npos) return false;
+    }
+    size_t sp1 = req.find(' '), sp2 = req.find(' ', sp1 + 1);
     if (sp1 == string::npos || sp2 == string::npos) return false;
-    string full = req.substr(sp1 + 1, sp2 - sp1 - 1);
-    string path = full, query;
-    size_t qm = full.find('?');
-    if (qm != string::npos) { path = full.substr(0, qm); query = full.substr(qm + 1); }
-    Request R{path};
-    {
-        size_t pos = 0;
-        while (pos < query.size()) {
-            size_t amp = query.find('&', pos);
-            if (amp == string::npos) amp = query.size();
-            string kv = query.substr(pos, amp - pos);
-            size_t eq = kv.find('=');
-            if (eq != string::npos) {
-                string k, v;
-                urlDecode(kv.substr(0, eq), k);
-                urlDecode(kv.substr(eq + 1), v);
-                R.q[k] = v;
-            }
-            pos = amp + 1;
+    Request R; R.method = req.substr(0, sp1);
+    string full = req.substr(sp1 + 1, sp2 - sp1 - 1), query;
+    size_t qm = full.find('?'); R.path = qm == string::npos ? full : full.substr(0, qm);
+    if (qm != string::npos) query = full.substr(qm + 1);
+    size_t pos = 0;
+    while (pos < query.size()) {
+        size_t amp = query.find('&', pos); if (amp == string::npos) amp = query.size();
+        string kv = query.substr(pos, amp - pos), k, v; size_t eq = kv.find('=');
+        if (eq != string::npos) { urlDecode(kv.substr(0, eq), k); urlDecode(kv.substr(eq + 1), v); R.q[k] = v; }
+        pos = amp + 1;
+    }
+    size_t contentLength = 0; bool hasLength = false, chunked = false;
+    size_t hs = req.find("\r\n") + 2;
+    while (hs < hdrEnd) {
+        size_t he = req.find("\r\n", hs); if (he == string::npos || he > hdrEnd) break;
+        string line = req.substr(hs, he - hs); size_t colon = line.find(':');
+        if (colon != string::npos) {
+            string key = line.substr(0, colon), val = line.substr(colon + 1);
+            for (char& c : key) c = (char)tolower((unsigned char)c);
+            while (!val.empty() && (val[0] == ' ' || val[0] == '\t')) val.erase(val.begin());
+            if (key == "content-length") { char* ep=nullptr; unsigned long long n=strtoull(val.c_str(),&ep,10); if(!ep||*ep||n>MAX_HTTP_BODY) { string e="{\"error\":\"payload too large\"}"; string h="HTTP/1.1 413 Payload Too Large\r\nContent-Type: application/json\r\nContent-Length: "+to_string(e.size())+"\r\nConnection: close\r\n\r\n"+e; sendAll(c,h); return false; } contentLength=(size_t)n; hasLength=true; }
+            if (key == "transfer-encoding" && val.find("chunked") != string::npos) chunked=true;
         }
+        hs = he + 2;
+    }
+    if (R.method == "POST") {
+        if (chunked) { string e="{\"error\":\"chunked transfer encoding is unsupported\"}"; string h="HTTP/1.1 501 Not Implemented\r\nContent-Type: application/json\r\nContent-Length: "+to_string(e.size())+"\r\nConnection: close\r\n\r\n"+e; sendAll(c,h); return false; }
+        if (!hasLength) { string e="{\"error\":\"Content-Length required\"}"; string h="HTTP/1.1 411 Length Required\r\nContent-Type: application/json\r\nContent-Length: "+to_string(e.size())+"\r\nConnection: close\r\n\r\n"+e; sendAll(c,h); return false; }
+        size_t have = req.size() - (hdrEnd + 4); if (have > contentLength) req.resize(hdrEnd + 4 + contentLength);
+        while (have < contentLength) { int r=recv(c,buf,sizeof(buf),0); if(r<=0) break; req.append(buf,r); have+=r; if(have>MAX_HTTP_BODY){req.resize(hdrEnd+4+contentLength);break;} }
+        if (have < contentLength) { string e="{\"error\":\"request body truncated\"}"; string h="HTTP/1.1 400 Bad Request\r\nContent-Type: application/json\r\nContent-Length: "+to_string(e.size())+"\r\nConnection: close\r\n\r\n"+e; sendAll(c,h); return false; }
+        R.body.assign(req.data()+hdrEnd+4, contentLength);
     }
 
     string body, ctype = "application/json; charset=utf-8";
-    if (R.path == "/" || R.path == "/index.html") {
-        body = readFileOr(g_wwwdir + "/index.html", "<h1>index.html missing</h1>");
-        ctype = "text/html; charset=utf-8";
-    } else if (R.path == "/echarts.min.js") {
-        body = readFileOr(g_wwwdir + "/echarts.min.js", "/* missing */");
-        ctype = "application/javascript";
-    } else if (R.path.compare(0, 8, "/assets/") == 0) {
-        string rel = R.path.substr(8);
-        bool ok = !rel.empty() && rel.size() <= 96 && rel.find("..") == string::npos;
-        for (char c : rel)
-            if (ok && !((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')
-                        || c == '_' || c == '-' || c == '.' || c == '/')) ok = false;
-        body = ok ? readFileOr(g_wwwdir + "/assets/" + rel, "") : "";
-        if (body.empty()) {
-            body = "{\"error\":\"not found\"}";
-            ctype = "application/json; charset=utf-8";
-            string nf = "HTTP/1.1 404 Not Found\r\nContent-Type: " + ctype +
-                        "\r\nContent-Length: " + to_string(body.size()) +
-                        "\r\nConnection: close\r\n\r\n" + body;
-            send(c, nf.c_str(), (int)nf.size(), 0);
-            return false;
-        }
-        if (rel.size() >= 4 && rel.substr(rel.size()-4) == ".jpg") ctype = "image/jpeg";
-        else if (rel.size() >= 4 && rel.substr(rel.size()-4) == ".png") ctype = "image/png";
-        else if (rel.size() >= 4 && rel.substr(rel.size()-4) == ".svg") ctype = "image/svg+xml";
-        else ctype = "application/octet-stream";
-    } else if (R.path == "/api/stats") body = apiStats();
+    int status = 200;
+    try {
+    if (R.path == "/" || R.path == "/index.html") { body = readFileOr(g_wwwdir + "/index.html", "<h1>index.html missing</h1>"); ctype = "text/html; charset=utf-8"; }
+    else if (R.path == "/echarts.min.js") { body = readFileOr(g_wwwdir + "/echarts.min.js", "/* missing */"); ctype = "application/javascript"; }
+    else if (R.path == "/api/jsort/upload" && R.method == "POST") body = jsort::upload(R.body, R.q.count("arrayPath") ? R.q["arrayPath"] : "", R.q.count("arrayPath"), R.q.count("name") ? R.q["name"] : "upload.json");
+    else if (R.path == "/api/jsort/run" && R.method == "POST") body = jsort::run(R.body);
+    else if (R.path == "/api/jsort/download" && R.method == "GET") { body = jsort::download(R.q.count("sid") ? R.q["sid"] : "", R.q.count("pretty") && R.q["pretty"] == "1"); ctype="application/json; charset=utf-8"; }
+    else if (R.path == "/api/stats") body = apiStats();
     else if (R.path == "/api/genres") body = apiGenres();
     else if (R.path == "/api/regions") body = apiRegions();
     else if (R.path == "/api/movies/search") body = apiSearch(R.q.count("q") ? R.q["q"] : "", R.q.count("limit") ? atoi(R.q["limit"].c_str()) : 10);
     else if (R.path == "/api/movies/topk") body = apiTopK(R.q.count("k") ? atoi(R.q["k"].c_str()) : 20, R.q.count("genre") ? R.q["genre"] : "(all)", R.q.count("minvotes") ? atoll(R.q["minvotes"].c_str()) : 0, R.q.count("mode") ? R.q["mode"] : "pop", R.q.count("region") ? R.q["region"] : "");
     else if (R.path == "/api/sort/steps") body = apiSortSteps(R.q.count("algo") ? R.q["algo"] : "bubble", R.q.count("n") ? atoi(R.q["n"].c_str()) : 32, R.q.count("dist") ? R.q["dist"] : "uniform", R.q.count("order") ? atoi(R.q["order"].c_str()) : 1);
-    else if (R.path == "/api/sort/run") body = apiSortRun(R.q.count("algo") ? R.q["algo"] : "quick", R.q.count("n") ? atoi(R.q["n"].c_str()) : 100000, R.q.count("dist") ? R.q["dist"] : "uniform");
+    else if (R.path == "/api/sort/run") body = apiSortRun(R.q.count("algo") ? R.q["algo"] : "quick", R.q.count("n") ? atoi(R.q["n"].c_str()) : 100000, R.q.count("dist") ? R.q["dist"] : "uniform", R.q.count("order") ? atoi(R.q["order"].c_str()) : 1);
     else if (R.path == "/api/bench/data") { body = apiBenchData(R.q.count("name") ? R.q["name"] : ""); ctype = "text/csv; charset=utf-8"; }
     else if (R.path == "/api/scn/list") body = apiScnList();
-    else if (R.path == "/api/scn/meta") {
-        string s = R.q.count("scn") ? R.q["scn"] : "";
-        body = scnOk(s) ? readFileOr(g_datadir + "/" + s + "/meta.json", "{\"error\":\"no meta\"}")
-                        : string("{\"error\":\"bad scn\"}");
+    else if (R.path == "/api/scn/meta") { string s=R.q.count("scn")?R.q["scn"]:""; body=scnOk(s)?readFileOr(g_datadir+"/"+s+"/meta.json","{\"error\":\"no meta\"}"):"{\"error\":\"bad scn\"}"; }
+    else if (R.path == "/api/scn/stats") body=apiScnStats(R.q.count("scn")?R.q["scn"]:"");
+    else if (R.path == "/api/scn/cats") body=apiScnCats(R.q.count("scn")?R.q["scn"]:"");
+    else if (R.path == "/api/scn/search") body=apiScnSearch(R.q.count("scn")?R.q["scn"]:"",R.q.count("q")?R.q["q"]:"",R.q.count("limit")?atoi(R.q["limit"].c_str()):10);
+    else if (R.path == "/api/scn/topk") body=apiScnTopk(R.q.count("scn")?R.q["scn"]:"",R.q.count("k")?atoi(R.q["k"].c_str()):20,R.q.count("cat")?R.q["cat"]:"(all)",R.q.count("mincount")?atoll(R.q["mincount"].c_str()):0,R.q.count("mode")?R.q["mode"]:"pop");
+    else if (R.path == "/api/gene/info") body=readFileOr(g_datadir+"/gene/gene_stats.json","{}");
+    else if (R.path == "/api/gene/search") body=sa::apiSearch(R.q.count("pat")?R.q["pat"]:"");
+    else if (R.path.compare(0, 8, "/assets/") == 0) {
+        string rel = R.path.substr(8);
+        bool ok = !rel.empty() && rel.size() <= 96 && rel.find("..") == string::npos;
+        for (char ch : rel) if (ok && !((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9') || ch == '_' || ch == '-' || ch == '.' || ch == '/')) ok = false;
+        body = ok ? readFileOr(g_wwwdir + "/assets/" + rel, "") : "";
+        if (body.empty()) { body="{\"error\":\"not found\"}"; status=404; }
+        else if (rel.size()>=4 && rel.substr(rel.size()-4)==".jpg") ctype="image/jpeg";
+        else if (rel.size()>=4 && rel.substr(rel.size()-4)==".png") ctype="image/png";
+        else if (rel.size()>=4 && rel.substr(rel.size()-4)==".svg") ctype="image/svg+xml";
+        else ctype="application/octet-stream";
     }
-    else if (R.path == "/api/scn/stats") body = apiScnStats(R.q.count("scn") ? R.q["scn"] : "");
-    else if (R.path == "/api/scn/cats") body = apiScnCats(R.q.count("scn") ? R.q["scn"] : "");
-    else if (R.path == "/api/scn/search")
-        body = apiScnSearch(R.q.count("scn") ? R.q["scn"] : "",
-                            R.q.count("q") ? R.q["q"] : "",
-                            R.q.count("limit") ? atoi(R.q["limit"].c_str()) : 10);
-    else if (R.path == "/api/scn/topk")
-        body = apiScnTopk(R.q.count("scn") ? R.q["scn"] : "",
-                          R.q.count("k") ? atoi(R.q["k"].c_str()) : 20,
-                          R.q.count("cat") ? R.q["cat"] : "(all)",
-                          R.q.count("mincount") ? atoll(R.q["mincount"].c_str()) : 0,
-                          R.q.count("mode") ? R.q["mode"] : "pop");
     else if (R.path == "/api/scn/extra") {
-        string s = R.q.count("scn") ? R.q["scn"] : "";
-        string fl = R.q.count("file") ? R.q["file"] : "";
-        bool fok = !fl.empty() && fl.size() <= 48 && fl.find("..") == string::npos;
-        for (char c : fl) if (fok && !((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_' || c == '.')) fok = false;
-        body = (scnOk(s) && fok) ? readFileOr(g_datadir + "/" + s + "/" + fl, "{}")
-                                 : string("{\"error\":\"bad params\"}");
+        string s=R.q.count("scn")?R.q["scn"]:"", fl=R.q.count("file")?R.q["file"]:"";
+        bool fok=!fl.empty()&&fl.size()<=48&&fl.find("..") == string::npos;
+        for(char ch:fl) if(fok&&!((ch>='a'&&ch<='z')||(ch>='0'&&ch<='9')||ch=='_'||ch=='.'))fok=false;
+        body=(scnOk(s)&&fok)?readFileOr(g_datadir+"/"+s+"/"+fl,"{}"):"{\"error\":\"bad params\"}";
     }
-    else if (R.path == "/api/gene/info") body = readFileOr(g_datadir + "/gene/gene_stats.json", "{}");
-    else if (R.path == "/api/gene/search") body = sa::apiSearch(R.q.count("pat") ? R.q["pat"] : "");
-    else { body = "{\"error\":\"not found\"}"; ctype = "application/json; charset=utf-8";
-        string notfound = "HTTP/1.1 404 Not Found\r\nContent-Type: " + ctype + "\r\nContent-Length: " + to_string(body.size()) + "\r\nConnection: close\r\n\r\n" + body;
-        send(c, notfound.c_str(), (int)notfound.size(), 0);
-        return false;
-    }
-    string resp = "HTTP/1.1 200 OK\r\nContent-Type: " + ctype +
-                  "\r\nContent-Length: " + to_string(body.size()) +
-                  "\r\nConnection: close\r\n\r\n" + body;
-    size_t off = 0;
-    while (off < resp.size()) {
-        int s = send(c, resp.data() + off, (int)min<size_t>(65536, resp.size() - off), 0);
-        if (s <= 0) break;
-        off += s;
-    }
-    return true;
+    else if (R.path.compare(0,11,"/api/jsort/")==0) { body="{\"error\":\"method not allowed\"}"; status=405; }
+    else if (R.method != "GET") { body="{\"error\":\"method not allowed\"}"; status=405; }
+    else { body="{\"error\":\"not found\"}"; status=404; }
+    } catch (const jsort::Failure& ex) { body=string("{\"error\":\"")+jsonEscape(ex.what())+"\"}"; status=ex.status; }
+      catch (const std::exception& ex) { body=string("{\"error\":\"")+jsonEscape(ex.what())+"\"}"; status=500; }
+    string resp = string("HTTP/1.1 ") + to_string(status) + (status==200?" OK":" Error") + "\r\nContent-Type: " + ctype + "\r\nContent-Length: " + to_string(body.size()) + "\r\nConnection: close\r\n\r\n" + body;
+    if (R.path == "/api/jsort/download" && status == 200) resp = string("HTTP/1.1 200 OK\r\nContent-Type: application/json; charset=utf-8\r\nContent-Disposition: attachment; filename=\"") + jsort::filename(R.q.count("sid") ? R.q["sid"] : "") + "\"\r\nContent-Length: " + to_string(body.size()) + "\r\nConnection: close\r\n\r\n" + body;
+    sendAll(c, resp); return true;
 }
 
-static int runServer() {
+static int runServer(int port = 8080) {
     WSADATA wsa;
     if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) { printf("WSAStartup failed\n"); return 1; }
     printf("[CineRank] 加载数据 (%s) ...\n", g_datadir.c_str());
@@ -1267,16 +1277,19 @@ static int runServer() {
     SOCKET srv = socket(AF_INET, SOCK_STREAM, 0);
     sockaddr_in addr{};
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(8080);
+    addr.sin_port = htons((u_short)port);
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
     int yes = 1;
     setsockopt(srv, SOL_SOCKET, SO_REUSEADDR, (const char*)&yes, sizeof(yes));
-    if (bind(srv, (sockaddr*)&addr, sizeof(addr)) < 0) { printf("bind 8080 failed\n"); return 1; }
+    if (bind(srv, (sockaddr*)&addr, sizeof(addr)) < 0) { printf("bind %d failed\n", port); return 1; }
     listen(srv, 16);
-    printf("[CineRank] UI 已就绪:  http://127.0.0.1:8080   (Ctrl+C 退出)\n");
+    printf("[CineRank] UI 已就绪:  http://127.0.0.1:%d   (Ctrl+C 退出)\n", port);
     for (;;) {
         SOCKET c = accept(srv, nullptr, nullptr);
         if (c == INVALID_SOCKET) continue;
+        DWORD receiveTimeout = 10000, sendTimeout = 30000;
+        setsockopt(c, SOL_SOCKET, SO_RCVTIMEO, (const char*)&receiveTimeout, sizeof(receiveTimeout));
+        setsockopt(c, SOL_SOCKET, SO_SNDTIMEO, (const char*)&sendTimeout, sizeof(sendTimeout));
         handleClient(c);
         closesocket(c);
     }
@@ -1303,8 +1316,13 @@ int main(int argc, char** argv) {
     if (mode == "topk")     return runTopK(tag);
     if (mode == "pagerank") return wg::runPageRank(g_datadir, g_resdir);
     if (mode == "sufarr")   return sa::runSufArr(g_datadir, g_resdir);
+    if (mode == "jsorttest") return jsort::selftest();
 #ifdef _WIN32
-    if (mode == "server")   return runServer();
+    if (mode == "server") {
+        int port = argc > 3 ? atoi(argv[3]) : 8080;
+        if (port < 1 || port > 65535) { printf("bad port\n"); return 1; }
+        return runServer(port);
+    }
 #endif
     printf("用法: sort_demo_app <selftest|matrix|extsort|topk|pagerank|sufarr|server> [data目录]\n");
     return 0;

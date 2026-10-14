@@ -6,10 +6,10 @@
 #undef main
 
 static bool checkFrames(const vector<int>& input, AnimFn animate, const string& label,
-                        int budget = 720) {
+                        int budget = 720, int order = 1) {
     Frames frames;
     frames.budget = budget;
-    animate(input, frames);
+    animate(input, frames, order);
     vector<int> expected = input;
     sort(expected.begin(), expected.end());
     if (frames.arrs.empty() || frames.arrs.size() != frames.meta.size()) {
@@ -29,7 +29,9 @@ static bool checkFrames(const vector<int>& input, AnimFn animate, const string& 
             return false;
         }
     }
-    if (frames.arrs.front() != input || frames.arrs.back() != expected ||
+    vector<int> ordered = expected;
+    if (order == -1) reverse(ordered.begin(), ordered.end());
+    if (frames.arrs.front() != input || frames.arrs.back() != ordered ||
         (int)frames.arrs.size() > budget) {
         cerr << label << ": incorrect initial/final frame or frame budget\n";
         return false;
@@ -61,5 +63,25 @@ int main() {
     g_drng = 20260928u;
     for (int& value : wide) value = (int)(drng01() * 10000);
     ok = checkFrames(wide, anim_radix, "radix n=10000 sampled", 200) && ok;
+    for (const vector<int>& input : vector<vector<int>>{
+             {9, 1, 7, 1, 3, 0, 9, 2},
+             {-10000, 256, -1, 0, 9999, -256, -1},
+             {1, 2, 3, 4, 5}, {5, 4, 3, 2, 1}, {5, 5, 5, 5}}) {
+        for (AnimFn animate : {anim_radix, anim_counting})
+            ok = checkFrames(input, animate, "descending signed/duplicate/ordered", 720, -1) && ok;
+        for (const string algo : {"bubble", "insertion", "selection", "shell", "quick", "heap", "merge", "radix", "adapt"}) {
+            for (int order : {1, -1}) {
+                Frames frames;
+                animOf(algo)(input, frames, order);
+                vector<int> expected = input;
+                sort(expected.begin(), expected.end());
+                if (order == -1) reverse(expected.begin(), expected.end());
+                if (frames.arrs.empty() || frames.arrs.back() != expected) {
+                    cerr << algo << " order=" << order << ": incorrect final frame\n";
+                    ok = false;
+                }
+            }
+        }
+    }
     return ok ? 0 : 1;
 }
